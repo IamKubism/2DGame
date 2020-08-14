@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Jobs>
+  <Job Id ="" Name= "" FunctionFile ="" Time="">
+    <ComponentString name ="" value =""></ComponentString>
+    <ComponentFloat name ="" value =""></ComponentFloat>
+    <EndFunction name =""></EndFunction>
+    <CancelFunction name =""></CancelFunction>
+    <CreatedFunction name =""></CreatedFunction>
+    <JobStringReq name ="" reqFunction =""></JobStringReq>
+  </Job>
+</Jobs>

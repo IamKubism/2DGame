@@ -1,0 +1,34 @@
+{
+    "GameMode_Build": {
+        "name": "Build",
+        "restrictedActions": [
+            "BuildMode"
+        ],
+        "clickActions": {
+            "GameActionCurson_ChangeFloor": 0,
+            "GameActionCurson_CameraControl": 1
+        },
+        "defaultClickActionId": "GameActionCurson_ChangeFloor",
+        "baseActions": [
+            "OpenInventory",
+            "RPGMode",
+            "BuildTileTipe",
+            "BuildFurniture"
+        ]
+    },
+    "GameMode_RPG": {
+        "name": "RPG",
+        "restrictedActions": [
+            "RPGMode"
+        ],
+        "clickActions": {
+
+        },
+        "defaultClickActionId": "",
+        "baseActions": [
+            "SpawnItem",
+            "BuildMode",
+            "OpenInventory"
+        ]
+    }
+}

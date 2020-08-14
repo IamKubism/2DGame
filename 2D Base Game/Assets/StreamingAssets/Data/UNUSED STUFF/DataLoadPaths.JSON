@@ -1,0 +1,37 @@
+[
+    {
+        "Type": "TileTypes",
+        "Path": [
+            "Tiles",
+            "TileTypeData.JSON"
+        ]
+    },
+    {
+        "Type": "FurniturePrototypes",
+        "Path": [
+            "Furniture",
+            "FurnitureData.JSON"
+        ]
+    },
+    {
+        "Type": "BodyPartPrototypes",
+        "Path": [
+            "BodyParts",
+            "HumanBodyData.JSON"
+        ]
+    },
+    {
+        "Type": "JobPrototypes",
+        "Path": [
+            "Jobs",
+            "JobData.JSON"
+        ]
+    },
+    {
+        "Type": "InventoryPrototypes",
+        "Path": [
+            "InventoryItems",
+            "InventoryData.JSON"
+        ]
+    }
+]

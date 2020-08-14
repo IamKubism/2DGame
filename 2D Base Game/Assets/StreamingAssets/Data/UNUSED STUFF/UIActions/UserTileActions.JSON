@@ -1,0 +1,27 @@
+{
+    "ChangeTileType": {
+        "actionName": "ChangeTileType",
+        "functionData": {
+
+        },
+        "stringArguments": {
+            "tileType": "TileType_Empty"
+        },
+        "floatArguments": {
+
+        }
+    },
+    "BuildFurniture": {
+        "actionName": "BuildFurniture",
+        "functionData": {
+
+        },
+        "stringArguments": {
+            "furnitureType": "Furniture_Wall_Stone"
+        },
+        "floatArguments": {
+
+        }
+
+    }
+}

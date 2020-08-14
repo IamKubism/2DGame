@@ -1,0 +1,23 @@
+[
+    {
+        "Type": "base_components",
+        "Path": [
+            "BaseComponents",
+            "BaseComponents.JSON"
+        ]
+    },
+    {
+        "Type": "tile_prototypes",
+        "Path": [
+            "Tiles",
+            "PrototypeTiles.JSON"
+        ]
+    },
+    {
+        "Type": "character_prototypes",
+        "Path": [
+            "CharacterTemplates",
+            "PrototypeCharacter.JSON"
+        ]
+    }
+]

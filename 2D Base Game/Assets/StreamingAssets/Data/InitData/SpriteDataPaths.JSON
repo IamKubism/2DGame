@@ -1,0 +1,20 @@
+[
+    {
+        "Type": "Sprites",
+        "Path": [
+            "Furniture.JSON"
+        ]
+    },
+    {
+        "Type": "Sprites",
+        "Path": [
+            "Tiles.JSON"
+        ]
+    },
+    {
+        "Type": "Sprites",
+        "Path": [
+            "Character.JSON"
+        ]
+    }
+]

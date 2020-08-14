@@ -1,0 +1,31 @@
+{
+    "prototypes": {
+        "character": {
+            "prototype_name": "character",
+            "components": {
+                "RenderComponent": {
+                    "state": {
+                        "layer_name": "Characters",
+                        "sprite_name": "charSprite"
+                    }
+                }
+            },
+            "component_info": {
+                "Position": {
+                    "component_name": "Position",
+                    "component_type": "Position",
+                    "system_location": "entity_positions",
+                    "load_priority": 0,
+                    "variable": true
+                },
+                "RenderComponent" : {
+                    "component_name": "RenderComponent",
+                    "component_type": "RenderComponent",
+                    "system_location": "render_components",
+                    "load_priority": 2,
+                    "variable": false
+                }
+            }
+        }
+    }
+}

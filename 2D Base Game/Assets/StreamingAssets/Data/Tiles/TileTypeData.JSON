@@ -1,0 +1,21 @@
+{
+    "entity_type_class": "tile_type",
+    "prototypes": {
+        "empty": {
+            "string_id": "empty",
+            "display_name": "Empty",
+            "movement_cost": 0
+        },
+        "stone_rough": {
+            "string_id": "stone_rough",
+            "display_name": "Rough Stone",
+            "movement_cost": 1
+        },
+        "error": {
+            "string_id": "error",
+            "display_name": "ERROR",
+            "movement_cost": 1
+        }
+    },
+    "default_type_val": "error"
+}

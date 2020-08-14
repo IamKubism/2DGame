@@ -1,0 +1,42 @@
+{
+    "components": {
+        "Position": {
+            "type": "Position",
+            "data": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        },
+        "Terrain": {
+            "type": "Terrain",
+            "data": {
+                "move_cost": -1
+            }
+        },
+        "RenderComponent": {
+            "type": "RenderComponent",
+            "data": {
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                },
+                "state": {
+                    "sprite_name": "NULL",
+                    "layer_name": "NULL"
+                }
+            }
+        },
+        "Cell": {
+            "type": "Cell",
+            "data": {
+                "position": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
+            }
+        }
+    }
+}

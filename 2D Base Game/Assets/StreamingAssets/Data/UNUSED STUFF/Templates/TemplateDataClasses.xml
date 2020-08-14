@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Templates>
+	<Furniture objectType="" name ="" width ="" length ="" movementCost ="" linksToNeighbor ="" roomDivider ="">
+		<Param name ="" value =""></Param>
+		<UpdateFunction name = ""></UpdateFunction>
+	</Furniture>
+	<InventoryItem NameId="" MaxStack = "" Equipable ="" Installable ="">
+		<CompFloat Name = "" StartVal =""></CompFloat>
+		<CompString Name ="" StartVal =""></CompString>
+	</InventoryItem>
+</Templates>

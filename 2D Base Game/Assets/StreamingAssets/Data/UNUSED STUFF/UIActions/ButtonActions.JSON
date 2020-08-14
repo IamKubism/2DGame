@@ -1,0 +1,11 @@
+{
+    "ChangeTileActionType": {
+        "name": "ChangeTileActionType",
+        "displayName": "",
+        "functionData": [
+            {
+                "scriptName": "SetActiveBuildAction"
+            }
+        ]
+    }
+}

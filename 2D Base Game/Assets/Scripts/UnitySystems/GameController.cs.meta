@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: b393a4be3145aa74695960f75dd1d916
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - functionality: {instanceID: 0}
+  - mouseController: {instanceID: 0}
+  - worldController: {instanceID: 0}
+  - buildModeController: {instanceID: 0}
+  - gactionscontroller: {instanceID: 0}
+  - spriteManager: {fileID: 11400000, guid: f27008c6d906cf449836d72fadba316a, type: 2}
+  - fspriteManager: {fileID: 11400000, guid: a85f01200699c5e43b200c5d2a0c4057, type: 2}
+  - cspriteManager: {fileID: 11400000, guid: 744198fae9542b640b5f0fc26851fc5e, type: 2}
+  - jspriteManager: {fileID: 11400000, guid: d2edda815525926438b46fa79e3ee912, type: 2}
+  - tspriteManager: {fileID: 11400000, guid: 40d8da6f4e9a5524ea4b9f92d6297c60, type: 2}
+  - userData: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

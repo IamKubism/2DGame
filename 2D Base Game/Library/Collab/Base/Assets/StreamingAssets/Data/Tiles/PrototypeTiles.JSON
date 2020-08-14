@@ -1,0 +1,41 @@
+{
+    "prototypes": {
+        "tile": {
+            "prototype_name": "tile",
+            "components": {
+                "Position": {},
+                "NodeEffect": {
+                    "base_cost": 1,
+                    "properties": [ "no_floor" ]
+                },
+                "RenderComponent": {
+                    "sprite_layer": "Ground",
+                    "sprite_name": "tile_empty"
+                }
+            },
+            "variable_components": {
+                "Position":  "entity_positions"
+            },
+            "system_names": {
+                "Position": "entity_positions",
+                "NodeEffect": "node_effects",
+                "RenderComponent": "render_components"
+            },
+            "component_load_priorities": {
+                "Position": 0,
+                "NodeEffect": 1,
+                "RenderComponent": 2
+            }
+        },
+        "tile_stone_rough": {
+            "extends": "tile",
+            "prototype_name": "tile_stone_rough",
+            "components": {
+                "RenderComponent": { "sprite_name": "tile_stone_rough" },
+                "NodeEffect": {
+                    "properties": []
+                }
+            }
+        }
+    }
+}

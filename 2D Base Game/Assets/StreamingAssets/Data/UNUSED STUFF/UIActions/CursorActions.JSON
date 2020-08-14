@@ -1,0 +1,39 @@
+{
+    "GameActionCurson_CameraControl": {
+        "actionName": "GameActionCurson_CameraControl",
+        "defaultCursorNum": 1,
+        "Functions": [
+            {
+                "scriptName": "SetStoredCursorVal",
+                "valuePairs": { "whereToLoad": "OnClick" }
+            },
+            {
+                "scriptName": "ChangeCameraPos",
+                "valuePairs": { "whereToLoad": "OnHold" }
+            },
+            {
+                "scriptName": "ChangeZoomVal",
+                "valuePairs": { "whereToLoad": "WhileOver" }
+            }
+        ]
+
+    },
+    "GameActionCurson_ChangeFloor": {
+        "actionName": "GameActionCurson_ChangeFloor",
+        "defaultCursorNum": 0,
+        "Functions": [
+            {
+                "scriptName": "SetStoredCursorVal",
+                "valuePairs": { "whereToLoad": "OnClick" }
+            },
+            {
+                "scriptName": "DisplayDragArea",
+                "valuePairs": { "whereToLoad": "OnHold" }
+            },
+            {
+                "scriptName": "ActivateTileAction",
+                "valuePairs": { "whereToLoad": "AfterClick" }
+            }
+        ]
+    }
+}

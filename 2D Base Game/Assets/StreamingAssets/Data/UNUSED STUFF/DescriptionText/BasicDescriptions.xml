@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Descriptions>
+  <Description TargetType ="Character" Id ="CharacterBasic" Text ="This is [Name]!">
+    <Descriptor Name ="Name" Target ="[Name]"></Descriptor>
+    <DescText Id = "0" Text ="This is [Name]!"></DescText>
+    <OtherDescription Id ="DescribeBody"></OtherDescription>
+  </Description>
+  <Description TargetType ="Body" Id ="DescribeBody" Text ="Their Body consists of: \n">
+    <DescText Id ="0" Text ="Their Body Consists of:"></DescText>
+  </Description>
+  <Description TargetType ="Character" Id ="CharacterName" Text ="[Name]">
+    <Descriptor Name ="Name" Target ="[Name]"></Descriptor>
+    <DescText Id ="0" Text ="[Name]"></DescText>
+  </Description>
+</Descriptions>

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Jobs>
+  <Job Id ="Move" Type="All" FunctionName ="Move">
+  </Job>
+  <Job Id ="BuildWall" Type="Build"></Job>
+</Jobs>

@@ -1,0 +1,20 @@
+[
+    {
+        "fileName": "DungeonTerrain.png",
+        "objName": "tile_stone_rough",
+        "x1": 748,
+        "y1": 625,
+        "width": 32,
+        "height": 32,
+        "pixels": 32
+    },
+    {
+        "fileName": "dcsssprites.png",
+        "objName": "tile_empty",
+        "x1": 480,
+        "y1": 2144,
+        "width": 32,
+        "height": 32,
+        "pixels": 32
+    }
+]

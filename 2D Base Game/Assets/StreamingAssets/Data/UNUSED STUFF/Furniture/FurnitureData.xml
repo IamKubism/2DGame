@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Furnitures>
+	<Furniture objectType="Wall_Wood" name ="Wooden Wall" width ="1" length ="1" movementCost ="0" linksToNeighbor ="1" roomDivider ="0">
+	</Furniture>
+	<Furniture objectType="Door_Wood" name ="Wooden Door" width ="1" length ="1" movementCost ="1" linksToNeighbor ="1" roomDivider ="0">
+		<Param name ="Openness" value ="0"></Param>
+		<Param name ="Openning" value ="0"></Param>
+		<UpdateFunction name = "OpenDoor"></UpdateFunction>
+	</Furniture>
+	<Furniture objectType="CraftingBench" name ="Crafting Bench" width="1" length ="1" movementCost ="10" linksToNeighbor ="1" roomDivider ="1">
+	</Furniture>
+</Furnitures>

@@ -1,0 +1,16 @@
+[
+    {
+        "Type": "Furniture",
+        "Path": [
+            "DataBasedLUA",
+            "LuaFurniture.LUA"
+        ]
+    },
+    {
+        "Type": "Job",
+        "Path": [
+            "Job",
+            "LuaJobs.LUA"
+        ]
+    }
+]

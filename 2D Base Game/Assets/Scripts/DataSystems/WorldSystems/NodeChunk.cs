@@ -1,0 +1,77 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
+
+namespace HighKings
+{
+    public class NodeChunk
+    {
+        /// <summary>
+        /// This is really just a coordination of the entities dictionary
+        /// </summary>
+        public Entity[,,] tiles { get; protected set; }
+
+        /// <summary>
+        /// Stores all Tile entities in this chunk
+        /// </summary>
+        public Dictionary<string, Entity> entities { get; protected set; }
+
+        public int len_x { get; protected set; }
+        public int len_y { get; protected set; }
+        public int len_z { get; protected set; }
+
+        Positions positions;
+
+        public NodeChunk(int len_x, int len_y, int len_z)
+        {
+            string[] ids = new string[len_x * len_y * len_z];
+            tiles = new Entity[len_x, len_y, len_z];
+            this.len_x = len_x;
+            this.len_y = len_y;
+            this.len_z = len_z;
+            Dictionary<Entity, Dictionary<string, object[]>> args = new Dictionary<Entity, Dictionary<string, object[]>>();
+            for (int x = 0; x < len_x; x += 1)
+            {
+                for (int y = 0; y < len_y; y += 1)
+                {
+                    for (int z = 0; z < len_z; z += 1)
+                    {
+                        ids[x + y * len_x + z * len_x * len_y] = $"tile_{x}_{y}_{z}";
+                    }
+                }
+            }
+            entities = EntityManager.instance.CreateEntities("tile", ids);
+            for (int x = 0; x < len_x; x += 1)
+            {
+                for (int y = 0; y < len_y; y += 1)
+                {
+                    for (int z = 0; z < len_z; z += 1)
+                    {
+                        args.Add(entities[$"tile_{x}_{y}_{z}"], new Dictionary<string, object[]> { { "Position", new object[3] { x, y, z } } });
+                        tiles[x, y, z] = entities[$"tile_{x}_{y}_{z}"];
+                    }
+                }
+            }
+            PrototypeLoader.instance.AttachPrototype("tile_stone_rough", args);
+        }
+
+        public List<Entity> GetNeighborTiles(Entity center, int sqr_dist)
+        {
+            List<Entity> to_return = new List<Entity>(sqr_dist);
+            int[] p_cen = center.GetComponent<Position>("Position").p;
+            for (int x = Math.Max(p_cen[0] - sqr_dist, 0); x < Math.Min(p_cen[0] + sqr_dist, len_x - 1); x += 1)
+            {
+                for (int y = Math.Max(p_cen[1] - sqr_dist, 0); y < Math.Min(p_cen[1] + sqr_dist, len_y - 1); y += 1)
+                {
+                    int[] p = new int[3] { x, y, 0 };
+                    if (MathFunctions.SqrDist(p_cen, p) <= sqr_dist && MathFunctions.SqrDist(p_cen, p) > 0)
+                    {
+                        to_return.Add(tiles[x, y, p_cen[2]]);
+                    }
+                }
+            }
+            return to_return;
+        }
+    }
+}

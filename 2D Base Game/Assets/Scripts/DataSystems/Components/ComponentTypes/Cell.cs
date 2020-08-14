@@ -8,6 +8,7 @@ namespace HighKings
     [JsonObject(MemberSerialization.OptIn)]
     public class Cell : IBaseComponent
     {
+        //
         [JsonProperty]
         readonly Entity this_cell;
 

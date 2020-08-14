@@ -20,6 +20,7 @@ namespace HighKings
         {
             return behavior_type;
         }
+        //
 
         public bool computable()
         {

@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using System.IO;
 using UnityEngine;
-using System.Linq;
-using System.Runtime.Serialization;
+using System;
 
 /// <summary>
 /// This class is designed to returned parsed objects from JSON objects, it will also probably handle a lot of file loading in the future
@@ -21,13 +18,16 @@ public class JsonParser
         {
             instance = this;
         }
-        config = new JsonSerializerSettings();
-        config.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
-        config.NullValueHandling = NullValueHandling.Ignore;
-        config.Formatting = Formatting.Indented;
-        config.MissingMemberHandling = MissingMemberHandling.Error; //Might want to change this
-        config.ObjectCreationHandling = ObjectCreationHandling.Replace;
-        
+        config = new JsonSerializerSettings
+        {
+
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented,
+            MissingMemberHandling = MissingMemberHandling.Error, //Might want to change this
+            ObjectCreationHandling = ObjectCreationHandling.Replace
+        };
+
     }
 
     /// <summary>
@@ -39,7 +39,15 @@ public class JsonParser
     public T ParseString<T>(string jsonText)
     {
         //Debug.Log(jsonText);
-        return JsonConvert.DeserializeObject<T>(jsonText);
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(jsonText, config);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex.GetType().Name + ": " + ex.Message);
+            return default;
+        }
     }
 
     /// <summary>
@@ -50,7 +58,16 @@ public class JsonParser
     /// <param name="baseDict"></param>
     public void AppendDictionary<T>(string jsonText, Dictionary<string,T> baseDict)
     {
-        Dictionary<string, T> toAppend = JsonConvert.DeserializeObject<Dictionary<string, T>>(jsonText);
+        Dictionary<string, T> toAppend;
+        try
+        {
+            toAppend = JsonConvert.DeserializeObject<Dictionary<string, T>>(jsonText, config);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(ex.GetType().Name + ": " + ex.Message);
+            return;
+        }
         foreach (string s in toAppend.Keys)
         {
             if(baseDict == null)
@@ -62,7 +79,6 @@ public class JsonParser
                 baseDict[s] = toAppend[s];
             } else
             {
-
                 baseDict.Add(s, toAppend[s]);
             }
         }

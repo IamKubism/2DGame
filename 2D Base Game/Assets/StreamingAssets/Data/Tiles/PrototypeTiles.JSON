@@ -34,6 +34,13 @@
                     "system_location": "None",
                     "load_priority": 2,
                     "variable": false
+                },
+                "Cell": {
+                    "component_name": "Cell",
+                    "component_type": "Cell",
+                    "system_location": "map_cells",
+                    "load_priority": 2,
+                    "variable": true
                 }
             }
         },

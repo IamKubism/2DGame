@@ -84,8 +84,8 @@ public class SpriteManager : MonoBehaviour
             {
                 CreateEntitySprite(e);
             }
-            Debug.Log($"Added {entities.Count} sprites");
-            Debug.Log($"Currently {go_manager.entity_objects.Count} in the game object manager");
+            //Debug.Log($"Added {entities.Count} sprites");
+            //Debug.Log($"Currently {go_manager.entity_objects.Count} in the game object manager");
         });
 
         world.entity_positions.RegisterOnChangedEntities((pos, entities) => 
@@ -105,14 +105,6 @@ public class SpriteManager : MonoBehaviour
         SetSortingLayer(e, e.GetComponent<RenderComponent>("RenderComponent").layer_name);
         SetEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent").sprite_name);
     }
-
-    //void SetSprite(string entity_id, string sprite_name)
-    //{
-    //    Debug.Log($"{entity_id}");
-    //    SpriteRenderer entity_sr = entity_object_map[entity_id].GetComponent<SpriteRenderer>() == null ?
-    //        entity_object_map[entity_id].AddComponent<SpriteRenderer>() : entity_object_map[entity_id].GetComponent<SpriteRenderer>();
-    //    entity_sr.sprite = GetSprite(sprite_name);
-    //}
 
     void SetSprite(Entity entity_id, string sprite_name)
     {

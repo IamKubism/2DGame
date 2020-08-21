@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Path_Edge<T>
+namespace HighKings
 {
-    public float modifier;
-    public Path_Node<T> node;
-
-    public Path_Edge(Path_Node<T> node, float modifier = 1f)
+    public class Path_Edge<T>
     {
-        this.node = node;
-        this.modifier = modifier;
+        public float modifier;
+        public Path_Node<T> node;
+
+        public Path_Edge(Path_Node<T> node, float modifier = 1f)
+        {
+            this.node = node;
+            this.modifier = modifier;
+        }
     }
 }

@@ -21,7 +21,6 @@ namespace HighKings
         /// </summary>
         Dictionary<string, List<Entity>> entities;
 
-
         Dictionary<string, Entity> id_to_entity;
 
         public EntityManager()
@@ -60,7 +59,7 @@ namespace HighKings
             {
                 id_to_entity.Add(e.entity_string_id, e);
             }
-            Debug.Log($"Created {ids.Length} entities");
+            //Debug.Log($"Created {ids.Length} entities");
             return to_return;
 
         }

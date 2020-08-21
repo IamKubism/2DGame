@@ -1,0 +1,59 @@
+[
+    {
+        "name":  "map_cells",
+        "type": "MapCells",
+        "_namespace": "Default",
+        "constructor_args": {
+            "constructor_types": [
+                [ "none", "int" ],
+                [ "none", "int" ],
+                [ "none", "int" ]
+
+            ],
+            "arg_names": [
+                [ "len_x" ],
+                [ "len_y" ],
+                [ "len_z" ]
+            ]
+        },
+        "load_priority": 2
+    },
+    {
+        "name": "entity_positions",
+        "Type": "Positions",
+        "_namespace": "Default",
+        "constructor_args": {
+            "constructor_types": [
+            ],
+            "arg_names": [
+            ]
+        },
+        "load_priority": 0
+    },
+    {
+        "name": "render_components",
+        "Type": "RenderComponents",
+        "namespace": "Default",
+        "constructor_args": {
+            "constructor_types": [
+
+            ],
+            "arg_names": [
+
+            ]
+        },
+        "load_priority": 1
+    },
+    {
+        "name": "entity_movers",
+        "type": "Movers",
+        "_namespace": "Default",
+        "load_priority": 10,
+        "constructor_args": {
+            "constructor_types": [
+            ],
+            "arg_names": [
+            ]
+        }
+    }
+]

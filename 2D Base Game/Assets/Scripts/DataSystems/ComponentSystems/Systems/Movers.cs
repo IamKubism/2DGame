@@ -33,6 +33,7 @@ namespace HighKings
             paths = new Dictionary<Entity, Path_Astar>();
             mover_progress = new Dictionary<Entity, ItemVector<Position, FloatMinMax>>();
             to_remove = new List<Entity>();
+            this.positions_current = positions_current;
         }
 
         public void UpdateMovement(float dt)

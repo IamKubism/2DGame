@@ -2,71 +2,75 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Path_Node<T>
+namespace HighKings
 {
-    public T data;
-
-    public List<Path_Edge<T>> edges; // Nodes Leaving out from this node
-
-    public Path_Node(T data)
+    public class Path_Node<T>
     {
-        edges = new List<Path_Edge<T>>(0x10);
-        this.data = data;
-    }
+        public T data;
 
-    public Path_Edge<T> FindEdge(Path_Node<T> n)
-    {
-        foreach (Path_Edge<T> e in edges)
+        public List<Path_Edge<T>> edges; // Nodes Leaving out from this node
+
+        public Path_Node(T data)
         {
-            if (e.node == n)
-            {
-                return e;
-            }
+            edges = new List<Path_Edge<T>>(0x10);
+            this.data = data;
         }
-        Debug.LogError("FindEdge tried to locate a missing edge");
-        throw new System.Exception("Edge not found exception");
-    }
 
-    public bool HasEdge(Path_Node<T> node)
-    {
-        if (edges == null || edges.Count == 0)
+        public Path_Edge<T> FindEdge(Path_Node<T> n)
         {
+            foreach (Path_Edge<T> e in edges)
+            {
+                if (e.node == n)
+                {
+                    return e;
+                }
+            }
+            Debug.LogError("FindEdge tried to locate a missing edge");
+            throw new System.Exception("Edge not found exception");
+        }
+
+        public bool HasEdge(Path_Node<T> node)
+        {
+            if (edges == null || edges.Count == 0)
+            {
+                return false;
+            }
+            foreach (Path_Edge<T> e in edges)
+            {
+                if (e.node == node)
+                {
+                    return true;
+                }
+            }
             return false;
         }
-        foreach (Path_Edge<T> e in edges)
+
+        public void MakeNewEdge(Path_Node<T> node, float modifier)
         {
-            if(e.node == node)
+            if (HasEdge(node))
             {
-                return true;
+                return;
             }
+            if (edges.Count == edges.Capacity)
+            {
+                List<Path_Edge<T>> temp = edges;
+                edges = new List<Path_Edge<T>>(edges.Capacity + 0x10);
+                edges.AddRange(temp);
+            }
+            edges.Add(new Path_Edge<T>(node, modifier));
         }
-        return false;
-    }
 
-    public void MakeNewEdge(Path_Node<T> node, float modifier)
-    {
-        if (HasEdge(node))
+        public void ResetPathEdge(Path_Node<T> node, float modifier)
         {
-            return;
-        }
-        if (edges.Count == edges.Capacity)
-        {
-            List<Path_Edge<T>> temp = edges;
-            edges = new List<Path_Edge<T>>(edges.Capacity + 0x10);
-            edges.AddRange(temp);
-        }
-        edges.Add(new Path_Edge<T>(node, modifier));
-    }
-
-    public void ResetPathEdge(Path_Node<T> node, float modifier)
-    {
-        if (HasEdge(node))
-        {
-            Path_Edge<T> edge = FindEdge(node);
-            edge.modifier = modifier;
-        } else
-        {
-            Debug.LogError("Could not find the correct node");
+            if (HasEdge(node))
+            {
+                Path_Edge<T> edge = FindEdge(node);
+                edge.modifier = modifier;
+            }
+            else
+            {
+                Debug.LogError("Could not find the correct node");
+            }
         }
     }
 }

@@ -40,8 +40,6 @@ namespace HighKings
         /// </summary>
         public World world;
 
-        Action<string> on_rendered_entity_created;
-
         public MainGame()
         {
             game_started = false;
@@ -73,19 +71,6 @@ namespace HighKings
 
         }
 
-        /// <summary>
-        /// Any Action intepreter class should have an import code thing and have the IAction Interface, this is so outside 
-        /// code can reference the inside of the data class and the data class will not have to see the outside (so stuff like
-        /// if we want to change interpreters or engines would be handled not in the data class)
-        /// </summary>
-        /// <param name="interpreter"></param>
-        /// <param name="rawCode"></param>
-        /// <param name="fileName"></param>
-        public void ImportCodeToActions(IActionInterpreter interpreter, string rawCode)
-        {
-            interpreter.ImportScript(rawCode);
-        }
-
         //////////////////////////////////////////////////////////////////////////
         ///
         /// JSON PROTOTYPE PARSERS
@@ -95,22 +80,6 @@ namespace HighKings
         public void SetEntityPrototypes(JsonParser parser, string json_file)
         {
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(parser);
-        }
-
-        /*
-         * Callback Registers
-         */
-
-        public void RegisterOnRenderedEntityCreated(Action<MainGame, string> to_register)
-        {
-        }
-
-        /*
-         * Callback external callers
-         */
-
-        public void CallOnRenderedCreated(string entity_id)
-        {
         }
     }
 }

@@ -8,17 +8,20 @@ namespace HighKings
     [JsonObject(MemberSerialization.OptIn)]
     public class Cell : IBaseComponent
     {
-        //
         [JsonProperty]
         readonly Entity this_cell;
 
         [JsonProperty]
         List<Entity> occupants;
 
-
-        public Cell(Entity position)
+        public Cell(Entity entity)
         {
-            this_cell = position;
+            this_cell = entity;
+            occupants = new List<Entity>(8);
+        }
+
+        public Cell()
+        {
             occupants = new List<Entity>(8);
         }
 

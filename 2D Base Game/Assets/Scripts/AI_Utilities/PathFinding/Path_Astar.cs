@@ -6,181 +6,183 @@ using Priority_Queue;
 using System;
 using HighKings;
 
-public class Path_Astar
+namespace HighKings
 {
-    Entity curr_pos;
-    Entity end_pos;
-    Queue<Entity> path;
-    Queue<float> movement_cost_base;
-    Queue<Position> position_path;
-
-    IBehavior cost_function;
-
-    Func<Entity, float> full_func;
-    /// <summary>
-    /// Computes the optimum path from one tile to another, using the Astar algorithm (a variant of Djkstra's Algorithm)
-    /// See: https://en.wikipedia.org/wiki/A*_search_algorithm
-    /// </summary>
-    /// <param name="graph"></param>
-    /// <param name="start"></param>
-    /// <param name="end"></param>
-    /// <param name="map"></param>
-    public Path_Astar(Path_TileGraph graph, Entity start, List<Entity> end, IBehavior behavior)
+    public class Path_Astar
     {
-        cost_function = behavior;
-        full_func = (ent) => { return cost_function.CalculateOnEntity(ent); };
-        if (graph.tile_map.ContainsKey(start) == false)
+        Entity curr_pos;
+        Entity end_pos;
+        Queue<Entity> path;
+        Queue<float> movement_cost_base;
+        Queue<Position> position_path;
+
+        IBehavior cost_function;
+
+        Func<Entity, float> full_func;
+        /// <summary>
+        /// Computes the optimum path from one tile to another, using the Astar algorithm (a variant of Djkstra's Algorithm)
+        /// See: https://en.wikipedia.org/wiki/A*_search_algorithm
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="map"></param>
+        public Path_Astar(Path_TileGraph graph, Entity start, List<Entity> end, IBehavior behavior)
         {
-            Debug.LogError("Path_Astar -- Start Tile has no node");
-            return;
-        }
-        if (graph.tile_map.ContainsKey(end[0]) == false)
-        {
-            Debug.LogError("Path_Astar -- End Tile Has no node");
-            return;
-        }
-
-        Dictionary<Entity, Path_Node<Entity>> node_map = graph.tile_map;
-
-        List<Path_Node<Entity>> closed_set = new List<Path_Node<Entity>>();
-
-        SimplePriorityQueue<Path_Node<Entity>> open_set = new SimplePriorityQueue<Path_Node<Entity>>();
-
-        Dictionary<Path_Node<Entity>, float> g_score = new Dictionary<Path_Node<Entity>, float>();
-
-        Dictionary<Path_Node<Entity>, Path_Node<Entity>> came_from = new Dictionary<Path_Node<Entity>, Path_Node<Entity>>();
-
-        foreach (Path_Node<Entity> n in node_map.Values)
-        {
-            g_score[n] = Mathf.Infinity;
-        }
-        g_score[node_map[start]] = 0;
-
-        Dictionary<Path_Node<Entity>, float> f_score = new Dictionary<Path_Node<Entity>, float>();
-
-        foreach (Path_Node<Entity> n in node_map.Values)
-        {
-            f_score[n] = Mathf.Infinity;
-        }
-        f_score[node_map[start]] = Heuristic(node_map[start].data, end[0]);
-
-        open_set.Enqueue(node_map[start], f_score[node_map[start]]);
-
-        while (open_set.Count > 0)
-        {
-            Path_Node<Entity> current = open_set.Dequeue();
-
-            if (end.Contains(current.data))
+            cost_function = behavior;
+            full_func = (ent) => { return cost_function.CalculateOnEntity(ent); };
+            if (graph.tile_map.ContainsKey(start) == false)
             {
-                ReconstructPath(came_from, current);
+                Debug.LogError("Path_Astar -- Start Tile has no node");
                 return;
-
             }
-            closed_set.Add(current);
-            foreach (Path_Edge<Entity> e in current.edges)
+            if (graph.tile_map.ContainsKey(end[0]) == false)
             {
-                if (closed_set.Contains(e.node))
-                {
-                    continue;
-                }
-                if (e.modifier * full_func(e.node.data) <= 0)
-                {
-                    closed_set.Add(e.node);
-                    continue;
-                }
+                Debug.LogError("Path_Astar -- End Tile Has no node");
+                return;
+            }
 
-                //TODO: Change e.cost to Behavior(e)
-                float tentative_g = g_score[current] + e.modifier * cost_function.CalculateOnEntity(e.node.data);
+            Dictionary<Entity, Path_Node<Entity>> node_map = graph.tile_map;
 
-                if (open_set.Contains(e.node) == false)
-                {
-                    open_set.Enqueue(e.node, tentative_g + Heuristic(e.node.data, end[0]));
-                }
-                else if (tentative_g >= g_score[e.node])
-                {
-                    continue;
-                }
+            List<Path_Node<Entity>> closed_set = new List<Path_Node<Entity>>();
 
-                came_from[e.node] = current;
-                g_score[e.node] = tentative_g;
-                f_score[e.node] = tentative_g + Heuristic(e.node.data, end[0]);
-                //Debug.Log(f_score[e.node]);
+            SimplePriorityQueue<Path_Node<Entity>> open_set = new SimplePriorityQueue<Path_Node<Entity>>();
+
+            Dictionary<Path_Node<Entity>, float> g_score = new Dictionary<Path_Node<Entity>, float>();
+
+            Dictionary<Path_Node<Entity>, Path_Node<Entity>> came_from = new Dictionary<Path_Node<Entity>, Path_Node<Entity>>();
+
+            foreach (Path_Node<Entity> n in node_map.Values)
+            {
+                g_score[n] = Mathf.Infinity;
+            }
+            g_score[node_map[start]] = 0;
+
+            Dictionary<Path_Node<Entity>, float> f_score = new Dictionary<Path_Node<Entity>, float>();
+
+            foreach (Path_Node<Entity> n in node_map.Values)
+            {
+                f_score[n] = Mathf.Infinity;
+            }
+            f_score[node_map[start]] = Heuristic(node_map[start].data, end[0]);
+
+            open_set.Enqueue(node_map[start], f_score[node_map[start]]);
+
+            while (open_set.Count > 0)
+            {
+                Path_Node<Entity> current = open_set.Dequeue();
+
+                if (end.Contains(current.data))
+                {
+                    ReconstructPath(came_from, current);
+                    return;
+
+                }
+                closed_set.Add(current);
+                foreach (Path_Edge<Entity> e in current.edges)
+                {
+                    if (closed_set.Contains(e.node))
+                    {
+                        continue;
+                    }
+                    if (e.modifier * full_func(e.node.data) <= 0)
+                    {
+                        closed_set.Add(e.node);
+                        continue;
+                    }
+
+                    //TODO: Change e.cost to Behavior(e)
+                    float tentative_g = g_score[current] + e.modifier * cost_function.CalculateOnEntity(e.node.data);
+
+                    if (open_set.Contains(e.node) == false)
+                    {
+                        open_set.Enqueue(e.node, tentative_g + Heuristic(e.node.data, end[0]));
+                    }
+                    else if (tentative_g >= g_score[e.node])
+                    {
+                        continue;
+                    }
+
+                    came_from[e.node] = current;
+                    g_score[e.node] = tentative_g;
+                    f_score[e.node] = tentative_g + Heuristic(e.node.data, end[0]);
+                    //Debug.Log(f_score[e.node]);
+                }
             }
         }
-    }
 
-    float FullCostFunction(Entity curr)
-    {
-        return cost_function.CalculateOnEntity(curr) + Heuristic(curr, end_pos);
-    }
-
-    float Heuristic(Entity curr, Entity end)
-    {
-        return Position.SqrDist(curr.GetComponent<Position>("Position"), end.GetComponent<Position>("Position"));
-    }
-
-    void ReconstructPath(Dictionary<Path_Node<Entity>,Path_Node<Entity>> came_from, Path_Node<Entity> current)
-    {
-        Queue<Entity> rev_path = new Queue<Entity>();
-        end_pos = current.data;
-
-        while (came_from.ContainsKey(current))
+        float FullCostFunction(Entity curr)
         {
+            return cost_function.CalculateOnEntity(curr) + Heuristic(curr, end_pos);
+        }
+
+        float Heuristic(Entity curr, Entity end)
+        {
+            return Position.SqrDist(curr.GetComponent<Position>("Position"), end.GetComponent<Position>("Position"));
+        }
+
+        void ReconstructPath(Dictionary<Path_Node<Entity>, Path_Node<Entity>> came_from, Path_Node<Entity> current)
+        {
+            Queue<Entity> rev_path = new Queue<Entity>();
+            end_pos = current.data;
+
+            while (came_from.ContainsKey(current))
+            {
+                rev_path.Enqueue(current.data);
+                current = came_from[current];
+            }
             rev_path.Enqueue(current.data);
-            current = came_from[current];
+
+            path = new Queue<Entity>(rev_path.Reverse());
+            path.Dequeue();
         }
-        rev_path.Enqueue(current.data);
 
-        path = new Queue<Entity>(rev_path.Reverse());
-        path.Dequeue();
-    }
-
-    public float ComputeCurrentCost(Entity e, IBehavior b)
-    {
-        return b.CalculateOnEntity(e);
-    }
-
-    public Tuple<Position, float> DeQueue(IBehavior b)
-    {
-        Entity e = path.Dequeue();
-        return new Tuple<Position, float>(e.GetComponent<Position>("Position"), b.CalculateOnEntity(e));
-    }
-
-    public Entity DeQueue()
-    {
-        return path.Dequeue();
-    }
-
-    public int Length()
-    {
-        if (path == null)
+        public float ComputeCurrentCost(Entity e, IBehavior b)
         {
-            return 0;
+            return b.CalculateOnEntity(e);
         }
-        return path.Count;
-    }
 
-    public void ClearPath()
-    {
-        if (path != null)
+        public Tuple<Position, float> DeQueue(IBehavior b)
         {
-            path.Clear();
-//            Debug.Log("Cleared Path");
+            Entity e = path.Dequeue();
+            return new Tuple<Position, float>(e.GetComponent<Position>("Position"), b.CalculateOnEntity(e));
         }
-    }
 
-    public override string ToString()
-    {
-        string s = "";
-        uint i = 0;
-        foreach(Entity e in path.ToArray())
+        public Entity DeQueue()
         {
-            s += $"Node {i}: {e.ToString()}\n";
-            i += 1;
+            return path.Dequeue();
         }
-        return s;
-    }
 
+        public int Length()
+        {
+            if (path == null)
+            {
+                return 0;
+            }
+            return path.Count;
+        }
+
+        public void ClearPath()
+        {
+            if (path != null)
+            {
+                path.Clear();
+                //            Debug.Log("Cleared Path");
+            }
+        }
+
+        public override string ToString()
+        {
+            string s = "";
+            uint i = 0;
+            foreach (Entity e in path.ToArray())
+            {
+                s += $"Node {i}: {e.ToString()}\n";
+                i += 1;
+            }
+            return s;
+        }
+    }
 }
 
 ///// <summary>

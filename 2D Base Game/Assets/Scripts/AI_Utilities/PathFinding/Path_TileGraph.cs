@@ -2,36 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using HighKings;
 
-public class Path_TileGraph
+namespace HighKings
 {
-    public Dictionary<Entity, Path_Node<Entity>> tile_map;
-
-    public NodeChunk map;
-
-    public Path_TileGraph(NodeChunk map)
+    public class Path_TileGraph
     {
-        this.map = map;
-        tile_map = new Dictionary<Entity, Path_Node<Entity>>();
-        foreach (Entity e in map.entities.Values)
-        {
-            tile_map.Add(e, new Path_Node<Entity>(e));
-        }
+        public Dictionary<Entity, Path_Node<Entity>> tile_map;
 
-        //Set Graph Edges
-        foreach (Path_Node<Entity> node in tile_map.Values)
+        public NodeChunk map;
+
+        public Path_TileGraph(NodeChunk map)
         {
-            //Set non-diagonals
-            foreach (Entity n in map.GetNeighborTiles(node.data, 1))
+            this.map = map;
+            tile_map = new Dictionary<Entity, Path_Node<Entity>>();
+            foreach (Entity e in map.entities.Values)
             {
-                node.MakeNewEdge(tile_map[n], 1);
+                tile_map.Add(e, new Path_Node<Entity>(e));
             }
 
-            //Set diagonals
-            foreach (Entity n in map.GetNeighborTiles(node.data, 2))
+            //Set Graph Edges
+            foreach (Path_Node<Entity> node in tile_map.Values)
             {
-                node.MakeNewEdge(tile_map[n], 1.41f);
+                //Set non-diagonals
+                foreach (Entity n in map.GetNeighborTiles(node.data, 1))
+                {
+                    node.MakeNewEdge(tile_map[n], 1);
+                }
+
+                //Set diagonals
+                foreach (Entity n in map.GetNeighborTiles(node.data, 2))
+                {
+                    node.MakeNewEdge(tile_map[n], 1.41f);
+                }
             }
         }
     }

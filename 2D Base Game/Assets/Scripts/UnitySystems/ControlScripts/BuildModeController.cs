@@ -9,30 +9,6 @@ using System;
 /// </summary>
 public class BuildModeController : MonoBehaviour
 {
-    /// <summary>
-    /// Depreciating
-    /// </summary>
-    //public TileType buildmodetile { get; protected set; }
-
-    //public UserRelevantData userData;
-
-    /// <summary>
-    /// Depreciating
-    /// </summary>
-    //string buildModeObjectType;
-
-    /// <summary>
-    /// Depreciating
-    /// </summary>
-    bool buildModeIsObjects = false;
-
-    /// <summary>
-    /// Class used to initialize function data that will be called in game
-    /// </summary>
-    //Dictionary<string,string> activeData;
-
-    //public Tile[] activeTiles;
-
     // Start is called before the first frame update
     void Start()
     {

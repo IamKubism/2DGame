@@ -24,7 +24,7 @@ public class JsonParser
             PreserveReferencesHandling = PreserveReferencesHandling.Objects,
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.Indented,
-            MissingMemberHandling = MissingMemberHandling.Error, //Might want to change this
+            MissingMemberHandling = MissingMemberHandling.Ignore, //Might want to change this
             ObjectCreationHandling = ObjectCreationHandling.Replace
         };
 

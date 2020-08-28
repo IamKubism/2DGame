@@ -10,16 +10,18 @@ namespace HighKings
     public class Position : IBaseComponent
     {
         [JsonObject(MemberSerialization.OptIn)]
-        public struct State
+        public struct Tile
         {
             [JsonProperty]
             public int x, y, z;
-            [JsonProperty]
-            public SerializableVector3 disp_pos;
         }
 
         [JsonProperty]
-        public State state;
+        public SerializableVector3 disp_pos;
+
+
+        [JsonProperty]
+        public Tile tile;
 
         /// <summary>
         /// Identification of the thing that moves
@@ -34,7 +36,7 @@ namespace HighKings
         {
             get
             {
-                return state.x;
+                return tile.x;
             }
         }
 
@@ -45,7 +47,7 @@ namespace HighKings
         {
             get
             {
-                return state.y;
+                return tile.y;
             }
         }
 
@@ -57,25 +59,17 @@ namespace HighKings
         {
             get
             {
-                return state.z;
-            }
-        }
-
-        public SerializableVector3 disp_pos
-        {
-            get
-            {
-                return state.disp_pos;
+                return tile.z;
             }
         }
 
         delegate void ActionByRef<T1, T2>(ref T1 p1, ref T2 p2);
         delegate void ActionByRef<T1, T2, T3>(ref T1 p1, ref T2 p2, ref T3 p3);
 
-        void UpdateState<TP1>(ActionByRef<State, TP1> proc, ref TP1 p1)
-        { proc(ref state, ref p1); OnUpdateState(); }
-        void UpdateState<TP1, TP2>(ActionByRef<State, TP1, TP2> proc, ref TP1 p1, ref TP2 p2)
-        { proc(ref state, ref p1, ref p2); OnUpdateState(); }
+        void UpdateState<TP1>(ActionByRef<Tile, TP1> proc, ref TP1 p1)
+        { proc(ref tile, ref p1); OnUpdateState(); }
+        void UpdateState<TP1, TP2>(ActionByRef<Tile, TP1, TP2> proc, ref TP1 p1, ref TP2 p2)
+        { proc(ref tile, ref p1, ref p2); OnUpdateState(); }
 
         public int[] p
         {
@@ -111,24 +105,24 @@ namespace HighKings
         public Position(string entity_id, int x, int y, int z)
         {
             entity_string_id = entity_id;
-            state = new State
+            tile = new Tile
             {
                 x = x,
                 y = y,
                 z = z,
-                disp_pos = new SerializableVector3(x, y, z)
             };
+            disp_pos = new SerializableVector3(x, y, z);
         }
 
         public Position(int x, int y, int z)
         {
-            state = new State
+            tile = new Tile
             {
                 x = x,
                 y = y,
                 z = z,
-                disp_pos = new SerializableVector3(x, y, z)
             };
+            disp_pos = new SerializableVector3(x, y, z);
         }
 
         /// <summary>
@@ -199,18 +193,18 @@ namespace HighKings
         public void UpdateToNewPoint(int x, int y, int z)
         {
             int[] px = new int[3] { x, y, z };
-            UpdateState((ref State s, ref int[] r) =>
+            UpdateState((ref Tile s, ref int[] r) =>
             {
                 s.x = r[0];
                 s.y = r[1];
                 s.z = r[2];
-                Vector3 dp = disp_pos;
-                dp.x = x;
-                dp.y = y;
-                dp.z = z;
-                s.disp_pos = dp;
-            }, ref px);
 
+            }, ref px);
+            Vector3 dp = disp_pos;
+            dp.x = x;
+            dp.y = y;
+            dp.z = z;
+            disp_pos = dp;
         }
 
         /// <summary>
@@ -219,18 +213,18 @@ namespace HighKings
         /// <param name="p"></param>
         public void UpdateToNewPoint(Position p)
         {
-            UpdateState((ref State s, ref Position np) =>
+            UpdateState((ref Tile s, ref Position np) =>
             {
                 s.x = p.x;
                 s.y = p.y;
                 s.z = p.z;
-                Vector3 dp = disp_pos;
-                dp.x = x;
-                dp.y = y;
-                dp.z = z;
-                s.disp_pos = dp;
-            }, ref p);
 
+            }, ref p);
+            Vector3 dp = disp_pos;
+            dp.x = x;
+            dp.y = y;
+            dp.z = z;
+            disp_pos = dp;
         }
 
         /// <summary>
@@ -242,25 +236,22 @@ namespace HighKings
         public void ShiftPos(int dx, int dy, int dz)
         {
             int[] dp = new int[3] { dx, dy, dz };
-            UpdateState((ref State s, ref int[] r) =>
+            UpdateState((ref Tile s, ref int[] r) =>
             {
                 s.x += r[0];
                 s.y += r[1];
                 s.z += r[2];
-                Vector3 dpn = disp_pos;
-                dpn.x = x;
-                dpn.y = y;
-                dpn.z = z;
-                s.disp_pos = dpn;
             }, ref dp);
+            Vector3 dpn = disp_pos;
+            dpn.x = x;
+            dpn.y = y;
+            dpn.z = z;
+            disp_pos = dpn;
         }
 
         public void SetDispPos(SerializableVector3 vec)
         {
-            UpdateState((ref State s, ref SerializableVector3 r) =>
-            {
-                s.disp_pos = r;
-            }, ref vec);
+            disp_pos = vec;
         }
 
         public bool computable()

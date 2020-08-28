@@ -8,7 +8,7 @@ namespace HighKings {
     public class Entity
     {
         public readonly string entity_string_id;
-        public Dictionary<string, IBaseComponent> components;
+        Dictionary<string, IBaseComponent> components;
 
         public Entity(string id)
         {
@@ -26,6 +26,22 @@ namespace HighKings {
             {
                 components.Add(id, comp);
             }
+        }
+
+        public void RemoveComponent(string id)
+        {
+            if (components.ContainsKey(id))
+            {
+                components.Remove(id);
+            } else
+            {
+                Debug.LogError($"Tried to remove a component of type {id} on {entity_string_id} when none exists");
+            }
+        }
+
+        public bool HasComponent(string type)
+        {
+            return components.ContainsKey(type);
         }
 
         public T GetComponent<T>(string type)

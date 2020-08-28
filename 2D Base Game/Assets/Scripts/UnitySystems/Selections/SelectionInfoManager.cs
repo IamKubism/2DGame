@@ -21,25 +21,4 @@ public class SelectionInfoManager : MonoBehaviour
     {
         
     }
-
-    public void SetInfoFromSelection(SelectionComponent comp)
-    {
-        switch (comp.type_id)
-        {
-            case "character":
-                //text_component.text = GetCharacterInfo(comp.entity_string_id);
-                break;
-        }
-    }
-
-    //private string GetCharacterInfo(string entity_id)
-    //{
-    //    string info = "";
-    //    Character to_describe = game_controller.worldController.world.character_list.GetCharacterById(entity_id); //Kinda retarded but whatever
-
-    //    info += to_describe.entity_string_id + "\n";
-    //    info += to_describe.movement_speed + "\n";
-
-    //    return info;
-    //}
 }

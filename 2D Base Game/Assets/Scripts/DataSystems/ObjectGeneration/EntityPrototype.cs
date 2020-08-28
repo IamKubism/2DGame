@@ -16,6 +16,8 @@ public class EntityPrototype
     [JsonProperty]
     public Dictionary<string, ComponentInfo> component_info;
 
+    public List<string> load_order;
+
     public Dictionary<string, object> component_values;
 
     public EntityPrototype(string prototype_name)
@@ -23,11 +25,24 @@ public class EntityPrototype
         this.prototype_name = prototype_name;
         component_info = new Dictionary<string, ComponentInfo>();
         component_values = new Dictionary<string, object>();
+        load_order = new List<string>();
     }
 
     public void ResetName(string prototype_name)
     {
         this.prototype_name = prototype_name;
+    }
+
+    public void SetComponent(string comp_name, int load_order, object o)
+    {
+        if (component_values.ContainsKey(comp_name))
+        {
+            component_values[comp_name] = o;
+        } else
+        {
+            component_values.Add(comp_name, o);
+        }
+        
     }
 
     void OverwriteComponentInfo(ComponentInfo comp)
@@ -41,6 +56,11 @@ public class EntityPrototype
         }
     }
 
+    /// <summary>
+    /// Full overwrite of data
+    /// </summary>
+    /// <param name="s"></param>
+    /// <param name="o"></param>
     public void OverwriteComponentValue(string s, object o)
     {
         if (component_values.ContainsKey(s))
@@ -53,6 +73,26 @@ public class EntityPrototype
         //Debug.Log($"Overwrote {s} {o.ToString()}");
     }
 
+    /// <summary>
+    /// Partial overwrite of data
+    /// </summary>
+    /// <param name="s"></param>
+    /// <param name="o"></param>
+    /// <param name="fields"></param>
+    public void OverwriteComponentValue(string s, object o, List<FieldInfo> fields)
+    {
+        if (component_values.ContainsKey(s))
+        {
+            foreach (FieldInfo field in fields)
+            {
+                field.SetValue(component_values[s], field.GetValue(o));
+            }
+        } else
+        {
+            component_values.Add(s, o);
+        }
+    }
+    
     public EntityPrototype Clone()
     {
         return new EntityPrototype(prototype_name)
@@ -62,21 +102,14 @@ public class EntityPrototype
         };
     }
 
-    /// <summary>
-    /// Loads one prototype into another, if the prototype is not extended self should be an empty prototype
-    /// </summary>
-    /// <param name="self"></param>
-    /// <param name="appender"></param>
-    public static void LoadFromAppender(EntityPrototype self, EntityPrototype appender)
+    public EntityPrototype Clone(string name)
     {
-        foreach(ComponentInfo c in appender.component_info.Values)
+        return new EntityPrototype(name)
         {
-            self.OverwriteComponentInfo(c);
-        }
-        foreach(KeyValuePair<string,object> so in appender.component_values)
-        {
-            self.OverwriteComponentValue(so.Key, so.Value);
-        }
+            prototype_name = name,
+            component_info = new Dictionary<string, ComponentInfo>(component_info),
+            component_values = new Dictionary<string, object>(component_values)
+        };
     }
 
     public override string ToString()
@@ -382,4 +415,21 @@ public class EntityPrototype
 //public int GetComponentPriority(string comp_type)
 //{
 //    return component_load_priorities.ContainsKey(comp_type) ? component_load_priorities[comp_type] : 0x1000;
+//}
+
+///// <summary>
+///// Loads one prototype into another, if the prototype is not extended self should be an empty prototype
+///// </summary>
+///// <param name="self"></param>
+///// <param name="appender"></param>
+//public static void LoadFromAppender(EntityPrototype self, EntityPrototype appender)
+//{
+//    //foreach(ComponentInfo c in appender.component_info.Values)
+//    //{
+//    //    self.OverwriteComponentInfo(c);
+//    //}
+//    //foreach(KeyValuePair<string,object> so in appender.component_values)
+//    //{
+//    //    self.OverwriteComponentValue(so.Key, so.Value);
+//    //}
 //}

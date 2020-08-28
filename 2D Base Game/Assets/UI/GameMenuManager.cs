@@ -9,9 +9,6 @@ using HighKings;
 
 public class GameMenuManager : MonoBehaviour
 {
-    public string inventory_name;
-    public string inspecto_name;
-    public string interaction_panel_name;
     public GameObject button_prefab;
     public GameObject panel;
     public GameObject inventory_menu;
@@ -23,12 +20,12 @@ public class GameMenuManager : MonoBehaviour
 
     List<GameObject> active_menus; //TODO, for dynamic switching of interfaces
 
-    //Dictionary<string, MenuData> allMenus;
-
     /// <summary>
     /// Variable that tells the game where in the hierarchy something should be spawned
     /// </summary>
     int menu_num = 0;
+
+    public float shift_dist = 110f;
 
     Dictionary<string, MenuData> menu_datas;
     MenuData next_menu;
@@ -38,14 +35,12 @@ public class GameMenuManager : MonoBehaviour
     {
         active_menus = new List<GameObject>();
         menu_datas = new Dictionary<string, MenuData>();
-        //allMenus = new Dictionary<string, MenuData>();
 
         string menu_data_path = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
         menu_data_path = System.IO.Path.Combine(menu_data_path, "Menus");
         menu_data_path = System.IO.Path.Combine(menu_data_path, "MenuDatas.JSON");
 
         menu_datas = JsonParser.instance.ParseString<Dictionary<string, MenuData>>(System.IO.File.ReadAllText(menu_data_path));
-
     }
 
     public void StartGame()
@@ -57,64 +52,9 @@ public class GameMenuManager : MonoBehaviour
         MainGame.instance.StartGame();
     }
 
-
     public void Resize()
     {
         GetComponent<AutomaticVerticalScript>().AdjustSize();
-    }
-
-    //public void ManageFurnitureWindow()
-    //{
-    //    if (GameObject.Find("Furniture Build Menu") != null)
-    //    {
-    //        CloseFurnitureWindow();
-    //    } else
-    //    {
-    //        OpenFurnitureWindow();
-    //    }
-    //}
-
-    //public void OpenFurnitureWindow()
-    //{
-    //    BuildModeController bmc = GameObject.FindObjectOfType<BuildModeController>();
-
-    //    GameObject bm = (GameObject)Instantiate(panel);
-    //    bm.transform.SetParent(GameObject.Find("UICanvas").transform);
-    //    bm.transform.name = "Furniture Build Menu";
-    //    float x = GameObject.Find("Game Menu").transform.position.x; 
-    //    float y = GameObject.Find("Game Menu").transform.position.y;
-    //    bm.transform.position.Set(x + 2f, y, 0f); //FIXME: janky
-
-    //    foreach (string s in MainGame.instance.FurniturePrototypes)
-    //    {
-    //        CreateButtonFurnitureBuild(bm,bmc,s);
-    //    }
-    //    active_menus.Add(bm);
-    //}
-
-    //void CreateButtonFurnitureBuild(GameObject mainPane, BuildModeController bmc, string s)
-    //{
-    //    GameObject go = (GameObject)Instantiate(button_prefab);
-    //    go.transform.SetParent(mainPane.transform);
-
-    //    go.name = "Button - Build " + s;
-
-    //    go.transform.GetComponentInChildren<Text>().text = "Build " + MainGame.instance.GetFurnitureInGameName(s);
-
-    //    Button b = go.GetComponent<Button>();
-    //    //string furnID = s; //Fixme: ????
-
-    //    //b.onClick.AddListener(delegate { bmc.SetMode_BuildInstalledObject(s); });
-    //}
-
-    void CloseFurnitureWindow()
-    {
-        GameObject bm = GameObject.Find("Furniture Build Menu");
-        //       for (int i = bm.transform.childCount - 1; i >= 0; i -= 1)
-        //     {
-        //       Destroy(bm.transform.GetChild(i));
-        //   }
-        bm.SetActive(false);
     }
 
     public void ToggleInventory()
@@ -135,43 +75,6 @@ public class GameMenuManager : MonoBehaviour
 
     }
 
-    //public void CreateSpawnMenu()
-    //{
-    //    if (GameObject.Find("InventoryObjectSpawnPanel") != null)
-    //    {
-    //        Destroy(GameObject.Find("InventoryObjectSpawnPanel"));
-    //        return;
-    //    }
-    //    else
-    //    {
-    //        GameObject pan = (GameObject)Instantiate(panel,
-    //                    new Vector3(GameObject.Find("Game Menu").GetComponent<RectTransform>().rect.width, 0, 0),
-    //                    Quaternion.identity,
-    //                    GameObject.Find("UICanvas").transform);
-    //        pan.transform.SetParent(GameObject.Find("UICanvas").transform);
-    //        pan.transform.name = "InventoryObjectSpawnPanel";
-    //        float x = GameObject.Find("Game Menu").transform.position.x;
-    //        float y = GameObject.Find("Game Menu").transform.position.y;
-    //        pan.transform.position.Set(x + 10f, y, 0f);
-
-    //        foreach (string i in MainGame.instance.inventory_item_prototypes.Keys)
-    //        {
-    //            //Debug.Log(i);
-    //            CreateInventorySpawnButton(i, pan);
-    //        }
-    //    }
-    //}
-
-    //public void CreateInventorySpawnButton(string s, GameObject parent)
-    //{
-    //    GameObject b = Instantiate(button_prefab);
-
-    //    b.name = "Button - " + s;
-    //    b.transform.GetComponentInChildren<Text>().text = "Spawn " + MainGame.instance.GetInventoryItemPrototype(s).ItemNameId; //TODO Fix it to be visible name
-
-    //    b.GetComponent<Button>().onClick.AddListener(delegate { GameObject.FindObjectOfType<InventoryManager>().SpawnItemInInventory(s); });
-    //    b.transform.SetParent(parent.transform);
-    //}
 
     public void CreateActionButton(string name, Action action, GameObject parent)
     {
@@ -212,10 +115,7 @@ public class GameMenuManager : MonoBehaviour
             Destroy(temp);
         }
 
-
         OpenMenuFromData(menu_datas["build"]);
-
-
 
         //Vector3 menuPos = GameObject.Find("Game Menu").transform.position;
         //GameObject mainPan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
@@ -230,20 +130,7 @@ public class GameMenuManager : MonoBehaviour
 
     void OpenMenuFromData(MenuData data)
     {
-        //Check if placement is valid
-        if(data.hier_num > active_menus.Count)
-        {
-            Debug.Log("Tried to make a menu too far out in the hierarchy");
-            return;
-        }
-
-        //Destroy menus ahead of this one's placement
-        for (int i = active_menus.Count; i > data.hier_num; i-= 1)
-        {
-            GameObject temp = active_menus[i-1];
-            active_menus.Remove(temp);
-            Destroy(temp);
-        }
+        CheckMenus();
 
         //Check if this is the null menu (If it is then we don't have to open anything)
         if (data.Id == "null")
@@ -270,7 +157,6 @@ public class GameMenuManager : MonoBehaviour
             //Creates the tile effect change
             GameObject b = CreateChangeCurrentTileEffectButton(pan, data.action_Id, data.button_Args[i], data.button_Displays[i]);
 
-
             MenuData temp_next_menu;
             if (menu_datas.ContainsKey(data.menu_Args[i])== false)
             {
@@ -293,7 +179,20 @@ public class GameMenuManager : MonoBehaviour
 
     void OpenNewTileEffectChangeMenu(Dictionary<string,string> pairs)
     {
-        if(menu_num > active_menus.Count)
+        CheckMenus();
+
+        Vector3 menuPos = active_menus[active_menus.Count - 1].transform.position + new Vector3(110f,0,0);
+        GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
+    }
+
+    void CreateMenu()
+    {
+        CheckMenus();
+    }
+
+    void CheckMenus()
+    {
+        if (menu_num > active_menus.Count)
         {
             Debug.LogError("Tried to make a menu too far out in the hierarchy");
             return;
@@ -305,9 +204,6 @@ public class GameMenuManager : MonoBehaviour
             active_menus.Remove(temp);
             Destroy(temp);
         }
-
-        Vector3 menuPos = active_menus[active_menus.Count - 1].transform.position + new Vector3(110f,0,0);
-        GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
     }
 
     //void ManageSelectables()
@@ -350,19 +246,26 @@ public struct MenuData
     /// </summary>
     [JsonProperty]
     public string[] button_Args;
+
     /// <summary>
     /// The arguments that are given in button definitions.
     /// </summary>
     [JsonProperty]
     public string[] menu_Args;
+
     /// <summary>
     /// The arguments that are given in button definitions.
     /// </summary>
     [JsonProperty]
     public string[] button_Displays;
-    
 }
 
+public struct ButtonData
+{
+    public string button_display;
+    public string type_name;
+    public string func_name;
+}
 
 
 //public void CreateActionButton<Variable>(string inGameNameVariant, Variable arg, GameAction<Variable> action, GameObject parent)
@@ -450,4 +353,88 @@ public struct MenuData
 //    this.GetComponent<AutomaticVerticalScript>().childHeight = 25; //Todo, resizing commands for user
 //    this.GetComponent<AutomaticVerticalScript>().AdjustSize();
 //    gActionsManager.SwitchInterface(gmodeName);
+//}
+
+
+//public void CreateSpawnMenu()
+//{
+//    if (GameObject.Find("InventoryObjectSpawnPanel") != null)
+//    {
+//        Destroy(GameObject.Find("InventoryObjectSpawnPanel"));
+//        return;
+//    }
+//    else
+//    {
+//        GameObject pan = (GameObject)Instantiate(panel,
+//                    new Vector3(GameObject.Find("Game Menu").GetComponent<RectTransform>().rect.width, 0, 0),
+//                    Quaternion.identity,
+//                    GameObject.Find("UICanvas").transform);
+//        pan.transform.SetParent(GameObject.Find("UICanvas").transform);
+//        pan.transform.name = "InventoryObjectSpawnPanel";
+//        float x = GameObject.Find("Game Menu").transform.position.x;
+//        float y = GameObject.Find("Game Menu").transform.position.y;
+//        pan.transform.position.Set(x + 10f, y, 0f);
+
+//        foreach (string i in MainGame.instance.inventory_item_prototypes.Keys)
+//        {
+//            //Debug.Log(i);
+//            CreateInventorySpawnButton(i, pan);
+//        }
+//    }
+//}
+
+//public void CreateInventorySpawnButton(string s, GameObject parent)
+//{
+//    GameObject b = Instantiate(button_prefab);
+
+//    b.name = "Button - " + s;
+//    b.transform.GetComponentInChildren<Text>().text = "Spawn " + MainGame.instance.GetInventoryItemPrototype(s).ItemNameId; //TODO Fix it to be visible name
+
+//    b.GetComponent<Button>().onClick.AddListener(delegate { GameObject.FindObjectOfType<InventoryManager>().SpawnItemInInventory(s); });
+//    b.transform.SetParent(parent.transform);
+//}
+
+
+//public void ManageFurnitureWindow()
+//{
+//    if (GameObject.Find("Furniture Build Menu") != null)
+//    {
+//        CloseFurnitureWindow();
+//    } else
+//    {
+//        OpenFurnitureWindow();
+//    }
+//}
+
+//public void OpenFurnitureWindow()
+//{
+//    BuildModeController bmc = GameObject.FindObjectOfType<BuildModeController>();
+
+//    GameObject bm = (GameObject)Instantiate(panel);
+//    bm.transform.SetParent(GameObject.Find("UICanvas").transform);
+//    bm.transform.name = "Furniture Build Menu";
+//    float x = GameObject.Find("Game Menu").transform.position.x; 
+//    float y = GameObject.Find("Game Menu").transform.position.y;
+//    bm.transform.position.Set(x + 2f, y, 0f); //FIXME: janky
+
+//    foreach (string s in MainGame.instance.FurniturePrototypes)
+//    {
+//        CreateButtonFurnitureBuild(bm,bmc,s);
+//    }
+//    active_menus.Add(bm);
+//}
+
+//void CreateButtonFurnitureBuild(GameObject mainPane, BuildModeController bmc, string s)
+//{
+//    GameObject go = (GameObject)Instantiate(button_prefab);
+//    go.transform.SetParent(mainPane.transform);
+
+//    go.name = "Button - Build " + s;
+
+//    go.transform.GetComponentInChildren<Text>().text = "Build " + MainGame.instance.GetFurnitureInGameName(s);
+
+//    Button b = go.GetComponent<Button>();
+//    //string furnID = s; //Fixme: ????
+
+//    //b.onClick.AddListener(delegate { bmc.SetMode_BuildInstalledObject(s); });
 //}

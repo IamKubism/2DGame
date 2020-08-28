@@ -36,25 +36,25 @@ public class SelectionTabManager : MonoBehaviour
         //}
         foreach (SelectionComponent select in selections)
         {
-            CreateButtonForSelections(select);
+            //CreateButtonForSelections(select);
         }
     }
 
-    void CreateButtonForSelections(SelectionComponent selected)
-    {
-        GameObject b = Instantiate(button_prefab);
-        b.name = "Button Set Selected - " + selected.entity_string_id;
-        b.transform.GetComponentInChildren<Text>().text =   selected.display_name.Length > 0 ? 
-                                                            selected.display_name : 
-                                                            selected.type_id + " - " + selected.entity_string_id;
+    //void CreateButtonForSelections(SelectionComponent selected)
+    //{
+    //    GameObject b = Instantiate(button_prefab);
+    //    b.name = "Button Set Selected - " + selected.entity_string_id;
+    //    b.transform.GetComponentInChildren<Text>().text =   selected.display_name.Length > 0 ? 
+    //                                                        selected.display_name : 
+    //                                                        selected.type_id + " - " + selected.entity_string_id;
 
-        b.GetComponent<Button>().onClick.AddListener(
-            delegate {
-                info_manager.SetInfoFromSelection(selected);
-            });
-        b.transform.SetParent(transform);
-        b.transform.localPosition = new Vector3(0, 0, 0);
-    }
+    //    b.GetComponent<Button>().onClick.AddListener(
+    //        delegate {
+    //            info_manager.SetInfoFromSelection(selected);
+    //        });
+    //    b.transform.SetParent(transform);
+    //    b.transform.localPosition = new Vector3(0, 0, 0);
+    //}
 
 
 }

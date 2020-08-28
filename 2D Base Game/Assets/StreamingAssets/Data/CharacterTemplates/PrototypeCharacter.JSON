@@ -4,10 +4,11 @@
             "prototype_name": "character",
             "components": {
                 "RenderComponent": {
-                    "state": {
-                        "layer_name": "Characters",
-                        "sprite_name": "charSprite"
-                    }
+                    "layer_name": "Characters",
+                    "sprite_name": "charSprite"
+                },
+                "SelectionComponent": {
+                    "priority": 0
                 }
             },
             "component_info": {
@@ -18,10 +19,17 @@
                     "load_priority": 0,
                     "variable": true
                 },
-                "RenderComponent" : {
+                "RenderComponent": {
                     "component_name": "RenderComponent",
                     "component_type": "RenderComponent",
                     "system_location": "render_components",
+                    "load_priority": 2,
+                    "variable": false
+                },
+                "SelectionComponent": {
+                    "component_name": "SelectionComponent",
+                    "component_type": "SelectionComponent",
+                    "system_location": "selection_manager",
                     "load_priority": 2,
                     "variable": false
                 }

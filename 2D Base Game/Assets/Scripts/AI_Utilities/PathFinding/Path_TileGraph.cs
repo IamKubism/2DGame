@@ -7,12 +7,17 @@ namespace HighKings
 {
     public class Path_TileGraph
     {
+        public static Path_TileGraph movement_graph;
         public Dictionary<Entity, Path_Node<Entity>> tile_map;
 
         public NodeChunk map;
 
         public Path_TileGraph(NodeChunk map)
         {
+            if(movement_graph == null)
+            {
+                movement_graph = this;
+            }
             this.map = map;
             tile_map = new Dictionary<Entity, Path_Node<Entity>>();
             foreach (Entity e in map.entities.Values)

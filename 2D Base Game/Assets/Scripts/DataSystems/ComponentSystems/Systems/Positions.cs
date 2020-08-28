@@ -9,7 +9,6 @@ namespace HighKings
     public class Positions : ISystemAdder
     {
         public static Positions instance;
-        public MapCells map_cells;
         Dictionary<Entity, Position> entity_positions;
         public Dictionary<string, Position> all_positions;
         Dictionary<string, Action> registered_entity_actions;
@@ -18,7 +17,6 @@ namespace HighKings
 
         Action<List<Entity>> on_added_entities;
         Action<List<Entity>> on_changed_entities;
-
 
         public Positions()
         {

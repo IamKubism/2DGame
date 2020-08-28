@@ -30,7 +30,7 @@ public class GameController : MonoBehaviour
     /// </summary>
 
     public MouseController mouseController;
-    public WorldController worldController;
+    public WorldController world_controller;
     public BuildModeController buildModeController;
     public PrototypeLoader prototype_loader;
 
@@ -41,12 +41,9 @@ public class GameController : MonoBehaviour
     public List<LoadPath> prototype_load_paths;
     public List<LoadPath> luaLoadPaths;
 
-    
-    
     // Start is called before the first frame update
     void OnEnable()
     {
-
         json_parser = JsonParser.instance ?? new JsonParser();
         prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(json_parser);
 
@@ -85,14 +82,18 @@ public class GameController : MonoBehaviour
     //Calls on first frame
     private void Start()
     {
-        sprite_manager.MakeSpriteCheckers(game, worldController.world);
         string root_path = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
-        string id_gen_path = System.IO.Path.Combine(Application.streamingAssetsPath, "LUA", "EntityIdGenerators.LUA");
         foreach (LoadPath l in prototype_load_paths)
         {
             PrototypeLoader.instance.ReadFile(System.IO.File.ReadAllText(l.MakePathFromRoot(root_path)));
         }
-        worldController.OnStart();
+        string system_path = System.IO.Path.Combine(root_path, "InitData", "Systems.JSON");
+        game.SetInitSystems(JsonParser.instance, System.IO.File.ReadAllText(system_path));
+        system_path = System.IO.Path.Combine(root_path, "InitData", "InitArgs.JSON");
+        Dictionary<string, object[]> system_args = JsonParser.instance.ParseString<Dictionary<string, object[]>>(System.IO.File.ReadAllText(system_path));
+        game.CreateSystems(system_args);
+        sprite_manager.MakeSpriteCheckers(game, world_controller.world);
+        world_controller.OnStart();
     }
 
     /// <summary>
@@ -100,7 +101,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        
+        game.Update(Time.deltaTime);
     }
 
     /// <summary>

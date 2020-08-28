@@ -83,7 +83,7 @@ namespace HighKings
                 rendered_objects.Add(e.entity_string_id, e.GetComponent<RenderComponent>("RenderComponent"));
             }
             OnAddedEntities(entities);
-            Debug.Log($"Added {entities.Count} render components");
+            //Debug.Log($"Added {entities.Count} render components");
         }
 
         public void ChangeEntityValues(List<Entity> entities, RenderComponent vals)

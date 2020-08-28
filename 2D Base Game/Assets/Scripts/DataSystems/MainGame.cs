@@ -9,12 +9,10 @@ namespace HighKings
 {
     /// <summary>
     /// The MainGame is responsible for all information that is passed between systems in the game
-    /// it has all the prototype dictionaries, all action interpreters, ect and should be one of
-    /// the main mediators of data overall between systems.
     /// </summary>
     public class MainGame
     {
-        public static uint character_num = 0;
+        public static ulong entity_num = 0;
 
         /// <summary>
         /// This is only there so we can start and initiallize game data that can't immediately done
@@ -30,9 +28,11 @@ namespace HighKings
         public static MainGame instance; //IDK if this is a good Idea
 
         public EntityManager entity_manager;
-        public Characters characters;
         MathFunctions math;
         PrototypeLoader prototype_loader;
+        SystemLoader system_loader;
+        Dictionary<string, object> systems;
+        public Dictionary<string, object> component_subscribers;
 
         /// <summary>
         /// Current World that player controlled characters are in. It is the mediator for all area based systems.
@@ -47,18 +47,21 @@ namespace HighKings
             if (instance == null) { instance = this; }
             math = new MathFunctions();
 
+            component_subscribers = new Dictionary<string, object>();
             //try to remove unity stuff in the future
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 
-            entity_manager = new EntityManager();
+            entity_manager = EntityManager.instance ?? new EntityManager();
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(JsonParser.instance);
-            characters = new Characters();
+            systems = new Dictionary<string, object>();
+            system_loader = SystemLoader.instance ?? new SystemLoader(systems);
+            MovementCalculator.SetTestCalculator();
         }
 
         //All startup tasks should be done in some form here
         public void StartGame()
         {
-            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "character_the_player" });
+            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "character_the_player" + entity_num });
             Dictionary<Entity, Dictionary<string, object[]>> entities = new Dictionary<Entity, Dictionary<string, object[]>>
             { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {51,51,0 } } } } };
             prototype_loader.AttachPrototype("character", entities);
@@ -68,18 +71,33 @@ namespace HighKings
 
         public void Update(float dt)
         {
+            Movers.instance.Update(dt);
+        }
 
+        public void AddComponentSubscribers(string component_name, object o)
+        {
+            component_subscribers.Add(component_name, o);
         }
 
         //////////////////////////////////////////////////////////////////////////
         ///
-        /// JSON PROTOTYPE PARSERS
+        /// JSON LOADER PARSERS
         ///
         //////////////////////////////////////////////////////////////////////////
 
         public void SetEntityPrototypes(JsonParser parser, string json_file)
         {
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(parser);
+        }
+
+        public void SetInitSystems(JsonParser parser, string json_string)
+        {
+            system_loader.AppendSystemList(json_string, parser);
+        }
+
+        public void CreateSystems(Dictionary<string,object[]> system_args)
+        {
+            system_loader.MakeAllLoadedSystems(system_args);
         }
     }
 }

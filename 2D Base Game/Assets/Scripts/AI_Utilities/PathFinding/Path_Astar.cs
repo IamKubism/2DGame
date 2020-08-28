@@ -15,6 +15,7 @@ namespace HighKings
         Queue<Entity> path;
         Queue<float> movement_cost_base;
         Queue<Position> position_path;
+        public Path_TileGraph graph;
 
         IBehavior cost_function;
 
@@ -29,6 +30,7 @@ namespace HighKings
         /// <param name="map"></param>
         public Path_Astar(Path_TileGraph graph, Entity start, List<Entity> end, IBehavior behavior)
         {
+            this.graph = graph;
             cost_function = behavior;
             full_func = (ent) => { return cost_function.CalculateOnEntity(ent); };
             if (graph.tile_map.ContainsKey(start) == false)
@@ -41,6 +43,7 @@ namespace HighKings
                 Debug.LogError("Path_Astar -- End Tile Has no node");
                 return;
             }
+            end_pos = end[0];
 
             Dictionary<Entity, Path_Node<Entity>> node_map = graph.tile_map;
 
@@ -85,7 +88,7 @@ namespace HighKings
                     {
                         continue;
                     }
-                    if (e.modifier * full_func(e.node.data) <= 0)
+                    if (e.modifier * FullCostFunction(e.node.data) <= 0)
                     {
                         closed_set.Add(e.node);
                         continue;

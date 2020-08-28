@@ -6,10 +6,13 @@ using Newtonsoft.Json;
 
 namespace HighKings
 {
-    public class Movers
+    public class Movers : IUpdater, ISystemAdder
     {
+        public static Movers instance;
+
         Positions positions_current;
-        Path_TileGraph graph;
+
+        public Dictionary<Entity, Position> entity_positions;
 
         /// <summary>
         /// The progress of movement
@@ -23,20 +26,21 @@ namespace HighKings
 
         public List<Entity> to_remove;
 
-        Action<string> on_created_mover;
-        Action<string> on_movement_ended;
-        Action<string> on_mover_changed;
-
-        public Movers(Path_TileGraph graph, Positions positions_current)
+        public Movers()
         {
-            this.graph = graph;
             paths = new Dictionary<Entity, Path_Astar>();
             mover_progress = new Dictionary<Entity, ItemVector<Position, FloatMinMax>>();
             to_remove = new List<Entity>();
-            this.positions_current = positions_current;
+            entity_positions = new Dictionary<Entity, Position>();
+            this.positions_current = Positions.instance;
+            if(instance == null)
+            {
+                instance = this;
+            }
+            PrototypeLoader.instance.AddSystemLoc("movers", this);
         }
 
-        public void UpdateMovement(float dt)
+        public void Update(float dt)
         {
             List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
             List<ItemVector<Position, Position>> tile_change = new List<ItemVector<Position, Position>>();
@@ -115,44 +119,86 @@ namespace HighKings
                 MoverPathMaker(new Position[1] { next_cell.GetComponent<Position>("Position") }, e, movement_behavior);
             } else
                 mover_progress[e].b.Reset(movement_behavior.CalculateOnEntity(next_cell));
-            if (paths[next_cell].Length() == 0)
+
+            if (paths[e].Length() == 0)
             {
-                paths.Remove(next_cell);
+                paths.Remove(e);
             }
         }
-        
+
         public void MoverPathMaker(Position[] end_area, Entity entity, IBehavior move_behavior)
         {
-            List<Entity> end = positions_current.map_cells.GetCellArea(end_area);
-            Path_Astar path = new Path_Astar(graph, entity, end, move_behavior);
+            //This in general should not happen but I am just going to do this for testing purposes
+            IBehavior temp = move_behavior;
+            if(temp == null)
+            {
+                Debug.Log("Set to default behavior");
+                temp = MovementCalculator.test_calculator;
+            }
+
+            List<Entity> end = MapCells.instance.GetCellArea(end_area);
+            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end, temp);
             if(path.Length() == 0)
             {
                 return;
             }
             Entity next_cell = path.DeQueue();
-            FloatMinMax prog = new FloatMinMax(0f, move_behavior.CalculateOnEntity(next_cell));
+            FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+
             if(prog.max <= 0)
             {
                 return;
             }
+
             mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
             if (path.Length() > 0)
                 paths.Add(entity, path);
+            return;
         }
 
-        public void RegisterOnMoverCreated(Action<Movers, string> to_reg)
+        public void MoverPathMaker(Position end_area, Entity entity, IBehavior move_behavior = default)
         {
-            on_created_mover += (entity_id) => { to_reg(this, entity_id); };
+            //This in general should not happen but I am just going to do this for testing purposes
+            IBehavior temp = move_behavior;
+            if(temp == default)
+            {
+                temp = MovementCalculator.test_calculator;
+            }
+
+            List<Entity> end = MapCells.instance.GetCellArea(new Position[1] { end_area });
+            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, MapCells.instance.GetTileUnderEntity(entity), end, temp);
+            if(path.Length() == 0)
+            {
+                return;
+            }
+
+            Entity next_cell = path.DeQueue();
+            FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+            if(prog.max <= 0)
+            {
+                return;
+            }
+
+            mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+            if (path.Length() > 0)
+                paths.Add(entity, path);
+            return;
         }
 
-        public void RegisterOnMoverEnded(Action<Movers, string> to_reg)
+        public void AddEntities(List<Entity> entities)
         {
-            on_movement_ended += (entity_id) => { to_reg(this, entity_id); };
+            foreach(Entity e in entities)
+            {
+                if (entity_positions.ContainsKey(e) == false)
+                {
+                    entity_positions.Add(e, e.GetComponent<Position>("Position"));
+                }
+            }
         }
 
-        public void RegisterOnMoverChanged(Action<Movers, string> to_reg)
+        public void OnAddedEntities(List<Entity> entities)
         {
-            on_mover_changed += (entity_id) => { to_reg(this, entity_id); };
+            throw new NotImplementedException();
         }
     }
 }

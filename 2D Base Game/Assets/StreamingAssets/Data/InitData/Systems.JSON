@@ -5,22 +5,15 @@
         "_namespace": "Default",
         "constructor_args": {
             "constructor_types": [
-                [ "none", "int" ],
-                [ "none", "int" ],
-                [ "none", "int" ]
-
             ],
             "arg_names": [
-                [ "len_x" ],
-                [ "len_y" ],
-                [ "len_z" ]
             ]
         },
         "load_priority": 2
     },
     {
         "name": "entity_positions",
-        "Type": "Positions",
+        "type": "Positions",
         "_namespace": "Default",
         "constructor_args": {
             "constructor_types": [
@@ -32,8 +25,8 @@
     },
     {
         "name": "render_components",
-        "Type": "RenderComponents",
-        "namespace": "Default",
+        "type": "RenderStateManager",
+        "_namespace": "Default",
         "constructor_args": {
             "constructor_types": [
 
@@ -47,6 +40,18 @@
     {
         "name": "entity_movers",
         "type": "Movers",
+        "_namespace": "Default",
+        "load_priority": 10,
+        "constructor_args": {
+            "constructor_types": [
+            ],
+            "arg_names": [
+            ]
+        }
+    },
+    {
+        "name": "selection_manager",
+        "type": "SelectionManager",
         "_namespace": "Default",
         "load_priority": 10,
         "constructor_args": {

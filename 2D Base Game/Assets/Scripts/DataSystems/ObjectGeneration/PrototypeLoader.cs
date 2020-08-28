@@ -18,7 +18,6 @@ namespace HighKings
 
         Type generator_type = typeof(ComponentGenerator<>);
 
-        //Dictionary<string, EntityPrototype> all_prototypes;
         Dictionary<string, EntityPrototype> prototypes;
         Dictionary<string, ISystemAdder> system_adders;
 
@@ -34,7 +33,6 @@ namespace HighKings
                 instance = this;
             }
             this.parser = parser;
-            //all_prototypes = new Dictionary<string, EntityPrototype>();
             comp_types = new Dictionary<string, Type>();
             system_adders = new Dictionary<string, ISystemAdder>();
             base_component_generators = new Dictionary<string, object>();
@@ -75,8 +73,13 @@ namespace HighKings
                         foreach (JProperty comp in comp_list)
                         {
                             string type_name = ((JProperty)comp.Values().ToList()[0]).Value.ToString();
+                            string comp_name = comp.Name;
                             if (base_component_generators.ContainsKey(type_name) == false)
                                 AddComponentGenerator(type_name);
+                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name) == false)
+                            {
+                                AddComponentSubscriber(type_name, comp_name);
+                            }
                             Type c_type = Type.GetType( this.GetType().Namespace + "." + type_name);
                             if (c_type == null || (base_component_generators.ContainsKey(type_name) == false))
                             {
@@ -99,7 +102,7 @@ namespace HighKings
                 }
             }
             watch.Stop();
-            Debug.Log($"Read file in {watch.ElapsedTicks} ticks");
+            //Debug.Log($"Read file in {watch.ElapsedTicks} ticks");
         }
 
         void AddComponentGenerator(string type_name)
@@ -107,12 +110,28 @@ namespace HighKings
             Type comp_type = Type.GetType(this.GetType().Namespace + "." + type_name);
             if (comp_type == null)
             {
-                Debug.LogError($"Could not find component type {type_name}");
+                Debug.LogError($"Could not find component type {this.GetType().Namespace + "." + type_name}");
             }
             Type gen_type = generator_type.MakeGenericType(comp_type);
             base_component_generators.Add(type_name, Activator.CreateInstance(gen_type));
         }
 
+        void AddComponentSubscriber(string type_name, string comp_name)
+        {
+            Type type = Type.GetType(this.GetType().Namespace + "." + type_name);
+            if (type == null)
+            {
+                Debug.LogError($"Could not find component type {this.GetType().Namespace + "." + type_name}");
+            }
+            ConstructorInfo constructor = typeof(ComponentSubscriber<>).MakeGenericType(type).
+                GetConstructor(new Type[1] { typeof(string) });
+            if (constructor == null)
+            {
+                string s = $"Could not find correct constructor for {comp_name} of type {type_name}";
+                Debug.LogError(s);
+            }
+            MainGame.instance.AddComponentSubscribers(comp_name, constructor.Invoke(new object[1]{ comp_name }));
+        }
 
         public void AddSystemLoc(string sys_name, ISystemAdder sys)
         {
@@ -124,17 +143,6 @@ namespace HighKings
             system_adders.Add(sys_name, sys);
         }
 
-        /*  What I would PREFER this does
-         *  1. Copies components to the system they are added to rather than copying to the system every time a prototype is loaded
-         *  2. Prototypes stored as a list of component names to reference rather than the actual component
-         *  3. Systems are asked to copy their components by name to the table rather than copy individual objects each time
-         * 
-         *  Questions:
-         *  How do we show that certain fields must be filled in at entity instantiation time, and are not fixed on prototype
-         *  declaration? (position for example)
-         * 
-         * 
-         */
         void CreatePrototype(JProperty prot)
         {
             string prot_name = prot.Name;
@@ -152,12 +160,12 @@ namespace HighKings
                     case "extends":
                         if (prototypes.ContainsKey(sub.Value.ToString()))
                         {
-                            p1 = prototypes[sub.Value.ToString()].Clone();
-                            EntityPrototype.LoadFromAppender(p, p1);
+                            p1 = prototypes[sub.Value.ToString()].Clone(prot_name);
                         }
                         else
                         {
-                            Debug.LogError("TODO: Implement extension prototype search");
+                            Debug.LogError($"Could not find the prototype {sub.Value.ToString()} that {prot_name} extends, skipping");
+                            return;
                         }
                         break;
                     //Generate the component values/overrides
@@ -165,23 +173,41 @@ namespace HighKings
                         List<JToken> comps = sub.Values().ToList();
                         foreach (JProperty comp in comps)
                         {
-                            Type comp_type = Type.GetType(this.GetType().Namespace + "." + comp.Name);
+                            string comp_name = comp.Name;
+                            string type_name = comp.Value["type"].ToString();
+                            Type comp_type = Type.GetType(this.GetType().Namespace + "." + type_name);
                             if (comp_type == null)
                             {
-                                Debug.Log("TODO: Search for component type");
+                                Debug.Log($"Could not find component of type {comp.Name}");
+                                continue;
+                            }
+                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name) == false)
+                            {
+                                AddComponentSubscriber(type_name, comp_name);
                             }
                             //Debug.Log($"Parsing: {comp.Value.ToString()}");
-                            object comp_genner = base_component_generators[comp.Name];
+                            List<FieldInfo> over_fields = new List<FieldInfo>();
+                            List<JToken> fields = comp.Values().ToList();
+                            foreach(JProperty f in fields)
+                            {
+                                if(comp_type.GetField(f.Name) == null)
+                                {
+                                    Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
+                                    continue;
+                                }
+                                over_fields.Add(comp_type.GetField(f.Name));
+                            }
+                            object comp_genner = base_component_generators[type_name];
                             object over_comp = comp_genner.GetType().
                                 GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value.ToString(), parser });
-                            p.OverwriteComponentValue(comp.Name, over_comp);
+                            p.OverwriteComponentValue(comp.Name, over_comp, over_fields);
 
                         }
                         break;
                 }
             }
             prototypes.Add(prot_name, p);
-            Debug.Log(p.ToString());
+            //Debug.Log(p.ToString());
         }
 
         public void AttachPrototype(string prototype_id, Dictionary<Entity, Dictionary<string, object[]>> entities)
@@ -198,7 +224,7 @@ namespace HighKings
             {
                 watch.Restart();
                 ComponentInfo comp = load_queue.Dequeue();
-                Debug.Log($"Making {comp.component_name}");
+                //Debug.Log($"Making {comp.component_name}");
                 if (comp.variable)
                 {
                     Type[] t_args = Array.ConvertAll(entities.First().Value[comp.component_name], item => item.GetType());
@@ -217,7 +243,7 @@ namespace HighKings
                         e.AddComponent(comp.component_name, (IBaseComponent)constructor.Invoke(entities[e][comp.component_name]));
                     }
                     watch.Stop();
-                    Debug.Log($"Added variable components in {watch.Elapsed}");
+                    //Debug.Log($"Added variable components in {watch.Elapsed}");
                 }
                 else
                 {
@@ -225,7 +251,7 @@ namespace HighKings
                     { Type.GetType(this.GetType().Namespace + "." + comp.component_type) });
                     if (constructor == null)
                     {
-                        string s = $"Could not find correct constructor for {comp.component_name} with fixed type argumemts";
+                        string s = $"Could not find correct constructor for {comp.component_name} with fixed type arguments";
                         Debug.LogError(s);
                     }
                     foreach (Entity e in entities.Keys)
@@ -234,7 +260,7 @@ namespace HighKings
                             (IBaseComponent)constructor.Invoke(new object[1] { p.component_values[comp.component_name] }));
                     }
                     watch.Stop();
-                    Debug.Log($"Added components in {watch.Elapsed}");
+                    //Debug.Log($"Added components in {watch.Elapsed}");
                 }
                 if (comp.system_location != "None")
                     system_adders[comp.system_location].AddEntities(entities.Keys.ToList());

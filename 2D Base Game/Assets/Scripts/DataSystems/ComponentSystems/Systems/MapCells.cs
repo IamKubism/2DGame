@@ -10,19 +10,18 @@ namespace HighKings
     /// </summary>
     public class MapCells : ISystemAdder
     {
-        private readonly int len_x;
-        private readonly int len_y;
-        private readonly int len_z;
-        public Entity[,,] entities_cells;
-        public Cell[,,] cells;
+        public Dictionary<Position.Tile, Entity> tiles;
+        public Dictionary<Position.Tile, Cell> cells;
+        public static MapCells instance;
 
-        public MapCells(int len_x, int len_y, int len_z)
+        public MapCells()
         {
-            this.len_x = len_x;
-            this.len_y = len_y;
-            this.len_z = len_z;
-            entities_cells = new Entity[len_x, len_y, len_z];
-            cells = new Cell[len_x, len_y, len_z];
+            if(instance == null)
+            {
+                instance = this;
+            }
+            tiles = new Dictionary<Position.Tile, Entity>();
+            cells = new Dictionary<Position.Tile, Cell>();
             PrototypeLoader.instance.AddSystemLoc("map_cells", this);
         }
 
@@ -31,14 +30,13 @@ namespace HighKings
             foreach(Entity e in entities)
             {
                 Position pos = e.GetComponent<Position>("Position");
-                int[] index = pos.p;
-                if(entities_cells[index[0],index[1],index[2]] != null)
+                if (tiles.ContainsKey(pos.tile))
                 {
-                    Debug.LogError($"Tried to add a cell twice at {index[0]}, {index[1]}, {index[2]}");
+                    Debug.LogError($"Tried to add a cell twice at {pos.ToString()}");
                     continue;
                 }
-                entities_cells[index[0], index[1], index[2]] = e;
-                cells[index[0], index[1], index[2]] = e.GetComponent<Cell>("Celled");
+                tiles.Add(pos.tile, e);
+                cells.Add(pos.tile, e.GetComponent<Cell>("Cell"));
             }
             OnAddedEntities(entities);
         }
@@ -52,14 +50,17 @@ namespace HighKings
         {
             List<Entity> to_return = new List<Entity>(sqr_dist);
             int[] p_cen = center.GetComponent<Position>("Position").p;
-            for (int x = Math.Max(p_cen[0] - sqr_dist, 0); x < Math.Min(p_cen[0] + sqr_dist, len_x - 1); x += 1)
+            for (int x = p_cen[0]-sqr_dist; x < p_cen[0]+sqr_dist; x+=1)
             {
-                for (int y = Math.Max(p_cen[1] - sqr_dist, 0); y < Math.Min(p_cen[1] + sqr_dist, len_y - 1); y += 1)
+                for(int y = p_cen[1]-sqr_dist; y < p_cen[1]-sqr_dist; y += 1)
                 {
-                    int[] p = new int[3] { x, y, 0 };
-                    if (MathFunctions.SqrDist(p_cen, p) <= sqr_dist && MathFunctions.SqrDist(p_cen, p) > 0)
+                    if(tiles.ContainsKey(new Position.Tile { x = x, y = y, z = 0 }))
                     {
-                        to_return.Add(entities_cells[x, y, p_cen[2]]);
+                        int[] p = new int[3] { x, y, 0 };
+                        if (MathFunctions.SqrDist(p_cen, p) <= sqr_dist && MathFunctions.SqrDist(p_cen, p) > 0)
+                        {
+                            to_return.Add(tiles[new Position.Tile { x = x, y = y, z = 0 }]);
+                        }
                     }
                 }
             }
@@ -71,11 +72,21 @@ namespace HighKings
             List<Entity> cell_area = new List<Entity>(positions.Length);
             foreach(Position p in positions)
             {
-                int[] ind = p.p;
-                cell_area.Add(entities_cells[ind[0], ind[1], ind[2]]);
+                cell_area.Add(tiles[p.tile]);
             }
 
             return cell_area;
+        }
+
+        public Entity GetTileFromCoords(int x, int y, int z)
+        {
+            Position.Tile t = new Position.Tile { x = x, y = y, z = z };
+            return tiles.ContainsKey(t) ? tiles[t] : null;
+        }
+
+        public Entity GetTileUnderEntity(Entity e)
+        {
+            return tiles[e.GetComponent<Position>("Position").tile];
         }
 
         /// <summary>
@@ -86,9 +97,7 @@ namespace HighKings
         {
             foreach(Entity e in entities)
             {
-                int[] pos = e.GetComponent<Position>("Position").p;
-                Cell c = cells[pos[0], pos[1], pos[2]];
-                c.AddOccupant(e);
+                cells[e.GetComponent<Position>("Position").tile].AddOccupant(e);
             }
         }
 
@@ -97,12 +106,13 @@ namespace HighKings
             foreach(KeyValuePair<Entity,Position> ep in entity_next_pos)
             {
                 int[] pos = ep.Value.p;
-                Cell c = cells[pos[0], pos[1], pos[2]];
-                c.AddOccupant(ep.Key);
+                //Cell c = cells[pos[0], pos[1], pos[2]];
+                //c.AddOccupant(ep.Key);
                 pos = ep.Key.GetComponent<Position>("Position").p;
-                c = cells[pos[0], pos[1], pos[2]];
-                c.RemoveOccupant(ep.Key);
+                //c = cells[pos[0], pos[1], pos[2]];
+                //c.RemoveOccupant(ep.Key);
             }
         }
+
     }
 }

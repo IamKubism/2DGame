@@ -11,23 +11,22 @@ namespace HighKings
         public Dictionary<string, object> systems;
         public Priority_Queue.SimplePriorityQueue<SystemInfo> queue;
 
-        public SystemLoader()
+        public SystemLoader(Dictionary<string, object> systems)
         {
             if(instance != null)
             {
-                Debug.LogError("SystemLoader instance is not null");
+                Debug.LogError("SystemLoader instance is not null and tried to re-create it");
             } else
             {
                 instance = this;
             }
-            systems = new Dictionary<string, object>();
+            this.systems = systems;
             queue = new Priority_Queue.SimplePriorityQueue<SystemInfo>();
         }
 
         public void AppendSystemList(string json_text, JsonParser parser)
         {
             List<SystemInfo> infos = parser.ParseString<List<SystemInfo>>(json_text);
-
             foreach (SystemInfo info in infos)
             {
                 queue.Enqueue(info, info.load_priority);
@@ -53,8 +52,12 @@ namespace HighKings
                 Debug.LogError($"System {info.name} of type {info.system_type.ToString()} already created.");
                 return;
             }
-            systems.Add(info.name, constructor.Invoke(args));
-            Debug.Log("Added system: " + info.name);
+            object[] casted_args = new object[args.Length];
+            for(int i = 0; i < args.Length; i += 1)
+            {
+                casted_args[i] = Convert.ChangeType(args[i], info.arg_types[i]);
+            }
+            systems.Add(info.name, constructor.Invoke(casted_args));
         }
 
         public void MakeAllLoadedSystems(Dictionary<string, object[]> system_args)
@@ -62,7 +65,10 @@ namespace HighKings
             while (queue.Count > 0)
             {
                 SystemInfo info = queue.Dequeue();
-                CreateSystem(info, system_args[info.name]);
+                if (system_args.ContainsKey(info.name))
+                    CreateSystem(info, system_args[info.name]);
+                else
+                    CreateSystem(info, new object[0] { });
             }
         }
 

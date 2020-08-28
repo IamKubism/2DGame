@@ -3,9 +3,11 @@
         "Position": {
             "type": "Position",
             "data": {
-                "x": 0,
-                "y": 0,
-                "z": 0
+                "tile": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                }
             }
         },
         "Terrain": {
@@ -36,6 +38,12 @@
                     "y": 0,
                     "z": 0
                 }
+            }
+        },
+        "SelectionComponent": {
+            "type": "SelectionComponent",
+            "data": {
+                "priority": 100
             }
         }
     }

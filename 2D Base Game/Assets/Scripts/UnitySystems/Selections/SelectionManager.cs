@@ -1,35 +1,58 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using HighKings;
 
-public class SelectionManager : ScriptableObject, ISystemAdder
+namespace HighKings
 {
-    public List<SelectionComponent> ActiveSelectables;
-    public Dictionary<Entity, SelectionComponent> selection_data;
-    public GameObjectManager go_manager;
 
-    private void OnEnable()
+    public class SelectionManager : ISystemAdder
     {
-    }
+        public static SelectionManager instance;
+        public List<SelectionComponent> active_selectables;
+        public Dictionary<Entity, SelectionComponent> selection_data;
+        public GameObjectManager go_manager;
 
-    public void AddEntities(List<Entity> entities)
-    {
-        foreach(Entity e in entities)
+        private void OnEnable()
         {
-            if(selection_data.ContainsKey(e) == false)
-                selection_data.Add(e, e.GetComponent<SelectionComponent>("SelectionComponent"));
+            active_selectables = new List<SelectionComponent>();
+            selection_data = new Dictionary<Entity, SelectionComponent>();
+            if (instance == null)
+            {
+                instance = this;
+            }
+            PrototypeLoader.instance.AddSystemLoc("selection_manager", this);
         }
-        go_manager.AddComponentToObject<SelectionComponent>(entities, SetSelectionComponentValues);
-    }
 
-    public void OnAddedEntities(List<Entity> entities)
-    {
+        public SelectionManager()
+        {
+            active_selectables = new List<SelectionComponent>();
+            selection_data = new Dictionary<Entity, SelectionComponent>();
+            if (instance == null)
+            {
+                instance = this;
+            }
+            PrototypeLoader.instance.AddSystemLoc("selection_manager", this);
+        }
 
-    }
+        public void AddEntities(List<Entity> entities)
+        {
+            foreach (Entity e in entities)
+            {
+                if (selection_data.ContainsKey(e) == false)
+                    selection_data.Add(e, e.GetComponent<SelectionComponent>("SelectionComponent"));
+            }
+            GameObjectManager.instance.AddComponentToObjects<BoxCollider>(entities, SetSelectionComponentValues);
+        }
 
-    void SetSelectionComponentValues(SelectionComponent comp, Entity es)
-    {
+        public void OnAddedEntities(List<Entity> entities)
+        {
 
+        }
+
+        void SetSelectionComponentValues(BoxCollider comp, Entity es)
+        {
+            comp.size = new Vector3(1f, 1f);
+            comp.isTrigger = true;
+        }
     }
 }

@@ -68,7 +68,8 @@ public class SpriteManager : MonoBehaviour
     /// <param name="world"></param>
     public void MakeSpriteCheckers(MainGame game, World world)
     {
-        renders = new RenderStateManager();
+        //renders = new RenderStateManager();
+        renders = RenderStateManager.instance;
 
         renders.RegisterOnChangedEntities((rend, entities) =>
         {
@@ -80,15 +81,11 @@ public class SpriteManager : MonoBehaviour
 
         renders.RegisterOnAddedEntities((rend, entities) =>
         {
-            foreach(Entity e in entities)
-            {
-                CreateEntitySprite(e);
-            }
-            //Debug.Log($"Added {entities.Count} sprites");
-            //Debug.Log($"Currently {go_manager.entity_objects.Count} in the game object manager");
+            GameObjectManager.instance.AddObjectsForEntities(entities);
+            GameObjectManager.instance.AddComponentToObjects<SpriteRenderer>(entities, SetRenderValues);
         });
 
-        world.entity_positions.RegisterOnChangedEntities((pos, entities) => 
+        Positions.instance.RegisterOnChangedEntities((pos, entities) => 
         {
             foreach(Entity e in entities)
             {
@@ -96,7 +93,6 @@ public class SpriteManager : MonoBehaviour
             }
             renders.OnEntitiesChanged(entities);
         });
-
     }
 
     void SetSpriteValues(Entity e)
@@ -128,31 +124,12 @@ public class SpriteManager : MonoBehaviour
         }
     }
 
-    void CreateEntitySprite(Entity entity_id, RenderComponent comp)
+    void SetRenderValues(SpriteRenderer renderer, Entity e)
     {
-        if (entity_object_map.ContainsKey(entity_id))
-        {
-            Debug.LogError("Tried to create an entity's sprite twice " + entity_id);
-        }
-        GameObject entity_go = new GameObject();
-
-        entity_go.name = entity_id.entity_string_id;
-
-        //Set position
-        entity_go.transform.SetParent(GameController._instance.transform, true);
-        entity_go.transform.position = comp.position;
-
-        //Set sprite
-        SpriteRenderer entity_sr = entity_go.AddComponent<SpriteRenderer>();
-        entity_sr.sprite = GetSprite(comp.sprite_name);
-        entity_sr.sortingLayerName = comp.layer_name;
-
-        entity_object_map.Add(entity_id, entity_go);
-    }
-
-    void CreateEntitySprite(Entity e)
-    {
-        CreateEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent"));
+        RenderComponent r = e.GetComponent<RenderComponent>("RenderComponent");
+        renderer.sprite = GetSprite(r.sprite_name);
+        renderer.sortingLayerName = r.layer_name;
+        renderer.gameObject.transform.position = r.position;
     }
 
     void RemoveRenderedObject(Entity entity_id)
@@ -419,3 +396,31 @@ public struct SpriteData
 //{
 //    SetSortingLayer(entity_id, e.GetEntityTypeVal(entity_id));
 //});
+
+
+//void CreateEntitySprite(Entity entity_id, RenderComponent comp)
+//{
+//    if (entity_object_map.ContainsKey(entity_id))
+//    {
+//        Debug.LogError("Tried to create an entity's sprite twice " + entity_id);
+//    }
+//    GameObject entity_go = new GameObject();
+
+//    entity_go.name = entity_id.entity_string_id;
+
+//    //Set position
+//    entity_go.transform.SetParent(GameController._instance.transform, true);
+//    entity_go.transform.position = comp.position;
+
+//    //Set sprite
+//    SpriteRenderer entity_sr = entity_go.AddComponent<SpriteRenderer>();
+//    entity_sr.sprite = GetSprite(comp.sprite_name);
+//    entity_sr.sortingLayerName = comp.layer_name;
+
+//    entity_object_map.Add(entity_id, entity_go);
+//}
+
+//void CreateEntitySprite(Entity e)
+//{
+//    CreateEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent"));
+//}

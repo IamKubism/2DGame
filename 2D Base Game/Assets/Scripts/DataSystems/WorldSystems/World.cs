@@ -39,7 +39,7 @@ public class World
         this.length = length;
         this.height = height;
 
-        entity_positions = new Positions();
+        //entity_positions = new Positions();
     }
 
     void SetUpTiles(int width, int length, int height)
@@ -77,8 +77,7 @@ public class World
 
         SetUpTiles(width, length, height);
 
-
-        Debug.Log("World set up".ToString());
+        //Debug.Log("World set up");
     }
 
     public int Width

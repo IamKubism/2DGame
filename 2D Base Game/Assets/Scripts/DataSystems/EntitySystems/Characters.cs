@@ -8,7 +8,7 @@ namespace HighKings
     /// <summary>
     /// This is a system designed to keep track of entities which are characters, I think I might need this but maybe I do not
     /// </summary>
-    public class Characters : ISystemAdder
+    public class Characters
     {
         public Dictionary<string, Entity> active_characters;
         Action<List<Entity>> on_added_entities;
@@ -17,7 +17,6 @@ namespace HighKings
         {
             active_characters = new Dictionary<string, Entity>();
 
-            PrototypeLoader.instance.AddSystemLoc("Characters", this);
         }
 
         public void AddEntities(List<Entity> entities)

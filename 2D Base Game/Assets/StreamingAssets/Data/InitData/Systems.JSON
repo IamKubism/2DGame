@@ -1,43 +1,5 @@
 [
     {
-        "name":  "map_cells",
-        "type": "MapCells",
-        "_namespace": "Default",
-        "constructor_args": {
-            "constructor_types": [
-            ],
-            "arg_names": [
-            ]
-        },
-        "load_priority": 2
-    },
-    {
-        "name": "entity_positions",
-        "type": "Positions",
-        "_namespace": "Default",
-        "constructor_args": {
-            "constructor_types": [
-            ],
-            "arg_names": [
-            ]
-        },
-        "load_priority": 0
-    },
-    {
-        "name": "render_components",
-        "type": "RenderStateManager",
-        "_namespace": "Default",
-        "constructor_args": {
-            "constructor_types": [
-
-            ],
-            "arg_names": [
-
-            ]
-        },
-        "load_priority": 1
-    },
-    {
         "name": "entity_movers",
         "type": "Movers",
         "_namespace": "Default",
@@ -50,14 +12,44 @@
         }
     },
     {
+        "name": "sprite_manager",
+        "type": "SpriteManager",
+        "_namespace": "Default",
+        "load_priority": 2,
+        "constructor_args": {
+            "constructor_types": [
+
+            ],
+            "arg_names": [
+
+            ]
+        }
+    },
+    {
+        "name": "map_cells",
+        "type": "MapCells",
+        "_namespace": "Default",
+        "load_priority": 1,
+        "constructor_args": {
+            "constructor_types": [
+
+            ],
+            "arg_names": [
+
+            ]
+        }
+    },
+    {
         "name": "selection_manager",
         "type": "SelectionManager",
         "_namespace": "Default",
-        "load_priority": 10,
+        "load_priority": 1,
         "constructor_args": {
             "constructor_types": [
+
             ],
             "arg_names": [
+
             ]
         }
     }

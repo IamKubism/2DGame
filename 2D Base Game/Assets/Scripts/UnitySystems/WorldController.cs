@@ -94,14 +94,6 @@ public class WorldController : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    void MakeEmptyWorld()
-    {
-        world = new World(len_x,len_y,len_z);
-        world.SetUpWorld();
-        Camera.main.transform.position = new Vector3(world.Width / 2, world.Length / 2, Camera.main.transform.position.z);
-        //world.TestChar();
-    }
-
     public void SaveWorld()
     {
         XmlSerializer serializer = new XmlSerializer(typeof(World));

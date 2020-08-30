@@ -46,7 +46,7 @@ namespace HighKings
         /// <typeparam name="CompType"></typeparam>
         /// <param name="float_computer"></param>
         /// <param name="comp_name"></param>
-        public void SetComputation<CompType>(Func<CompType,float> float_computer, string component_name, string computation_name)
+        public void SetComputation<CompType>(Func<CompType,float> float_computer, string component_name, string computation_name) where CompType: IBaseComponent
         {
             if (id_to_computation.ContainsKey(computation_name))
             {

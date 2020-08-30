@@ -246,7 +246,6 @@ MonoBehaviour:
   mouseController: {fileID: 1742309388}
   world_controller: {fileID: 1102877549}
   buildModeController: {fileID: 792233857}
-  sprite_manager: {fileID: 1918936944}
 --- !u!1 &84877327
 GameObject:
   m_ObjectHideFlags: 0
@@ -1340,7 +1339,6 @@ Transform:
   - {fileID: 1742309389}
   - {fileID: 792233856}
   - {fileID: 691366101}
-  - {fileID: 1918936943}
   - {fileID: 1566678923}
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -1970,9 +1968,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84176b1899b29624788b68d9da1b289e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventory_name: 
-  inspecto_name: 
-  interaction_panel_name: 
   button_prefab: {fileID: 3753206350905400642, guid: 6ac3f065843698e43a718505ed707acb,
     type: 3}
   panel: {fileID: 5799213915711495210, guid: 164a3b6129341dd4ab5e90590e0e3361, type: 3}
@@ -1982,6 +1977,7 @@ MonoBehaviour:
   secondary_actions: {fileID: 0}
   selection_info: {fileID: 0}
   mouse_controller: {fileID: 1742309388}
+  shift_dist: 110
 --- !u!1 &1164756100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2554,7 +2550,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 856338639}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1566678924
 MonoBehaviour:
@@ -2839,9 +2835,6 @@ MonoBehaviour:
   menu_manager: {fileID: 1150263641}
   selection_tabs: {fileID: 691366102}
   selection_info: {fileID: 0}
-  active_selectables: []
-  sprite_manager: {fileID: 0}
-  initializedDrag: 0
 --- !u!4 &1742309389
 Transform:
   m_ObjectHideFlags: 0
@@ -3199,50 +3192,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907049898}
   m_CullTransparentMesh: 0
---- !u!1 &1918936942
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1918936943}
-  - component: {fileID: 1918936944}
-  m_Layer: 0
-  m_Name: SpriteManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1918936943
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918936942}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 856338639}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1918936944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1918936942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94413311f7ba0de46b8ef2d71132178b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  go_manager: {fileID: 1566678924}
 --- !u!1 &2127253611
 GameObject:
   m_ObjectHideFlags: 0

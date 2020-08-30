@@ -1,6 +1,7 @@
 {
     "components": {
         "Position": {
+            "_namespace": "Default",
             "type": "Position",
             "data": {
                 "tile": {
@@ -11,12 +12,14 @@
             }
         },
         "Terrain": {
+            "_namespace": "Default",
             "type": "Terrain",
             "data": {
                 "move_cost": -1
             }
         },
         "RenderComponent": {
+            "_namespace": "Default",
             "type": "RenderComponent",
             "data": {
                 "position": {
@@ -31,6 +34,7 @@
             }
         },
         "Cell": {
+            "_namespace": "Default",
             "type": "Cell",
             "data": {
                 "position": {
@@ -41,6 +45,7 @@
             }
         },
         "SelectionComponent": {
+            "_namespace": "Default",
             "type": "SelectionComponent",
             "data": {
                 "priority": 100

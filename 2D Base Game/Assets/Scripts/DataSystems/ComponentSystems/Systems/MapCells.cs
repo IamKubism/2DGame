@@ -8,85 +8,24 @@ namespace HighKings
     /// <summary>
     /// Currently I am just trying to get things working for a 1 chunck world. This will store all of the occupancy type data for map tiles and mangage them
     /// </summary>
-    public class MapCells : ISystemAdder
+    public class MapCells
     {
-        public Dictionary<Position.Tile, Entity> tiles;
-        public Dictionary<Position.Tile, Cell> cells;
-        public static MapCells instance;
+        World world;
+        ComponentSubscriber<Position> positions;
+
+        Action<List<Entity>> pos_on_add_action;
 
         public MapCells()
         {
-            if(instance == null)
+            world = World.instance;
+            positions = MainGame.instance.GetSubscriberSystem<Position>("Position");
+            pos_on_add_action += (entities) =>
             {
-                instance = this;
-            }
-            tiles = new Dictionary<Position.Tile, Entity>();
-            cells = new Dictionary<Position.Tile, Cell>();
-            PrototypeLoader.instance.AddSystemLoc("map_cells", this);
-        }
-
-        public void AddEntities(List<Entity> entities)
-        {
-            foreach(Entity e in entities)
-            {
-                Position pos = e.GetComponent<Position>("Position");
-                if (tiles.ContainsKey(pos.tile))
-                {
-                    Debug.LogError($"Tried to add a cell twice at {pos.ToString()}");
-                    continue;
-                }
-                tiles.Add(pos.tile, e);
-                cells.Add(pos.tile, e.GetComponent<Cell>("Cell"));
-            }
-            OnAddedEntities(entities);
-        }
-
-        public void OnAddedEntities(List<Entity> entities)
-        {
-
-        }
-
-        public List<Entity> GetCellArea(Entity center, int sqr_dist)
-        {
-            List<Entity> to_return = new List<Entity>(sqr_dist);
-            int[] p_cen = center.GetComponent<Position>("Position").p;
-            for (int x = p_cen[0]-sqr_dist; x < p_cen[0]+sqr_dist; x+=1)
-            {
-                for(int y = p_cen[1]-sqr_dist; y < p_cen[1]-sqr_dist; y += 1)
-                {
-                    if(tiles.ContainsKey(new Position.Tile { x = x, y = y, z = 0 }))
-                    {
-                        int[] p = new int[3] { x, y, 0 };
-                        if (MathFunctions.SqrDist(p_cen, p) <= sqr_dist && MathFunctions.SqrDist(p_cen, p) > 0)
-                        {
-                            to_return.Add(tiles[new Position.Tile { x = x, y = y, z = 0 }]);
-                        }
-                    }
-                }
-            }
-            return to_return;
-        }
-
-        public List<Entity> GetCellArea(Position[] positions)
-        {
-            List<Entity> cell_area = new List<Entity>(positions.Length);
-            foreach(Position p in positions)
-            {
-                cell_area.Add(tiles[p.tile]);
-            }
-
-            return cell_area;
-        }
-
-        public Entity GetTileFromCoords(int x, int y, int z)
-        {
-            Position.Tile t = new Position.Tile { x = x, y = y, z = z };
-            return tiles.ContainsKey(t) ? tiles[t] : null;
-        }
-
-        public Entity GetTileUnderEntity(Entity e)
-        {
-            return tiles[e.GetComponent<Position>("Position").tile];
+                AddOccupants(entities);
+                positions.SubscribeAfterAction(entities, AddOccupant, "CellAddOccupants");
+                positions.SubscribeBeforeAction(entities, RemoveOccupant, "CellRemoveOccupants");
+            };
+            positions.RegisterOnAdded(pos_on_add_action);
         }
 
         /// <summary>
@@ -95,24 +34,52 @@ namespace HighKings
         /// <param name="entities"></param>
         public void AddOccupants(List<Entity> entities)
         {
-            foreach(Entity e in entities)
+            foreach (Entity e in entities)
             {
-                cells[e.GetComponent<Position>("Position").tile].AddOccupant(e);
+                if (e.HasComponent("Cell"))
+                {
+                    e.GetComponent<Cell>("Cell").AddOccupant(e);
+                }
+                else
+                {
+                    List<Entity> c = world.GetTileUnderEntity(e).GetComponent<Cell>("Cell").occupants;
+                    if (c.Contains(e))
+                    {
+                        Debug.LogError("Tried to add an entity to a cell more than once");
+                        continue;
+                    }
+                    else
+                    {
+                        c.Add(e);
+                    }
+                }
             }
         }
 
-        public void SwapOccupants(Dictionary<Entity,Position> entity_next_pos)
+        public void AddOccupant(Entity e, Position p)
         {
-            foreach(KeyValuePair<Entity,Position> ep in entity_next_pos)
+            List<Entity> c = world.GetTileUnderEntity(e).GetComponent<Cell>("Cell").occupants;
+            if (c.Contains(e))
             {
-                int[] pos = ep.Value.p;
-                //Cell c = cells[pos[0], pos[1], pos[2]];
-                //c.AddOccupant(ep.Key);
-                pos = ep.Key.GetComponent<Position>("Position").p;
-                //c = cells[pos[0], pos[1], pos[2]];
-                //c.RemoveOccupant(ep.Key);
+                Debug.LogError("Tried to add an entity to a cell more than once");
+            }
+            else
+            {
+                c.Add(e);
             }
         }
 
+        public void RemoveOccupant(Entity entity, Position p)
+        {
+            List<Entity> c = world.GetTileUnderEntity(entity).GetComponent<Cell>("Cell").occupants;
+            if (c.Contains(entity) == false)
+            {
+                Debug.LogError("Tried to remove an entity from a cell it is not part of");
+            }
+            else
+            {
+                c.Remove(entity);
+            }
+        }
     }
 }

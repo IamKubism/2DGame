@@ -7,237 +7,231 @@ using Newtonsoft.Json;
 using System;
 using HighKings;
 
-/// <summary>
-/// Manages a dictionary of all sprites used
-/// TODO: Make this a scriptable object
-/// </summary>
-public class SpriteManager : MonoBehaviour
+namespace HighKings
 {
-    public static SpriteManager current;
-
-    public GameObjectManager go_manager;
-    Dictionary<string, Sprite> sprite_map;
-    public Dictionary<Entity, GameObject> entity_object_map;
-    List<string> layer_list;
-    World world { get { return WorldController.Instance.world; } }
-    RenderStateManager renders;
-
-    // Start is called before the first frame update
-    void OnEnable()
-    {
-        JsonParser parser = JsonParser.instance ?? new JsonParser();
-        current = this;
-        sprite_map = new Dictionary<string, Sprite>();
-
-        string path = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
-        path = System.IO.Path.Combine(path, "InitData");
-        path = System.IO.Path.Combine(path, "SpriteDataPaths.JSON");
-        List<LoadPath> spriteDataPaths = parser.ParseString<List<LoadPath>>(System.IO.File.ReadAllText(path));
-
-        path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
-        path = System.IO.Path.Combine(path, "JSON");
-
-        List<string> paths = new List<string>();
-        foreach(LoadPath l in spriteDataPaths)
-        {
-            paths.Add(l.MakePathFromRoot(path));
-        }
-
-        path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
-        path = System.IO.Path.Combine(path, "Images");
-
-        entity_object_map = go_manager.entity_objects;
-
-        LoadSpritesFromJSON(path, paths, parser);
-
-        //In the future we can have this loaded procedurally but it works like this for now
-        layer_list = new List<string>
-        {
-            "Ground",
-            "Furniture",
-            "Characters",
-            "Selections",
-            "UI Layer"
-        };
-    }
-
     /// <summary>
-    /// Makes all of the checkers used for creating and updating sprite data (the hope is that this doesn't get too ridiculous, idk dud)
+    /// Manages a dictionary of all sprites used
     /// </summary>
-    /// <param name="game"></param>
-    /// <param name="world"></param>
-    public void MakeSpriteCheckers(MainGame game, World world)
+    public class SpriteManager
     {
-        //renders = new RenderStateManager();
-        renders = RenderStateManager.instance;
+        public static SpriteManager current;
 
-        renders.RegisterOnChangedEntities((rend, entities) =>
+        public GameObjectManager go_manager;
+        Dictionary<string, Sprite> sprite_map;
+        public Dictionary<Entity, GameObject> entity_object_map;
+        World world { get { return WorldController.Instance.world; } }
+        RenderStateManager renders;
+
+        ComponentSubscriber<RenderComponent> render_values;
+        ComponentSubscriber<Position> positions;
+
+        Action<List<Entity>> on_add_action;
+
+        /// <summary>
+        /// Default constructor for the sprite manager, TODO: Give it custom sprite paths
+        /// </summary>
+        public SpriteManager()
         {
-            foreach(Entity e in entities)
+            current = this;
+            sprite_map = new Dictionary<string, Sprite>();
+
+            string path = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
+            path = System.IO.Path.Combine(path, "InitData");
+            path = System.IO.Path.Combine(path, "SpriteDataPaths.JSON");
+            List<LoadPath> spriteDataPaths = JsonParser.instance.ParseString<List<LoadPath>>(System.IO.File.ReadAllText(path));
+
+            path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
+            path = System.IO.Path.Combine(path, "JSON");
+
+            List<string> paths = new List<string>();
+            foreach (LoadPath l in spriteDataPaths)
             {
-                SetSpriteValues(e);
+                paths.Add(l.MakePathFromRoot(path));
             }
-        });
 
-        renders.RegisterOnAddedEntities((rend, entities) =>
-        {
-            GameObjectManager.instance.AddObjectsForEntities(entities);
-            GameObjectManager.instance.AddComponentToObjects<SpriteRenderer>(entities, SetRenderValues);
-        });
+            path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
+            path = System.IO.Path.Combine(path, "Images");
 
-        Positions.instance.RegisterOnChangedEntities((pos, entities) => 
-        {
-            foreach(Entity e in entities)
+            go_manager = GameObjectManager.instance;
+            entity_object_map = go_manager.entity_objects;
+
+            LoadSpritesFromJSON(path, paths, JsonParser.instance);
+
+            on_add_action += (entities) =>
             {
-                e.GetComponent<RenderComponent>("RenderComponent").position = e.GetComponent<Position>("Position").disp_pos;
-            }
-            renders.OnEntitiesChanged(entities);
-        });
-    }
+                GameObjectManager.instance.AddObjectsForEntities(entities);
+                GameObjectManager.instance.AddComponentToObjects<SpriteRenderer>(entities, SetRenderValues);
+                positions.SubscribeAfterAction(entities, SetSpritePosition, "SetSpritePosition");
+                render_values.SubscribeAfterAction(entities, SetSpriteValues, "SetSpriteValues");
+            };
 
-    void SetSpriteValues(Entity e)
-    {
-        SetSpritePosition(e, e.GetComponent<RenderComponent>("RenderComponent").position);
-        SetSortingLayer(e, e.GetComponent<RenderComponent>("RenderComponent").layer_name);
-        SetEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent").sprite_name);
-    }
-
-    void SetSprite(Entity entity_id, string sprite_name)
-    {
-        SpriteRenderer entity_sr = entity_object_map[entity_id].GetComponent<SpriteRenderer>() == null ?
-            entity_object_map[entity_id].AddComponent<SpriteRenderer>() : entity_object_map[entity_id].GetComponent<SpriteRenderer>();
-        entity_sr.sprite = GetSprite(sprite_name);
-    }
-
-    void SetSortingLayer(Entity entity_id, string layer_name)
-    {
-        SpriteRenderer entity_sr = entity_object_map[entity_id].GetComponent<SpriteRenderer>() == null ?
-            entity_object_map[entity_id].AddComponent<SpriteRenderer>() : entity_object_map[entity_id].GetComponent<SpriteRenderer>();
-        entity_sr.sortingLayerName = layer_name;
-    }
-
-    void SetSpritePosition(Entity entity_id, Vector3 position)
-    {
-        if (entity_object_map.ContainsKey(entity_id))
-        {
-            entity_object_map[entity_id].transform.position = position;
-        }
-    }
-
-    void SetRenderValues(SpriteRenderer renderer, Entity e)
-    {
-        RenderComponent r = e.GetComponent<RenderComponent>("RenderComponent");
-        renderer.sprite = GetSprite(r.sprite_name);
-        renderer.sortingLayerName = r.layer_name;
-        renderer.gameObject.transform.position = r.position;
-    }
-
-    void RemoveRenderedObject(Entity entity_id)
-    {
-        Destroy(entity_object_map[entity_id]);
-    }
-
-    void SetEntitySprite(Entity id, string sprite_id)
-    {
-        entity_object_map[id].GetComponent<SpriteRenderer>().sprite = GetSprite(sprite_id);
-    }
-
-    /// <summary>
-    /// Creates the sprite dictionary for all sprites in the game. imagePath is the file path to the image folder
-    /// dataPaths are the file paths to the json data for creating the sprite, parser is the json parser that will be parsing all json files 
-    /// </summary>
-    /// <param name="imagePaths"></param>
-    /// <param name="dataPaths"></param>
-    /// <param name="parser"></param>
-    void LoadSpritesFromJSON(string imagePath, List<string> dataPaths, JsonParser parser)
-    {
-        //Make all of the structures for individual sprite data loading
-        List<SpriteData> allSpriteData = new List<SpriteData>();
-        foreach (string path in dataPaths)
-        {
-            //Debug.Log(path);
-            allSpriteData.AddRange(parser.ParseString<List<SpriteData>>(System.IO.File.ReadAllText(path)));
+            MakeSpriteCheckers(MainGame.instance);
         }
 
-        //Get all of the sprite images
-        Dictionary<string, Texture2D> images = new Dictionary<string, Texture2D>();
-        string[] imagePaths = System.IO.Directory.GetFiles(imagePath);
-
-        //Create images for each file in the image folder
-        foreach (string s in imagePaths)
+        /// <summary>
+        /// Makes all of the checkers used for creating and updating sprite data (the hope is that this doesn't get too ridiculous, idk dud)
+        /// </summary>
+        /// <param name="game"></param>
+        public void MakeSpriteCheckers(MainGame game)
         {
-            if (s.Contains(".meta")) { continue; }
+            render_values = game.GetSubscriberSystem<RenderComponent>("RenderComponent");
+            positions = game.GetSubscriberSystem<Position>("Position");
 
-            //Debug.Log(System.IO.Path.GetFileName(s));
+            render_values.RegisterOnAdded(on_add_action);
+        }
 
-            Texture2D tempTexture = new Texture2D(2, 2);
-            if(tempTexture.LoadImage(System.IO.File.ReadAllBytes(s)) == false)
+        void SetSpriteValues(Entity e)
+        {
+            SetSpritePosition(e, e.GetComponent<Position>("Position").disp_pos);
+            SetSortingLayer(e, e.GetComponent<RenderComponent>("RenderComponent").layer_name);
+            SetEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent").sprite_name);
+        }
+
+        void SetSprite(Entity entity_id, string sprite_name)
+        {
+            SpriteRenderer entity_sr = entity_object_map[entity_id].GetComponent<SpriteRenderer>() == null ?
+                entity_object_map[entity_id].AddComponent<SpriteRenderer>() : entity_object_map[entity_id].GetComponent<SpriteRenderer>();
+            entity_sr.sprite = GetSprite(sprite_name);
+        }
+
+        void SetSortingLayer(Entity entity_id, string layer_name)
+        {
+            SpriteRenderer entity_sr = entity_object_map[entity_id].GetComponent<SpriteRenderer>() == null ?
+                entity_object_map[entity_id].AddComponent<SpriteRenderer>() : entity_object_map[entity_id].GetComponent<SpriteRenderer>();
+            entity_sr.sortingLayerName = layer_name;
+        }
+
+        void SetSpritePosition(Entity entity_id, Vector3 position)
+        {
+            if (entity_object_map.ContainsKey(entity_id))
             {
-                Debug.LogError("Could not read image on: " + s);
-                continue;
+                entity_object_map[entity_id].transform.position = position;
             }
-            
-            images.Add(System.IO.Path.GetFileName(s),tempTexture);
         }
 
-        //Make the sprite for each data struct and add it to the map
-        foreach (SpriteData data in allSpriteData)
+        void SetSpritePosition(Entity e, Position p)
         {
-            //Debug.Log(data.objName);
-            sprite_map.Add(data.objName, CreateSpriteFromDataStruct(images[data.fileName], data));
+            entity_object_map[e].transform.position = p.disp_pos;
         }
 
-    }
-
-    Sprite CreateSpriteFromDataStruct(Texture2D imageTexture, SpriteData data)
-    {
-        // All are in pixles
-        // In percentage (Should be set to always have the bottom left corner be the pivot)
-        //By default its 32 pixels per unit but if that ain't the case it should be declared in the JSON in pixels
-        return Sprite.Create(imageTexture, new Rect(data.x1, data.y1, data.width, data.height)
-                                         , new Vector2(0f, 0f), data.pixels > 0 ? data.pixels : 32);
-    }
-
-    public Sprite GetSprite(string spriteName)
-    {
-        if (sprite_map.ContainsKey(spriteName) == false)
+        void SetSpriteValues(Entity e, RenderComponent r)
         {
-            Debug.LogError("No sprite with the name: " + spriteName);
-            return null;
+            SpriteRenderer entity_sr = entity_object_map[e].GetComponent<SpriteRenderer>();
+            entity_sr.sprite = GetSprite(r.sprite_name);
+            entity_sr.sortingLayerName = r.layer_name;
         }
 
-        return sprite_map[spriteName];
+        void SetRenderValues(SpriteRenderer renderer, Entity e)
+        {
+            RenderComponent r = e.GetComponent<RenderComponent>("RenderComponent");
+            renderer.sprite = GetSprite(r.sprite_name);
+            renderer.sortingLayerName = r.layer_name;
+            renderer.gameObject.transform.position = e.GetComponent<Position>("Position").disp_pos;
+        }
+
+        void RemoveRenderedObject(Entity entity_id)
+        {
+            UnityEngine.Object.Destroy(entity_object_map[entity_id]);
+        }
+
+        void SetEntitySprite(Entity id, string sprite_id)
+        {
+            entity_object_map[id].GetComponent<SpriteRenderer>().sprite = GetSprite(sprite_id);
+        }
+
+        /// <summary>
+        /// Creates the sprite dictionary for all sprites in the game. imagePath is the file path to the image folder
+        /// dataPaths are the file paths to the json data for creating the sprite, parser is the json parser that will be parsing all json files 
+        /// </summary>
+        /// <param name="imagePaths"></param>
+        /// <param name="dataPaths"></param>
+        /// <param name="parser"></param>
+        void LoadSpritesFromJSON(string imagePath, List<string> dataPaths, JsonParser parser)
+        {
+            //Make all of the structures for individual sprite data loading
+            List<SpriteData> allSpriteData = new List<SpriteData>();
+            foreach (string path in dataPaths)
+            {
+                //Debug.Log(path);
+                allSpriteData.AddRange(parser.ParseString<List<SpriteData>>(System.IO.File.ReadAllText(path)));
+            }
+
+            //Get all of the sprite images
+            Dictionary<string, Texture2D> images = new Dictionary<string, Texture2D>();
+            string[] imagePaths = System.IO.Directory.GetFiles(imagePath);
+
+            //Create images for each file in the image folder
+            foreach (string s in imagePaths)
+            {
+                if (s.Contains(".meta")) { continue; }
+
+                //Debug.Log(System.IO.Path.GetFileName(s));
+
+                Texture2D tempTexture = new Texture2D(2, 2);
+                if (tempTexture.LoadImage(System.IO.File.ReadAllBytes(s)) == false)
+                {
+                    Debug.LogError("Could not read image on: " + s);
+                    continue;
+                }
+
+                images.Add(System.IO.Path.GetFileName(s), tempTexture);
+            }
+
+            //Make the sprite for each data struct and add it to the map
+            foreach (SpriteData data in allSpriteData)
+            {
+                //Debug.Log(data.objName);
+                sprite_map.Add(data.objName, CreateSpriteFromDataStruct(images[data.fileName], data));
+            }
+
+        }
+
+        Sprite CreateSpriteFromDataStruct(Texture2D imageTexture, SpriteData data)
+        {
+            // All are in pixles
+            // In percentage (Should be set to always have the bottom left corner be the pivot)
+            //By default its 32 pixels per unit but if that ain't the case it should be declared in the JSON in pixels
+            return Sprite.Create(imageTexture, new Rect(data.x1, data.y1, data.width, data.height)
+                                             , new Vector2(0f, 0f), data.pixels > 0 ? data.pixels : 32);
+        }
+
+        public Sprite GetSprite(string spriteName)
+        {
+            if (sprite_map.ContainsKey(spriteName) == false)
+            {
+                Debug.LogError("No sprite with the name: " + spriteName);
+                return null;
+            }
+
+            return sprite_map[spriteName];
+        }
     }
 
-    public void AddSpriteForEntity()
+    [JsonObject(MemberSerialization.OptIn)]
+    public struct SpriteData
     {
+        [JsonProperty]
+        public int x1;
 
+        [JsonProperty]
+        public int y1;
+
+        [JsonProperty]
+        public int width;
+
+        [JsonProperty]
+        public int height;
+
+        [JsonProperty]
+        public int pixels;
+
+        [JsonProperty]
+        public string objName;
+
+        [JsonProperty]
+        public string fileName;
     }
-}
 
-[JsonObject(MemberSerialization.OptIn)]
-public struct SpriteData
-{
-    [JsonProperty]
-    public int x1;
-
-    [JsonProperty]
-    public int y1;
-
-    [JsonProperty]
-    public int width;
-
-    [JsonProperty]
-    public int height;
-
-    [JsonProperty]
-    public int pixels;
-
-    [JsonProperty]
-    public string objName;
-
-    [JsonProperty]
-    public string fileName;
 }
 
 
@@ -423,4 +417,33 @@ public struct SpriteData
 //void CreateEntitySprite(Entity e)
 //{
 //    CreateEntitySprite(e, e.GetComponent<RenderComponent>("RenderComponent"));
+//}
+
+//// Start is called before the first frame update
+//void OnEnable()
+//{
+//    JsonParser parser = JsonParser.instance ?? new JsonParser();
+//    current = this;
+//    sprite_map = new Dictionary<string, Sprite>();
+
+//    string path = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
+//    path = System.IO.Path.Combine(path, "InitData");
+//    path = System.IO.Path.Combine(path, "SpriteDataPaths.JSON");
+//    List<LoadPath> spriteDataPaths = parser.ParseString<List<LoadPath>>(System.IO.File.ReadAllText(path));
+
+//    path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
+//    path = System.IO.Path.Combine(path, "JSON");
+
+//    List<string> paths = new List<string>();
+//    foreach (LoadPath l in spriteDataPaths)
+//    {
+//        paths.Add(l.MakePathFromRoot(path));
+//    }
+
+//    path = System.IO.Path.Combine(Application.streamingAssetsPath, "Sprites");
+//    path = System.IO.Path.Combine(path, "Images");
+
+//    entity_object_map = go_manager.entity_objects;
+
+//    LoadSpritesFromJSON(path, paths, parser);
 //}

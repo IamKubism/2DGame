@@ -7,12 +7,14 @@ namespace HighKings {
 
     public class Entity
     {
+        public readonly int entity_id;
         public readonly string entity_string_id;
         Dictionary<string, IBaseComponent> components;
 
-        public Entity(string id)
+        public Entity(string entity_string_id, int entity_id)
         {
-            entity_string_id = id;
+            this.entity_id = entity_id;
+            this.entity_string_id = entity_string_id;
             components = new Dictionary<string, IBaseComponent>();
         }
 
@@ -44,9 +46,9 @@ namespace HighKings {
             return components.ContainsKey(type);
         }
 
-        public T GetComponent<T>(string type)
+        public T GetComponent<T>(string comp_name) where T: IBaseComponent
         {
-            return components.ContainsKey(type) ? (T)components[type] : default;
+            return components.ContainsKey(comp_name) ? (T)components[comp_name] : default;
         }
 
         public override bool Equals(object obj)

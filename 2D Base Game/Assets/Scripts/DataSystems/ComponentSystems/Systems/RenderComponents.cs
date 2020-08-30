@@ -5,7 +5,10 @@ using System;
 
 namespace HighKings
 {
-    public class RenderStateManager : ISystemAdder
+    /// <summary>
+    /// DEPRECIATED
+    /// </summary>
+    public class RenderStateManager
     {
         public static RenderStateManager instance;
         List<string> sprite_names;
@@ -29,7 +32,6 @@ namespace HighKings
             }
             rendered_objects = new Dictionary<string, RenderComponent>();
             render_types = new Dictionary<string, RenderComponent>();
-            PrototypeLoader.instance.AddSystemLoc("render_components", this);
             //Debug.Log("Made Render Manager");
             rendered_entities = new Dictionary<string, Entity>();
         }

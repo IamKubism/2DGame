@@ -13,9 +13,9 @@ using HighKings;
 [JsonObject]
 public class World
 {
-    int width;
-    int length;
-    int height;
+    int len_x;
+    int len_y;
+    int len_z;
     Action<float> cb_update_world;
     
     //TODO: Make this handle multichunks
@@ -26,28 +26,24 @@ public class World
     //TODO: Make this handle multichunks
     public NodeChunk tile_map;
     public Movers entity_movers;
-    
+
+
+
     /// <summary>
     /// The currently running world (I might want to change this in the future)
     /// </summary>
-    static public World _current { get; protected set; }
+    static public World instance { get; protected set; }
 
-    public World(int width, int length, int height)
+    public World(int len_x, int len_y, int len_z)
     {
-        _current = this;
-        this.width = width;
-        this.length = length;
-        this.height = height;
-
-        //entity_positions = new Positions();
+        instance = this;
+        this.len_x = len_x;
+        this.len_y = len_y;
+        this.len_z = len_z;
     }
 
     void SetUpTiles(int width, int length, int height)
     {
-        this.width = width;
-        this.length = length;
-        this.height = height; //TODO, make height do something
-
         System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
         tile_map = new NodeChunk(width, length, height);
         watch.Stop();
@@ -61,30 +57,45 @@ public class World
 
     public void Update(float deltaT)
     {
-
         if (cb_update_world != null)
         {
             cb_update_world(deltaT);
         }
-
-        //entity_movers.UpdateMovement(deltaT);
-        //Debug.Log("test_mover location: X = " + movers.MoverPositionTo2DFloatPosition("test_mover").Item1 + " Y = " + movers.MoverPositionTo2DFloatPosition("test_mover").Item2);
     }
 
     public void SetUpWorld()
     {
-        _current = this;
+        SetUpTiles(len_x, len_y, len_z);
+    }
 
-        SetUpTiles(width, length, height);
+    public Entity GetTileFromCoords(int x, int y, int z)
+    {
+        return (x >= 0) && (y >= 0) && (z >= 0) && (x < len_x) && (y < len_y) && (z < len_z)
+               ? tile_map.tiles[x, y, z] 
+               : null;
+    }
 
-        //Debug.Log("World set up");
+    public List<Entity> GetTileSquare(Entity center, int sqr_dist)
+    {
+        return tile_map.GetNeighborTiles(center, sqr_dist);
+    }
+
+    public List<Entity> GetTileArea(Position[] positions)
+    {
+        return tile_map.GetTileArea(positions);
+    }
+
+    public Entity GetTileUnderEntity(Entity e)
+    {
+        Position.Tile p = e.GetComponent<Position>("Position").tile;
+        return e.HasComponent("Cell") == false ? tile_map.tiles[p.x, p.y, p.z] : e;
     }
 
     public int Width
     {
         get
         {
-            return width;
+            return len_x;
         }
     }
 
@@ -92,7 +103,7 @@ public class World
     {
         get
         {
-            return height;
+            return len_z;
         }
     }
 
@@ -100,7 +111,7 @@ public class World
     {
         get
         {
-            return length;
+            return len_y;
         }
     }
 

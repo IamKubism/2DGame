@@ -26,6 +26,8 @@ namespace HighKings
         Dictionary<string, object> base_component_defaults;
         JsonParser parser;
 
+        public static BindingFlags field_flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Default;
+
         public PrototypeLoader(JsonParser parser)
         {
             if (instance == null)
@@ -72,7 +74,7 @@ namespace HighKings
                         List<JToken> comp_list = main_branch.Value.ToList();
                         foreach (JProperty comp in comp_list)
                         {
-                            string type_name = ((JProperty)comp.Values().ToList()[0]).Value.ToString();
+                            string type_name = GenerateTypeName(comp.Value["type"].ToString(), comp.Value["_namespace"].ToString());
                             string comp_name = comp.Name;
                             if (base_component_generators.ContainsKey(type_name) == false)
                                 AddComponentGenerator(type_name);
@@ -80,15 +82,15 @@ namespace HighKings
                             {
                                 AddComponentSubscriber(type_name, comp_name);
                             }
-                            Type c_type = Type.GetType( this.GetType().Namespace + "." + type_name);
+                            Type c_type = Type.GetType(type_name);
                             if (c_type == null || (base_component_generators.ContainsKey(type_name) == false))
                             {
                                 Debug.LogError($"Couldn't find the component type {type_name} when making {comp.Name}");
                                 continue;
                             }
                             object comp_gen = base_component_generators[type_name];
-                            base_component_defaults.Add(comp.Name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
-                                new object[2] { ((JProperty)comp.Values().ToList()[1]).Value.ToString(), parser }));
+                            base_component_defaults.Add(comp_name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
+                                new object[2] { comp.Value["data"].ToString(), parser }));
                         }
                         break;
                     //Make the prototypes
@@ -107,10 +109,10 @@ namespace HighKings
 
         void AddComponentGenerator(string type_name)
         {
-            Type comp_type = Type.GetType(this.GetType().Namespace + "." + type_name);
+            Type comp_type = Type.GetType(type_name);
             if (comp_type == null)
             {
-                Debug.LogError($"Could not find component type {this.GetType().Namespace + "." + type_name}");
+                Debug.LogError($"Could not find component type {type_name}");
             }
             Type gen_type = generator_type.MakeGenericType(comp_type);
             base_component_generators.Add(type_name, Activator.CreateInstance(gen_type));
@@ -118,10 +120,10 @@ namespace HighKings
 
         void AddComponentSubscriber(string type_name, string comp_name)
         {
-            Type type = Type.GetType(this.GetType().Namespace + "." + type_name);
+            Type type = Type.GetType(type_name);
             if (type == null)
             {
-                Debug.LogError($"Could not find component type {this.GetType().Namespace + "." + type_name}");
+                Debug.LogError($"Could not find component type {type_name}");
             }
             ConstructorInfo constructor = typeof(ComponentSubscriber<>).MakeGenericType(type).
                 GetConstructor(new Type[1] { typeof(string) });
@@ -147,8 +149,7 @@ namespace HighKings
         {
             string prot_name = prot.Name;
             //Generate a fresh prototype
-            EntityPrototype p1 = new EntityPrototype(prot_name);
-            EntityPrototype p = parser.ParseString<EntityPrototype>(prot.Value.ToString());
+            EntityPrototype p = new EntityPrototype(prot_name);
             List<JToken> prot_sub = prot.Values().ToList();
 
             //Iterate through the prototype subfields
@@ -160,11 +161,12 @@ namespace HighKings
                     case "extends":
                         if (prototypes.ContainsKey(sub.Value.ToString()))
                         {
-                            p1 = prototypes[sub.Value.ToString()].Clone(prot_name);
+                            //Debug.Log($"Cloning: {sub.Value.ToString()}");
+                            p= prototypes[sub.Value.ToString()].Clone(prot_name);
                         }
                         else
                         {
-                            Debug.LogError($"Could not find the prototype {sub.Value.ToString()} that {prot_name} extends, skipping");
+                            Debug.LogError($"Could not find the prototype {sub.Value.ToString()} that {prot_name} extends, skipping prototype");
                             return;
                         }
                         break;
@@ -174,34 +176,68 @@ namespace HighKings
                         foreach (JProperty comp in comps)
                         {
                             string comp_name = comp.Name;
-                            string type_name = comp.Value["type"].ToString();
-                            Type comp_type = Type.GetType(this.GetType().Namespace + "." + type_name);
+                            string type_name;
+                            if(comp.Value["component_type"] == null || comp.Value["_namespace"] == null)
+                            {
+                                if(p.components.ContainsKey(comp_name))
+                                    type_name = p.components[comp_name].component_type;
+                                else
+                                {
+                                    Debug.LogError($"No typing information for {comp_name} for prototype: {prot_name}");
+                                    return;
+                                }
+                            } else
+                            {
+                                type_name = GenerateTypeName(comp.Value["component_type"].ToString(), comp.Value["_namespace"].ToString());
+                            }
+                            Type comp_type = Type.GetType(type_name);
                             if (comp_type == null)
                             {
-                                Debug.Log($"Could not find component of type {comp.Name}");
+                                Debug.Log($"Could not find component of type {type_name} for {comp_name}");
                                 continue;
                             }
-                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name) == false)
+                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
                             {
-                                AddComponentSubscriber(type_name, comp_name);
+                                Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
+                                continue;
                             }
-                            //Debug.Log($"Parsing: {comp.Value.ToString()}");
-                            List<FieldInfo> over_fields = new List<FieldInfo>();
+                            //Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
+                            List<FieldInfo> info_fields = new List<FieldInfo>();
                             List<JToken> fields = comp.Values().ToList();
-                            foreach(JProperty f in fields)
+                            foreach(JProperty prop in fields)
                             {
-                                if(comp_type.GetField(f.Name) == null)
+                                if(prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
+                                {
+                                    continue;
+                                }
+                                if(typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
+                                {
+                                    Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
+                                    continue;
+                                }
+                                info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
+                            }
+                            ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
+                            info.component_name = comp_name;
+                            info.component_type = type_name;
+
+                            List<FieldInfo> over_fields = new List<FieldInfo>();
+                            List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
+                            foreach(JProperty f in comp_fields)
+                            {
+                                if(comp_type.GetField(f.Name, field_flags) == null)
                                 {
                                     Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
                                     continue;
                                 }
-                                over_fields.Add(comp_type.GetField(f.Name));
+                                over_fields.Add(comp_type.GetField(f.Name, field_flags));
                             }
                             object comp_genner = base_component_generators[type_name];
                             object over_comp = comp_genner.GetType().
-                                GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value.ToString(), parser });
-                            p.OverwriteComponentValue(comp.Name, over_comp, over_fields);
+                                GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
 
+                            info.SetData(over_comp, over_fields);
+                            p.SetComponent(info, info_fields, over_fields);
                         }
                         break;
                 }
@@ -215,40 +251,38 @@ namespace HighKings
             System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
             SimplePriorityQueue<ComponentInfo> load_queue = new SimplePriorityQueue<ComponentInfo>();
             EntityPrototype p = prototypes[prototype_id];
-            foreach (ComponentInfo c in p.component_info.Values)
+            List<ISystemAdder> adders = new List<ISystemAdder>();
+            foreach (ComponentInfo c in p.components.Values)
             {
                 load_queue.Enqueue(c, c.load_priority);
             }
             int i = load_queue.Count;
             while (load_queue.Count > 0 && i > 0)
             {
-                watch.Restart();
                 ComponentInfo comp = load_queue.Dequeue();
-                //Debug.Log($"Making {comp.component_name}");
+                Debug.Log($"Loading Component: {comp.component_name}");
                 if (comp.variable)
                 {
                     Type[] t_args = Array.ConvertAll(entities.First().Value[comp.component_name], item => item.GetType());
-                    ConstructorInfo constructor = Type.GetType(this.GetType().Namespace + "." + comp.component_type).GetConstructor(t_args);
+                    ConstructorInfo constructor = Type.GetType(comp.component_type).GetConstructor(t_args);
                     if (constructor == null)
                     {
-                        string s = $"Could not find correct constructor for {comp.component_name} with arguments:";
+                        string s = $"Could not find correct constructor for {comp.component_name} with arguments: {{";
                         foreach (Type t in t_args)
                         {
                             s += t.Name + " ";
                         }
-                        Debug.LogError(s);
+                        Debug.LogError(s + "}");
                     }
                     foreach (Entity e in entities.Keys)
                     {
                         e.AddComponent(comp.component_name, (IBaseComponent)constructor.Invoke(entities[e][comp.component_name]));
                     }
-                    watch.Stop();
-                    //Debug.Log($"Added variable components in {watch.Elapsed}");
                 }
                 else
                 {
-                    ConstructorInfo constructor = Type.GetType(this.GetType().Namespace + "." + comp.component_type).GetConstructor(new Type[1]
-                    { Type.GetType(this.GetType().Namespace + "." + comp.component_type) });
+                    ConstructorInfo constructor = Type.GetType(comp.component_type).GetConstructor(new Type[1]
+                    { Type.GetType(comp.component_type) });
                     if (constructor == null)
                     {
                         string s = $"Could not find correct constructor for {comp.component_name} with fixed type arguments";
@@ -257,14 +291,20 @@ namespace HighKings
                     foreach (Entity e in entities.Keys)
                     {
                         e.AddComponent(comp.component_name,
-                            (IBaseComponent)constructor.Invoke(new object[1] { p.component_values[comp.component_name] }));
+                            (IBaseComponent)constructor.Invoke(new object[1] { p.components[comp.component_name].data }));
                     }
-                    watch.Stop();
-                    //Debug.Log($"Added components in {watch.Elapsed}");
                 }
-                if (comp.system_location != "None")
-                    system_adders[comp.system_location].AddEntities(entities.Keys.ToList());
+                if (system_adders.ContainsKey(comp.component_name + "_subscriber"))
+                    adders.Add(system_adders[comp.component_name + "_subscriber"]);
                 i -= 1;
+            }
+            System.Diagnostics.Stopwatch w2 = System.Diagnostics.Stopwatch.StartNew();
+            foreach (ISystemAdder sys in adders)
+            {
+                w2.Restart();
+                sys.AddEntities(entities.Keys.ToList());
+                w2.Stop();
+                Debug.Log($"Added component {sys.SysName()} in {w2.Elapsed}");
             }
             watch.Stop();
             Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
@@ -274,7 +314,31 @@ namespace HighKings
         {
             return system_adders[system_id];
         }
+
+        public object GetBaseComponent(string comp_name)
+        {
+            if (base_component_defaults.ContainsKey(comp_name))
+            {
+                return base_component_defaults[comp_name];
+            } else
+            {
+                Debug.LogError($"Could not find default for component {comp_name}");
+                return default;
+            }
+        }
+
+        public string GenerateTypeName(string comp_name, string namespace_name)
+        {
+            switch (namespace_name){
+                case "Default":
+                    return this.GetType().Namespace + "." + comp_name;
+                default:
+                    return namespace_name + "." + comp_name;
+            }
+        }
     }
+
+
 }
 
 

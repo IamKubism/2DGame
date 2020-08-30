@@ -17,7 +17,7 @@ namespace HighKings
         public List<Type> constructor_args;
 
         [JsonProperty]
-        public string component_name, component_type, system_location;
+        public string component_name, component_type;
 
         [JsonProperty]
         public int load_priority;
@@ -34,6 +34,23 @@ namespace HighKings
             constructor_args = new List<Type>();
             constructor_arg_names = new List<string>();
             errored = false;
+        }
+
+        public ComponentInfo(ComponentInfo info)
+        {
+            component_name = info.component_name;
+            component_type = info.component_type;
+            load_priority = info.load_priority;
+            variable = info.variable;
+            errored = info.errored;
+            constructor_args = new List<Type>(info.constructor_args);
+            constructor_arg_names = new List<string>(info.constructor_arg_names);
+            ConstructorInfo constructor = Type.GetType(component_type).GetConstructor(new Type[1] { info.data.GetType() });
+            if(constructor == null)
+            {
+                Debug.LogError($"Could not find the copy constructor for {component_name}");
+            }
+            data = constructor.Invoke(new object[1] { info.data });
         }
 
         [OnDeserialized]
@@ -54,7 +71,7 @@ namespace HighKings
 
         public void SetData(object o, List<FieldInfo> fields)
         {
-            if(fields == null || fields?.Count == 0)
+            if(data == null)
             {
                 data = o;
             } else
@@ -66,14 +83,16 @@ namespace HighKings
             }
         }
 
-        public IBaseComponent CopyData(object[] args)
+        public IBaseComponent CreateComponent(object[] args)
         {
             if (errored)
             {
                 return default;
             }
 
-            ConstructorInfo constructor = data.GetType().GetConstructor(constructor_args.ToArray());
+            ConstructorInfo constructor = variable ? data.GetType().GetConstructor(constructor_args.ToArray()) 
+                                                   : data.GetType().GetConstructor(new Type[1] { data.GetType() });
+
             if (constructor == null)
             {
                 string s = $"Could not find correct constructor for {component_name} of type {component_type} with arguments:";
@@ -96,7 +115,13 @@ namespace HighKings
 
         public override string ToString()
         {
-            return $"Name: {component_name}, Type: {component_type}, System Name: {system_location}, Load Priority: {load_priority}, Variable: {variable}";
+            string s = $"Name: {component_name}, Type: {component_type}, Load Priority: {load_priority}, Variable: {variable}, Value: {data.ToString()} with constructor args {{";
+            foreach(Type t in constructor_args)
+            {
+                s += " " + t.ToString();
+            }
+            s += "}";
+            return s;
         }
     }
 }

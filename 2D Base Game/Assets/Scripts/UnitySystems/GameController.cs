@@ -45,7 +45,6 @@ public class GameController : MonoBehaviour
     void OnEnable()
     {
         json_parser = JsonParser.instance ?? new JsonParser();
-        prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(json_parser);
 
         string initPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
         initPath = System.IO.Path.Combine(initPath, "InitData");
@@ -88,11 +87,11 @@ public class GameController : MonoBehaviour
             PrototypeLoader.instance.ReadFile(System.IO.File.ReadAllText(l.MakePathFromRoot(root_path)));
         }
         string system_path = System.IO.Path.Combine(root_path, "InitData", "Systems.JSON");
+        game.SystemLoading();
         game.SetInitSystems(JsonParser.instance, System.IO.File.ReadAllText(system_path));
         system_path = System.IO.Path.Combine(root_path, "InitData", "InitArgs.JSON");
         Dictionary<string, object[]> system_args = JsonParser.instance.ParseString<Dictionary<string, object[]>>(System.IO.File.ReadAllText(system_path));
         game.CreateSystems(system_args);
-        sprite_manager.MakeSpriteCheckers(game, world_controller.world);
         world_controller.OnStart();
     }
 

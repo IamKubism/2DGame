@@ -6,7 +6,10 @@ using UnityEngine;
 
 namespace HighKings
 {
-    public class Positions : ISystemAdder
+    /// <summary>
+    /// 
+    /// </summary>
+    public class Positions
     {
         public static Positions instance;
         Dictionary<Entity, Position> entity_positions;
@@ -29,7 +32,6 @@ namespace HighKings
             }
             all_positions = new Dictionary<string, Position>();
             registered_entity_actions = new Dictionary<string, Action>();
-            PrototypeLoader.instance.AddSystemLoc("entity_positions", this);
             entity_positions = new Dictionary<Entity, Position>();
             individual_update_actions = new Dictionary<Entity, Action<Entity>>();
         }

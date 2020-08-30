@@ -100,7 +100,7 @@ public class MouseController : MonoBehaviour
     {
         int x = Mathf.FloorToInt(curr_frame_pos.x);
         int y = Mathf.FloorToInt(curr_frame_pos.y);
-        return MapCells.instance.GetTileFromCoords(x, y, 0);
+        return World.instance.GetTileFromCoords(x,y,0);
     }
 
     public Position GetPositionUnderMouse()
@@ -222,7 +222,7 @@ public class MouseController : MonoBehaviour
     void SetActiveSelectablesFromMouse()
     {
         List<RaycastHit> raycasts = new List<RaycastHit>(Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition)));
-        //Debug.Log("Raycast num: " + raycasts.Count);
+        Debug.Log("Raycast num: " + raycasts.Count);
         List<GameObject> sels = new List<GameObject>();
 
         foreach (RaycastHit r in raycasts)

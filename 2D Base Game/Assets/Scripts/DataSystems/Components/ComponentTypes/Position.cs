@@ -24,12 +24,6 @@ namespace HighKings
         public Tile tile;
 
         /// <summary>
-        /// Identification of the thing that moves
-        /// </summary>
-        [JsonProperty]
-        public readonly string entity_string_id;
-
-        /// <summary>
         /// Coordinates of this position
         /// </summary>
         public int x
@@ -104,7 +98,6 @@ namespace HighKings
         /// <param name="z"></param>
         public Position(string entity_id, int x, int y, int z)
         {
-            entity_string_id = entity_id;
             tile = new Tile
             {
                 x = x,
@@ -123,6 +116,12 @@ namespace HighKings
                 z = z,
             };
             disp_pos = new SerializableVector3(x, y, z);
+        }
+
+        public Position(Position pos)
+        {
+            tile = pos.tile;
+            disp_pos = pos.disp_pos;
         }
 
         /// <summary>
@@ -181,7 +180,7 @@ namespace HighKings
 
         public override string ToString()
         {
-            return $"{entity_string_id} at ({x},{y},{z}) with displaced vector {disp_pos.ToString()}";
+            return $"Position: ({x},{y},{z}) with displaced vector {disp_pos.ToString()}";
         }
 
         /// <summary>

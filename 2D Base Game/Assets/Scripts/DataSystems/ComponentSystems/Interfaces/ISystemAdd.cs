@@ -7,4 +7,5 @@ public interface ISystemAdder
 {
     void AddEntities(List<Entity> entities);
     void OnAddedEntities(List<Entity> entities);
+    string SysName();
 }

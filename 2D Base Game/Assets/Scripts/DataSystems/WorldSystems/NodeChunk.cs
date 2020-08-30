@@ -60,16 +60,34 @@ namespace HighKings
         {
             List<Entity> to_return = new List<Entity>(sqr_dist);
             int[] p_cen = center.GetComponent<Position>("Position").p;
+            int[] t = new int[3];
+            t[2] = 0;
             for (int x = Math.Max(p_cen[0] - sqr_dist, 0); x < Math.Min(p_cen[0] + sqr_dist, len_x - 1); x += 1)
             {
                 for (int y = Math.Max(p_cen[1] - sqr_dist, 0); y < Math.Min(p_cen[1] + sqr_dist, len_y - 1); y += 1)
                 {
-                    int[] p = new int[3] { x, y, 0 };
-                    if (MathFunctions.SqrDist(p_cen, p) <= sqr_dist && MathFunctions.SqrDist(p_cen, p) > 0)
+                    t[0] = x;
+                    t[1] = y;
+                    if (MathFunctions.SqrDist(p_cen, t) <= sqr_dist && MathFunctions.SqrDist(t, p_cen) > 0)
                     {
-                        to_return.Add(tiles[x, y, p_cen[2]]);
+                        to_return.Add(tiles[x,y,0]);
                     }
                 }
+            }
+            return to_return;
+        }
+
+        public List<Entity> GetTileArea(Position[] positions)
+        {
+            List<Entity> to_return = new List<Entity>();
+            foreach(Position p in positions)
+            {
+                Entity e = tiles[p.x, p.y, p.z];
+                if (to_return.Contains(e))
+                {
+                    continue;
+                }
+                to_return.Add(e);
             }
             return to_return;
         }

@@ -10,7 +10,7 @@ namespace HighKings
     {
         public static Movers instance;
 
-        Positions positions_current;
+        ComponentSubscriber<Position> positions;
 
         public Dictionary<Entity, Position> entity_positions;
 
@@ -32,7 +32,7 @@ namespace HighKings
             mover_progress = new Dictionary<Entity, ItemVector<Position, FloatMinMax>>();
             to_remove = new List<Entity>();
             entity_positions = new Dictionary<Entity, Position>();
-            this.positions_current = Positions.instance;
+            positions = MainGame.instance.GetSubscriberSystem<Position>("Position");
             if(instance == null)
             {
                 instance = this;
@@ -42,8 +42,10 @@ namespace HighKings
 
         public void Update(float dt)
         {
+            Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
+            Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
+
             List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
-            List<ItemVector<Position, Position>> tile_change = new List<ItemVector<Position, Position>>();
 
             foreach(KeyValuePair<Entity, ItemVector<Position,FloatMinMax>> epf in mover_progress)
             {
@@ -51,7 +53,7 @@ namespace HighKings
 
                 if (epf.Value.b.IsOverMax())
                 {
-                    tile_change.Add(new ItemVector<Position, Position>(epf.Key.GetComponent<Position>("Position"), epf.Value.a));
+                    tile_change.Add(epf.Key, new object[1] { epf.Value.a });
 
                     //TODO: Make sure that the entity has some movement calculator if its assigned movement
                     MoveHander(epf.Key, MovementCalculator.test_calculator);
@@ -59,11 +61,12 @@ namespace HighKings
                 } else
                 {
                     to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>("Position"), epf.Value.a, epf.Value.b.curr));
+                    disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
                 }
             }
 
-            positions_current.SetTilePositions(tile_change);
-            positions_current.DisplaceVectors(to_update);
+            positions.UpdateComponents(disp_vals, DisplaceVector);
+            positions.UpdateComponents(tile_change, SetTilePosition);
 
             for (int i = to_remove.Count; i > 0; i -= 1)
             {
@@ -103,6 +106,34 @@ namespace HighKings
             //}
         }
 
+        public void DisplaceVector(Position p1, object[] updaters)
+        {
+            Position p2 = (Position)updaters[0];
+            float d = (float)updaters[1];
+            p1.SetDispPos((1 - d) * p1.t_r + d * p2.t_r);
+        }
+
+        public void SetTilePosition(Position p1, object[] updaters)
+        {
+            p1.UpdateToNewPoint((Position)updaters[0]);
+        }
+
+        public void DisplaceVectors(List<ItemVector<Position, Position, float>> to_update)
+        {
+            foreach (ItemVector<Position, Position, float> vec in to_update)
+            {
+                vec.a.SetDispPos((1 - vec.c) * vec.a.t_r + vec.c * vec.b.t_r);
+            }
+        }
+
+        public void SetTilePositions(List<ItemVector<Position, Position>> vecs)
+        {
+            foreach (ItemVector<Position, Position> pp in vecs)
+            {
+                pp.a.UpdateToNewPoint(pp.b);
+            }
+        }
+
         public void MoveHander(Entity e, IBehavior movement_behavior)
         {
             if (paths.ContainsKey(e) == false)
@@ -136,7 +167,7 @@ namespace HighKings
                 temp = MovementCalculator.test_calculator;
             }
 
-            List<Entity> end = MapCells.instance.GetCellArea(end_area);
+            List<Entity> end = World.instance.GetTileArea(end_area);
             Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end, temp);
             if(path.Length() == 0)
             {
@@ -165,8 +196,9 @@ namespace HighKings
                 temp = MovementCalculator.test_calculator;
             }
 
-            List<Entity> end = MapCells.instance.GetCellArea(new Position[1] { end_area });
-            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, MapCells.instance.GetTileUnderEntity(entity), end, temp);
+            List<Entity> end = new List<Entity>{ World.instance.GetTileFromCoords(end_area.x,end_area.y,end_area.z) };
+            Position start_p = entity.GetComponent<Position>("Position");
+            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, World.instance.GetTileFromCoords(start_p.x, start_p.y, start_p.z), end, temp);
             if(path.Length() == 0)
             {
                 return;
@@ -199,6 +231,11 @@ namespace HighKings
         public void OnAddedEntities(List<Entity> entities)
         {
             throw new NotImplementedException();
+        }
+
+        public string SysName()
+        {
+            return "Movers";
         }
     }
 }

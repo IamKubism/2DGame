@@ -20,8 +20,6 @@ namespace HighKings
         /// </summary>
         public static bool game_started = false;
 
-        //TODO Make Prototype dictionaries more robust
-
         /// <summary>
         /// The only instance of main game, which mediates all in game interactions
         /// </summary>
@@ -31,7 +29,8 @@ namespace HighKings
         MathFunctions math;
         PrototypeLoader prototype_loader;
         SystemLoader system_loader;
-        Dictionary<string, object> systems;
+
+        public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
 
         /// <summary>
@@ -50,24 +49,31 @@ namespace HighKings
             component_subscribers = new Dictionary<string, object>();
             //try to remove unity stuff in the future
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
-
-            entity_manager = EntityManager.instance ?? new EntityManager();
+            
+            //Load the prototypes and components
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(JsonParser.instance);
+            entity_manager = EntityManager.instance ?? new EntityManager();
+
+            //Load All systems
             systems = new Dictionary<string, object>();
-            system_loader = SystemLoader.instance ?? new SystemLoader(systems);
+
             MovementCalculator.SetTestCalculator();
+        }
+
+        public void SystemLoading()
+        {
+            system_loader = SystemLoader.instance ?? new SystemLoader(systems);
         }
 
         //All startup tasks should be done in some form here
         public void StartGame()
         {
-            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "character_the_player" + entity_num });
+            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "character_the_player_" + entity_num });
             Dictionary<Entity, Dictionary<string, object[]>> entities = new Dictionary<Entity, Dictionary<string, object[]>>
             { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {51,51,0 } } } } };
             prototype_loader.AttachPrototype("character", entities);
             game_started = true;
         }
-
 
         public void Update(float dt)
         {
@@ -76,7 +82,25 @@ namespace HighKings
 
         public void AddComponentSubscribers(string component_name, object o)
         {
-            component_subscribers.Add(component_name, o);
+            if (component_subscribers.ContainsKey(component_name))
+            {
+                Debug.LogError($"Tried to add subscriber system for {component_name}");
+                return;
+            }
+            component_subscribers.Add(component_name + "_subscriber", o);
+            //Debug.Log($"Added {component_name}_subscriber");
+        }
+
+        public ComponentSubscriber<T> GetSubscriberSystem<T>(string comp_name) where T: IBaseComponent
+        {
+            if (component_subscribers.ContainsKey(comp_name+"_subscriber"))
+            {
+                return (ComponentSubscriber<T>)component_subscribers[comp_name+"_subscriber"];
+            } else
+            {
+                Debug.LogError($"Could not find correct subscriber system for {comp_name}");
+                return null;
+            }
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -84,11 +108,6 @@ namespace HighKings
         /// JSON LOADER PARSERS
         ///
         //////////////////////////////////////////////////////////////////////////
-
-        public void SetEntityPrototypes(JsonParser parser, string json_file)
-        {
-            prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(parser);
-        }
 
         public void SetInitSystems(JsonParser parser, string json_string)
         {

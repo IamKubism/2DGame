@@ -11,6 +11,8 @@ namespace HighKings
     /// </summary>
     public class EntityManager
     {
+        public static int entity_num;
+
         /// <summary>
         /// For everything to reference, for ease of use
         /// </summary>
@@ -21,7 +23,8 @@ namespace HighKings
         /// </summary>
         Dictionary<string, List<Entity>> entities;
 
-        Dictionary<string, Entity> id_to_entity;
+        Dictionary<string, Entity> string_id_to_entity;
+        List<Entity> entity_array;
 
         public EntityManager()
         {
@@ -31,9 +34,11 @@ namespace HighKings
             } else
             {
                 instance = this;
+                entity_num = 0;
             }
             entities = new Dictionary<string, List<Entity>>();
-            id_to_entity = new Dictionary<string, Entity>();
+            string_id_to_entity = new Dictionary<string, Entity>();
+            entity_array = new List<Entity>();
         }
 
         /// <summary>
@@ -46,22 +51,32 @@ namespace HighKings
             Dictionary<string, Entity> to_return = new Dictionary<string, Entity>();
             List<Entity> es = new List<Entity>();
             List<Entity> temp = entities.ContainsKey(type) ? entities[type] : AddSaverList(type);
+
             foreach(string id in ids)
             {
-                es.Add(new Entity(id));
+                Entity e = new Entity(id, entity_num);
+                es.Add(e);
+                entity_num += 1;
             }
             temp.AddRange(es);
+
             foreach(Entity e in es)
             {
                 to_return.Add(e.entity_string_id, e);
             }
+
             foreach (Entity e in es)
             {
-                id_to_entity.Add(e.entity_string_id, e);
+                string_id_to_entity.Add(e.entity_string_id, e);
             }
+
+            foreach(Entity e in es)
+            {
+                entity_array.Add(e);
+            }
+
             //Debug.Log($"Created {ids.Length} entities");
             return to_return;
-
         }
 
         public Dictionary<string,Entity> GrabEntities(string type, string[] ids)
@@ -69,9 +84,30 @@ namespace HighKings
             Dictionary<string, Entity> temp = new Dictionary<string, Entity>(ids.Length);
             foreach (string s in ids)
             {
-                temp.Add(s, id_to_entity[s]);
+                temp.Add(s, string_id_to_entity[s]);
             }
             return temp;
+        }
+
+        public Dictionary<string, Entity> GetEntityDict(int[] ids)
+        {
+            Dictionary<string, Entity> to_return = new Dictionary<string, Entity>();
+            foreach(int l in ids)
+            {
+                Entity e = entity_array[l];
+                to_return.Add(e.entity_string_id, e);
+            }
+            return to_return;
+        }
+
+        public List<Entity> GetEntityList(int[] ids)
+        {
+            List<Entity> to_return = new List<Entity>();
+            foreach(int id in ids)
+            {
+                to_return.Add(entity_array[id]);
+            }
+            return to_return;
         }
 
         List<Entity> AddSaverList(string type)
@@ -88,15 +124,7 @@ namespace HighKings
         public override string ToString()
         {
             string s = "";
-            //foreach(KeyValuePair<string,List<Entity>> es in entities)
-            //{
-            //    s += es.Key + "\n";
-            //    foreach(Entity e in es.Value)
-            //    {
-            //        s += $"\n {e.ToString()}";
-            //    }
-            //}
-            foreach(KeyValuePair<string,Entity> es in id_to_entity)
+            foreach(KeyValuePair<string,Entity> es in string_id_to_entity)
             {
                 s += es.Key + " " + es.Value.ToString() + "\n";
                 

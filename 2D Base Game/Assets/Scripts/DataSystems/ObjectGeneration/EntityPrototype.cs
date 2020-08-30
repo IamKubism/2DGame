@@ -14,18 +14,12 @@ public class EntityPrototype
     string prototype_name;
 
     [JsonProperty]
-    public Dictionary<string, ComponentInfo> component_info;
-
-    public List<string> load_order;
-
-    public Dictionary<string, object> component_values;
+    public Dictionary<string, ComponentInfo> components;
 
     public EntityPrototype(string prototype_name)
     {
         this.prototype_name = prototype_name;
-        component_info = new Dictionary<string, ComponentInfo>();
-        component_values = new Dictionary<string, object>();
-        load_order = new List<string>();
+        components = new Dictionary<string, ComponentInfo>();
     }
 
     public void ResetName(string prototype_name)
@@ -33,99 +27,67 @@ public class EntityPrototype
         this.prototype_name = prototype_name;
     }
 
-    public void SetComponent(string comp_name, int load_order, object o)
+    public void SetComponent(ComponentInfo info, List<FieldInfo> info_fields, List<FieldInfo> comp_fields)
     {
-        if (component_values.ContainsKey(comp_name))
+        if(info.data == default)
         {
-            component_values[comp_name] = o;
-        } else
-        {
-            component_values.Add(comp_name, o);
+            info.data = PrototypeLoader.instance.GetBaseComponent(info.component_name);
         }
-        
-    }
-
-    void OverwriteComponentInfo(ComponentInfo comp)
-    {
-        if (component_info.ContainsKey(comp.component_name))
+        if (info_fields.Count == 0)
         {
-            component_info[comp.component_name] = comp;
-        } else
-        {
-            component_info.Add(comp.component_name, comp);
-        }
-    }
-
-    /// <summary>
-    /// Full overwrite of data
-    /// </summary>
-    /// <param name="s"></param>
-    /// <param name="o"></param>
-    public void OverwriteComponentValue(string s, object o)
-    {
-        if (component_values.ContainsKey(s))
-        {
-            component_values[s] = o;
-        } else
-        {
-            component_values.Add(s, o);
-        }
-        //Debug.Log($"Overwrote {s} {o.ToString()}");
-    }
-
-    /// <summary>
-    /// Partial overwrite of data
-    /// </summary>
-    /// <param name="s"></param>
-    /// <param name="o"></param>
-    /// <param name="fields"></param>
-    public void OverwriteComponentValue(string s, object o, List<FieldInfo> fields)
-    {
-        if (component_values.ContainsKey(s))
-        {
-            foreach (FieldInfo field in fields)
+            if (components.ContainsKey(info.component_name))
             {
-                field.SetValue(component_values[s], field.GetValue(o));
+                components[info.component_name].SetData(info.data, comp_fields);
+                return;
+            } else
+            {
+                Debug.LogError("Tried to set a component info without enough fields set");
+                return;
             }
+        }
+        if (components.ContainsKey(info.component_name))
+        {
+            foreach(FieldInfo f in info_fields)
+            {
+                f.SetValue(components[info.component_name], f.GetValue(info));
+            }
+            components[info.component_name].OnDeserialized(default);
         } else
         {
-            component_values.Add(s, o);
+            components.Add(info.component_name, info);
         }
     }
-    
-    public EntityPrototype Clone()
+
+    public void SetComponentData(string name, object data, List<FieldInfo> fields)
     {
-        return new EntityPrototype(prototype_name)
+        if (components.ContainsKey(name))
         {
-            component_info = new Dictionary<string, ComponentInfo>(component_info),
-            component_values = new Dictionary<string, object>(component_values)
-        };
+            components[name].SetData(data, fields);
+        } else
+        {
+            Debug.LogError($"Could not find component {name} in prototype {prototype_name} to overwrite");
+        }
     }
 
     public EntityPrototype Clone(string name)
     {
-        return new EntityPrototype(name)
+        EntityPrototype cloned = new EntityPrototype(name);
+
+        foreach (ComponentInfo info in this.components.Values)
         {
-            prototype_name = name,
-            component_info = new Dictionary<string, ComponentInfo>(component_info),
-            component_values = new Dictionary<string, object>(component_values)
-        };
+            cloned.components.Add(info.component_name, new ComponentInfo(info));
+        }
+
+        return cloned;
     }
 
     public override string ToString()
     {
         string s = prototype_name;
 
-        foreach(ComponentInfo c in component_info.Values)
+        foreach(ComponentInfo c in components.Values)
         {
             s += $"\n {c.ToString()} ";
-            if (c.variable)
-            {
-                s += " variable";
-            } else
-            {
-                s += $"{component_values[c.component_name].ToString()}";
-            }
         }
 
         return s;

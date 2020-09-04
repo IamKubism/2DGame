@@ -15,6 +15,7 @@ namespace HighKings
         public string component_name;
 
         Action<List<Entity>> on_entity_added;
+        Action<List<Entity>> on_entity_removed;
 
         public ComponentSubscriber(string component_name)
         {
@@ -134,6 +135,26 @@ namespace HighKings
                 }
             }
             on_entity_added?.Invoke(entities);
+        }
+
+        public void RemoveEntities(List<Entity> entities)
+        {
+            foreach (Entity e in entities)
+            {
+                after_actions.Remove(e);
+                before_actions.Remove(e);
+            }
+            on_entity_removed?.Invoke(entities);
+        }
+
+        public void RemoveEntity(Entity e)
+        {
+            if (after_actions.ContainsKey(e))
+            {
+                after_actions.Remove(e);
+                before_actions.Remove(e);
+            }
+            on_entity_removed?.Invoke(new List<Entity> { e });
         }
 
         public void RegisterOnAdded(Action<List<Entity>> to_reg)

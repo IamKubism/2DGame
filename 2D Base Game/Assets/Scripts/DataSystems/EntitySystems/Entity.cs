@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Reflection;
 
 namespace HighKings {
 
@@ -9,7 +10,7 @@ namespace HighKings {
     {
         public readonly int entity_id;
         public readonly string entity_string_id;
-        Dictionary<string, IBaseComponent> components;
+        public Dictionary<string, IBaseComponent> components { get; protected set; }
 
         public Entity(string entity_string_id, int entity_id)
         {
@@ -74,6 +75,21 @@ namespace HighKings {
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public void RemoveFromAllSubscribers()
+        {
+            Type subscriber_type = typeof(ComponentSubscriber<>);
+            MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem");
+            MethodInfo remove_method = subscriber_type.GetMethod("RemoveEntity");
+            foreach(KeyValuePair<string, IBaseComponent> comps in components)
+            {
+                remove_method.Invoke(
+                    get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
+                        MainGame.instance,
+                        new object[1] { comps.Key }),
+                    new object[1] { this });
+            }
         }
     }
 }

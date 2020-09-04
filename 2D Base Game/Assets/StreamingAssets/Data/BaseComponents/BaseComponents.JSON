@@ -33,17 +33,6 @@
                 }
             }
         },
-        "Cell": {
-            "_namespace": "Default",
-            "type": "Cell",
-            "data": {
-                "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                }
-            }
-        },
         "SelectionComponent": {
             "_namespace": "Default",
             "type": "SelectionComponent",

@@ -1,0 +1,35 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace HighKings
+{
+    public class HealthSystem
+    {
+        ComponentSubscriber<BaseStatistic> healths;
+
+        public HealthSystem()
+        {
+            healths = MainGame.instance.GetSubscriberSystem<BaseStatistic>("health");
+
+            healths.RegisterOnAdded((entities) =>
+            {
+                healths.SubscribeAfterAction(entities, OnDeath, "CheckDeath");
+            });
+        }
+
+        public bool CheckDeath(BaseStatistic health)
+        {
+            return health.value <= 0;
+        }
+
+        public void OnDeath(Entity e, BaseStatistic health)
+        {
+            if (CheckDeath(health))
+            {
+                e.RemoveFromAllSubscribers();
+            }
+        }
+    }
+}
+

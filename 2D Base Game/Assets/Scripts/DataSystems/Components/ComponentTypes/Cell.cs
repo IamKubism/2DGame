@@ -34,28 +34,31 @@ namespace HighKings
             return "Cell";
         }
 
-        public bool computable()
-        {
-            return false;
-        }
-
         public void AddOccupant(Entity e)
         {
             if (occupants.Contains(e))
             {
                 return;
-            } 
+            }
             occupants.Add(e);
         }
 
         public void RemoveOccupant(Entity e)
         {
-            occupants.Remove(e);
+            if (occupants.Contains(e))
+            {
+                occupants.Remove(e);
+            }
+        }
+
+        public bool computable()
+        {
+            return false;
         }
 
         public List<Entity> GetOccupants()
         {
-            return occupants;
+            return new List<Entity>(occupants);
         }
 
         public void OnUpdateState()

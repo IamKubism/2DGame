@@ -33,14 +33,6 @@
                         "move_cost": -1
                     },
                     "variable": false
-                },
-                "Cell": {
-                    "component_type": "Cell",
-                    "_namespace": "Default",
-                    "load_priority": 2,
-                    "data": {
-                    },
-                    "variable": true
                 }
             }
         },

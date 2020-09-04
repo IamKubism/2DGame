@@ -27,8 +27,6 @@ public class World
     public NodeChunk tile_map;
     public Movers entity_movers;
 
-
-
     /// <summary>
     /// The currently running world (I might want to change this in the future)
     /// </summary>
@@ -46,6 +44,7 @@ public class World
     {
         System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
         tile_map = new NodeChunk(width, length, height);
+        tile_map.CreateTiles();
         watch.Stop();
         Debug.Log($"Tile map made in: {watch.Elapsed}");
 

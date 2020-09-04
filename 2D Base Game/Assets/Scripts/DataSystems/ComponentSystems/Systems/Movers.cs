@@ -73,47 +73,16 @@ namespace HighKings
                 mover_progress.Remove(to_remove[i - 1]);
                 to_remove.RemoveAt(i - 1);
             }
-
-            //for (int i = active_movers.Count; i > 0; i -= 1)
-            //{
-            //    string entity_id = active_movers[i - 1];
-            //    FloatMinMax to_check = mover_progs[entity_id] + dt;
-            //    if (to_check.IsOverMax())
-            //    {
-            //        positions_current.SetTilePosition(entity_id, mover_positions_next[entity_id]);
-            //        if (movement_queue.ContainsKey(entity_id))
-            //        {
-            //            MoveHander(entity_id);
-            //        }
-            //        else
-            //        {
-            //            mover_positions_next.Remove(entity_id);
-            //            mover_progs.Remove(entity_id);
-            //            active_movers.Remove(entity_id);
-            //            on_movement_ended(entity_id);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (on_mover_changed != null)
-            //        {
-            //            on_mover_changed(entity_id);
-            //        }
-            //        positions_current.SetVectorDisplacement
-            //            (entity_id, mover_positions_next[entity_id], to_check.NormalizedByMax());
-            //        mover_progs[entity_id] = to_check;
-            //    }
-            //}
         }
 
-        public void DisplaceVector(Position p1, object[] updaters)
+        public void DisplaceVector(Position p1, params object[] updaters)
         {
             Position p2 = (Position)updaters[0];
             float d = (float)updaters[1];
             p1.SetDispPos((1 - d) * p1.t_r + d * p2.t_r);
         }
 
-        public void SetTilePosition(Position p1, object[] updaters)
+        public void SetTilePosition(Position p1, params object[] updaters)
         {
             p1.UpdateToNewPoint((Position)updaters[0]);
         }
@@ -169,22 +138,31 @@ namespace HighKings
 
             List<Entity> end = World.instance.GetTileArea(end_area);
             Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end, temp);
-            if(path.Length() == 0)
-            {
-                return;
-            }
-            Entity next_cell = path.DeQueue();
-            FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
-
-            if(prog.max <= 0)
+            if (path.Length() == 0)
             {
                 return;
             }
 
-            mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
-            if (path.Length() > 0)
-                paths.Add(entity, path);
-            return;
+            if (paths.ContainsKey(entity) == false)
+            {
+                if (mover_progress.ContainsKey(entity))
+                {
+                    paths.Add(entity, path);
+                    return;
+                }
+                Entity next_cell = path.DeQueue();
+                FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+                if (prog.max <= 0)
+                {
+                    return;
+                }
+                mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                if (path.Length() > 0)
+                    paths.Add(entity, path);
+            } else
+            {
+                paths[entity] = path;
+            }
         }
 
         public void MoverPathMaker(Position end_area, Entity entity, IBehavior move_behavior = default)
@@ -199,22 +177,35 @@ namespace HighKings
             List<Entity> end = new List<Entity>{ World.instance.GetTileFromCoords(end_area.x,end_area.y,end_area.z) };
             Position start_p = entity.GetComponent<Position>("Position");
             Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, World.instance.GetTileFromCoords(start_p.x, start_p.y, start_p.z), end, temp);
-            if(path.Length() == 0)
+
+            if (path.Length() == 0)
             {
                 return;
             }
 
-            Entity next_cell = path.DeQueue();
-            FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
-            if(prog.max <= 0)
+            if(paths.ContainsKey(entity) == false)
             {
+                if (mover_progress.ContainsKey(entity))
+                {
+                    paths.Add(entity, path);
+                    return;
+                }
+                Entity next_cell = path.DeQueue();
+                FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+                if (prog.max <= 0)
+                {
+                    return;
+                }
+
+                mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                if (path.Length() > 0)
+                    paths.Add(entity, path);
                 return;
+            } else
+            {
+                paths[entity] = path;
             }
 
-            mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
-            if (path.Length() > 0)
-                paths.Add(entity, path);
-            return;
         }
 
         public void AddEntities(List<Entity> entities)

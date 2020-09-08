@@ -224,7 +224,7 @@ namespace HighKings
             throw new NotImplementedException();
         }
 
-        public string SysName()
+        public string SysCompName()
         {
             return "Movers";
         }

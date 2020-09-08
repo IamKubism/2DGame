@@ -6,5 +6,5 @@ using HighKings;
 public interface ISystemAdder
 {
     void AddEntities(List<Entity> entities);
-    string SysName();
+    string SysCompName();
 }

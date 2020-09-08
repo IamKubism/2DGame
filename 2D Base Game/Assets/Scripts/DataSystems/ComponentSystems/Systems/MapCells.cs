@@ -39,7 +39,7 @@ namespace HighKings
                 List<Entity> cell = world.tile_map.cells[p.x, p.y, p.z];
                 if (cell.Contains(e))
                 {
-
+                    continue;
                 } else
                 {
                     cell.Add(e);

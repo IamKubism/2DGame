@@ -304,7 +304,7 @@ namespace HighKings
                 w2.Restart();
                 sys.AddEntities(entities.Keys.ToList());
                 w2.Stop();
-                Debug.Log($"Added component {sys.SysName()} in {w2.Elapsed}");
+                Debug.Log($"Added component {sys.SysCompName()} in {w2.Elapsed}");
             }
             watch.Stop();
             Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");

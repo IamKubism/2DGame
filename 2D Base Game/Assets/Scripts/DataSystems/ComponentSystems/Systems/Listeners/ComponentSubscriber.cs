@@ -11,6 +11,7 @@ namespace HighKings
         /// </summary>
         Dictionary<Entity, SubscriberEvent<T>> after_actions;
         Dictionary<Entity, SubscriberEvent<T>> before_actions;
+        Dictionary<Entity, SubscriberEvent<T>> component_get_actions;
         
         public string component_name;
 
@@ -22,6 +23,7 @@ namespace HighKings
             this.component_name = component_name;
             after_actions = new Dictionary<Entity, SubscriberEvent<T>>();
             before_actions = new Dictionary<Entity, SubscriberEvent<T>>();
+            component_get_actions = new Dictionary<Entity, SubscriberEvent<T>>();
             PrototypeLoader.instance.AddSystemLoc($"{component_name}_subscriber", this);
         }
 
@@ -167,33 +169,21 @@ namespace HighKings
             on_entity_added -= to_reg;
         }
 
-        /// <summary>
-        /// For when an event does not change a component
-        /// </summary>
-        /// <param name="entities"></param>
-        /// <param name="action"></param>
-        /// <param name="action_name"></param>
+        public void RegisterOnRemove(Action<List<Entity>> to_reg)
+        {
+            on_entity_removed += to_reg;
+        }
+
+        public void UnRegisterOnRemove(Action<List<Entity>> to_reg)
+        {
+            on_entity_removed -= to_reg;
+        }
+
         public void SubscribeAfterAction(List<Entity> entities, Action<Entity,T> action, string action_name)
         {
             foreach(Entity e in entities)
             {
                 after_actions[e].RegisterAction(action_name, (t) => action(e, t));
-            }
-        }
-
-        /// <summary>
-        /// For when an event should change another component
-        /// </summary>
-        /// <typeparam name="P"></typeparam>
-        /// <param name="entities"></param>
-        /// <param name="action"></param>
-        /// <param name="action_name"></param>
-        public void SubscribeAfterAction<P>(List<Entity> entities, Action<Entity,T> action, string action_name, string p_name) where P: IBaseComponent
-        {
-            ComponentSubscriber<P> p_subscriber = MainGame.instance.GetSubscriberSystem<P>(p_name);
-            foreach(Entity e in entities)
-            {
-
             }
         }
 
@@ -221,7 +211,23 @@ namespace HighKings
             }
         }
 
-        public string SysName()
+        public void SubscribeGetAction(List<Entity> entities, Action<Entity, T> action, string action_name)
+        {
+            foreach (Entity e in entities)
+            {
+                component_get_actions[e].RegisterAction(action_name, (t) => action(e, t));
+            }
+        }
+
+        public void UnsubscribeGetAction(List<Entity> components, string action)
+        {
+            foreach (Entity e in components)
+            {
+                component_get_actions[e].RemoveAction(action);
+            }
+        }
+
+        public string SysCompName()
         {
             return component_name;
         }

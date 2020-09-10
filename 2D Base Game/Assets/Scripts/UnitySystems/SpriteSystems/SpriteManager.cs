@@ -20,7 +20,6 @@ namespace HighKings
         Dictionary<string, Sprite> sprite_map;
         public Dictionary<Entity, GameObject> entity_object_map;
         World world { get { return WorldController.Instance.world; } }
-        RenderStateManager renders;
 
         ComponentSubscriber<RenderComponent> render_values;
         ComponentSubscriber<Position> positions;

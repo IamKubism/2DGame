@@ -22,15 +22,8 @@
             "_namespace": "Default",
             "type": "RenderComponent",
             "data": {
-                "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                },
-                "state": {
-                    "sprite_name": "NULL",
-                    "layer_name": "NULL"
-                }
+                "sprite_name": "NULL",
+                "layer_name": "NULL"
             }
         },
         "SelectionComponent": {
@@ -38,6 +31,15 @@
             "type": "SelectionComponent",
             "data": {
                 "priority": 100
+            }
+        },
+        "Health": {
+            "_namespace": "Default",
+            "type": "BaseStatistic",
+            "data": {
+                "stat_name": "Health",
+                "curr_value": 100,
+                "base_value": 100
             }
         }
     }

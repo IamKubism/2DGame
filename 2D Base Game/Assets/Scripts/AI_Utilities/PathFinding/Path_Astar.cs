@@ -13,8 +13,8 @@ namespace HighKings
         Entity curr_pos;
         Entity end_pos;
         Queue<Entity> path;
-        Queue<float> movement_cost_base;
         Queue<Position> position_path;
+        Queue<Path_Edge<Entity>> edge_path;
         public Path_TileGraph graph;
 
         IBehavior cost_function;
@@ -43,6 +43,7 @@ namespace HighKings
                 Debug.LogError("Path_Astar -- End Tile Has no node");
                 return;
             }
+
             end_pos = end[0];
 
             Dictionary<Entity, Path_Node<Entity>> node_map = graph.tile_map;
@@ -79,7 +80,6 @@ namespace HighKings
                 {
                     ReconstructPath(came_from, current);
                     return;
-
                 }
                 closed_set.Add(current);
                 foreach (Path_Edge<Entity> e in current.edges)
@@ -127,16 +127,20 @@ namespace HighKings
         void ReconstructPath(Dictionary<Path_Node<Entity>, Path_Node<Entity>> came_from, Path_Node<Entity> current)
         {
             Queue<Entity> rev_path = new Queue<Entity>();
+            edge_path = new Queue<Path_Edge<Entity>>();
             end_pos = current.data;
 
             while (came_from.ContainsKey(current))
             {
                 rev_path.Enqueue(current.data);
+                edge_path.Enqueue(came_from[current].FindEdge(current));
                 current = came_from[current];
             }
             rev_path.Enqueue(current.data);
 
             path = new Queue<Entity>(rev_path.Reverse());
+            edge_path = new Queue<Path_Edge<Entity>>(edge_path.Reverse());
+            
             path.Dequeue();
         }
 

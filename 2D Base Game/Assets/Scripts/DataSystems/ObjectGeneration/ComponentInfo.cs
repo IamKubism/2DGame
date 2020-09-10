@@ -73,7 +73,19 @@ namespace HighKings
         {
             if(data == null)
             {
-                data = o;
+                ConstructorInfo constructor = o.GetType().GetConstructor(new Type[1] { o.GetType() });
+                if (constructor == null)
+                {
+                    constructor = o.GetType().GetConstructor(new Type[0]);
+                    if (constructor == null)
+                    {
+                        Debug.LogError($"Could not find any base constructor for component: {component_name}");
+                    } else
+                    {
+                        data = constructor.Invoke(new object[0]);
+                    }
+                } else
+                    data = constructor.Invoke(new object[1] { o });
             } else
             {
                 foreach(FieldInfo field in fields)

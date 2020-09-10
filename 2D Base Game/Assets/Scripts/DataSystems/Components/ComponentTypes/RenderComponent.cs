@@ -15,9 +15,6 @@ namespace HighKings
         [JsonProperty]
         public string sprite_name;
 
-        [JsonProperty]
-        public SerializableVector3 position;
-
         public RenderComponent()
         {
         }
@@ -28,16 +25,15 @@ namespace HighKings
             layer_name = r.layer_name;
         }
 
-        public RenderComponent(Vector3 position, string layer_name, string sprite_name)
+        public RenderComponent(string layer_name, string sprite_name)
         {
-            this.position = position;
             this.layer_name = layer_name;
             this.sprite_name = sprite_name;
         }
 
         public override string ToString()
         {
-            return $"sprite: {sprite_name} layer: {layer_name} position: ({position.ToString()})";
+            return $"sprite: {sprite_name} layer: {layer_name}";
         }
 
         public void SetStateValues(object vals)

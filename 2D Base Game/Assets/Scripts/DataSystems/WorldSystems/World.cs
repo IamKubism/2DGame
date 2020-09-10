@@ -21,7 +21,6 @@ public class World
     //TODO: Make this handle multichunks
     public Path_TileGraph graph { get; protected set; }
     protected Path_Astar utility_astar;
-    public Positions entity_positions;
 
     //TODO: Make this handle multichunks
     public NodeChunk tile_map;

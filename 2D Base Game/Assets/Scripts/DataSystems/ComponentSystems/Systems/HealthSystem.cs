@@ -20,7 +20,7 @@ namespace HighKings
 
         public bool CheckDeath(BaseStatistic health)
         {
-            return health.value <= 0;
+            return health.curr_value <= 0;
         }
 
         public void OnDeath(Entity e, BaseStatistic health)

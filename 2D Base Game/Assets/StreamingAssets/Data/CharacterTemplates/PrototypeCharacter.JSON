@@ -29,6 +29,12 @@
                     "data": {
                         "priority": 0
                     }
+                },
+                "Health": {
+                    "component_type": "BaseStatistic",
+                    "_namespace": "Default",
+                    "load_priority": 1,
+                    "variable": false
                 }
             }
         }

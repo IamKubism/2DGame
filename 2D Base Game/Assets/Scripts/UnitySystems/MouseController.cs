@@ -17,7 +17,7 @@ public class MouseController : MonoBehaviour
     public GameMenuManager menu_manager;
 
     public SelectionTabManager selection_tabs;
-    public SelectionInfoManager selection_info;
+    public SelectionStatInfoManager selection_info;
 
     Vector3 last_frame_pos;
     Vector3 curr_frame_pos;

@@ -8,7 +8,7 @@ public class SelectionTabManager : MonoBehaviour
 {
     List<SelectionComponent> selections;
     public GameObject button_prefab;
-    public SelectionInfoManager info_manager;
+    public SelectionStatInfoManager info_manager;
 
     // Start is called before the first frame update
     void Start()

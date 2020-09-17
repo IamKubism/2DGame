@@ -35,6 +35,12 @@
                     "_namespace": "Default",
                     "load_priority": 1,
                     "variable": false
+                },
+                "Health2": {
+                    "component_type": "BaseStatistic",
+                    "_namespace": "Default",
+                    "load_priority": 1,
+                    "variable": false
                 }
             }
         }

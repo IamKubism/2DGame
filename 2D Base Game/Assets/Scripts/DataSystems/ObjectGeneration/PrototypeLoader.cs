@@ -45,6 +45,7 @@ namespace HighKings
         public void ReadFile(string file_text)
         {
             System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+
             if (base_component_defaults == null)
             {
                 Debug.LogError("Component defaults was null");
@@ -63,48 +64,62 @@ namespace HighKings
 
             //Parse and iterate through the file
             JObject root = JObject.Parse(file_text);
-            List<JToken> branch_list = root.Children().ToList();
 
-            foreach (JProperty main_branch in branch_list)
+            if(root["components"] != null)
             {
-                switch (main_branch.Name)
+                List<JToken> comp_list = root["components"].ToList();
+                foreach (JProperty comp in comp_list)
                 {
-                    //Make the Default components defined in the file
-                    case "components":
-                        List<JToken> comp_list = main_branch.Value.ToList();
-                        foreach (JProperty comp in comp_list)
-                        {
-                            string type_name = GenerateTypeName(comp.Value["type"].ToString(), comp.Value["_namespace"].ToString());
-                            string comp_name = comp.Name;
-                            if (base_component_generators.ContainsKey(type_name) == false)
-                                AddComponentGenerator(type_name);
-                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name) == false)
-                            {
-                                AddComponentSubscriber(type_name, comp_name);
-                            }
-                            Type c_type = Type.GetType(type_name);
-                            if (c_type == null || (base_component_generators.ContainsKey(type_name) == false))
-                            {
-                                Debug.LogError($"Couldn't find the component type {type_name} when making {comp.Name}");
-                                continue;
-                            }
-                            object comp_gen = base_component_generators[type_name];
-                            base_component_defaults.Add(comp_name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
-                                new object[2] { comp.Value["data"].ToString(), parser }));
-                        }
-                        break;
-                    //Make the prototypes
-                    case "prototypes":
-                        List<JToken> prot_types = main_branch.Values().ToList();
-                        foreach (JProperty prot in prot_types)
-                        {
-                            CreatePrototype(prot);
-                        }
-                        break;
+                    AddComponentType(comp);
                 }
             }
+            
+            if(root["prototypes"] != null)
+            {
+                List<JToken> prot_types = root["prototypes"].ToList();
+                foreach (JProperty prot in prot_types)
+                {
+                    CreatePrototype(prot);
+                }
+            }
+
             watch.Stop();
-            //Debug.Log($"Read file in {watch.ElapsedTicks} ticks");
+            Debug.Log($"Read file in {watch.Elapsed}");
+        }
+
+        void AddComponentType(JProperty comp_data)
+        {
+            string type_name = GenerateTypeName(comp_data.Value["type"].ToString(), comp_data.Value["_namespace"].ToString());
+            string comp_name = comp_data.Name;
+
+            if (base_component_generators.ContainsKey(type_name) == false)
+                AddComponentGenerator(type_name);
+
+            if (MainGame.instance.component_subscribers.ContainsKey(comp_name) == false)
+                AddComponentSubscriber(type_name, comp_name);
+
+            Type c_type = Type.GetType(type_name);
+
+            if (c_type == null || (base_component_generators.ContainsKey(type_name) == false))
+            {
+                Debug.LogError($"Couldn't find the component type {type_name} when making {comp_data.Name}");
+                return;
+            }
+
+            object comp_gen = base_component_generators[type_name];
+
+            base_component_defaults.Add(comp_name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
+                new object[2] { comp_data.Value["data"].ToString(), parser }));
+
+            if (comp_data.Value["inspector_display"] != null)
+            {
+                InspectorDisplay disp = parser.ParseString<InspectorDisplay>(comp_data.Value["inspector_display"].ToString());
+                disp.component_name = comp_name;
+                disp.type = type_name;
+
+                MainGame.instance.display_data.Add(comp_name, disp);
+            }
+
         }
 
         void AddComponentGenerator(string type_name)
@@ -148,113 +163,109 @@ namespace HighKings
         void CreatePrototype(JProperty prot)
         {
             string prot_name = prot.Name;
+            
             //Generate a fresh prototype
             EntityPrototype p = new EntityPrototype(prot_name);
             List<JToken> prot_sub = prot.Values().ToList();
 
-            //Iterate through the prototype subfields
-            foreach (JProperty sub in prot_sub)
+            if (prot.Value["extends"] != null)
             {
-                switch (sub.Name)
+                if (prototypes.ContainsKey(prot.Value["extends"].ToString()))
                 {
-                    //Find any prototype that this has all the same components
-                    case "extends":
-                        if (prototypes.ContainsKey(sub.Value.ToString()))
-                        {
-                            //Debug.Log($"Cloning: {sub.Value.ToString()}");
-                            p = prototypes[sub.Value.ToString()].Clone(prot_name);
-                        }
+                    //Debug.Log($"Cloning: {sub.Value.ToString()}");
+                    p = prototypes[prot.Value["extends"].ToString()].Clone(prot_name);
+                }
+                else
+                {
+                    Debug.LogError($"Could not find the prototype {prot.Value["extends"].ToString()} that {prot_name} extends, skipping prototype");
+                    return;
+                }
+            }
+
+            if (prot.Value["components"] != null)
+            {
+                List<JToken> comps = prot.Value["components"].ToList();
+                foreach (JProperty comp in comps)
+                {
+                    string comp_name = comp.Name;
+                    string type_name;
+                    if (comp.Value["component_type"] == null || comp.Value["_namespace"] == null)
+                    {
+                        if (p.components.ContainsKey(comp_name))
+                            type_name = p.components[comp_name].component_type;
                         else
                         {
-                            Debug.LogError($"Could not find the prototype {sub.Value.ToString()} that {prot_name} extends, skipping prototype");
+                            Debug.LogError($"No typing information for {comp_name} for prototype: {prot_name}");
                             return;
                         }
-                        break;
-                    //Generate the component values/overrides
-                    case "components":
-                        List<JToken> comps = sub.Values().ToList();
-                        foreach (JProperty comp in comps)
+                    }
+                    else
+                    {
+                        type_name = GenerateTypeName(comp.Value["component_type"].ToString(), comp.Value["_namespace"].ToString());
+                    }
+                    Type comp_type = Type.GetType(type_name);
+                    if (comp_type == null)
+                    {
+                        Debug.Log($"Could not find component of type {type_name} for component named {comp_name}");
+                        continue;
+                    }
+                    if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
+                    {
+                        Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
+                        continue;
+                    }
+                    //Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
+                    List<FieldInfo> info_fields = new List<FieldInfo>();
+                    List<JToken> fields = comp.Values().ToList();
+
+                    foreach (JProperty prop in fields)
+                    {
+                        if (prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
                         {
-                            string comp_name = comp.Name;
-                            string type_name;
-                            if(comp.Value["component_type"] == null || comp.Value["_namespace"] == null)
-                            {
-                                if(p.components.ContainsKey(comp_name))
-                                    type_name = p.components[comp_name].component_type;
-                                else
-                                {
-                                    Debug.LogError($"No typing information for {comp_name} for prototype: {prot_name}");
-                                    return;
-                                }
-                            } else
-                            {
-                                type_name = GenerateTypeName(comp.Value["component_type"].ToString(), comp.Value["_namespace"].ToString());
-                            }
-                            Type comp_type = Type.GetType(type_name);
-                            if (comp_type == null)
-                            {
-                                Debug.Log($"Could not find component of type {type_name} for component named {comp_name}");
-                                continue;
-                            }
-                            if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
-                            {
-                                Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
-                                continue;
-                            }
-                            //Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
-                            List<FieldInfo> info_fields = new List<FieldInfo>();
-                            List<JToken> fields = comp.Values().ToList();
-
-                            foreach(JProperty prop in fields)
-                            {
-                                if(prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
-                                {
-                                    continue;
-                                }
-                                if(typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
-                                {
-                                    Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
-                                    continue;
-                                }
-                                info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
-                            }
-
-                            ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
-                            info.component_name = comp_name;
-                            info.component_type = type_name;
-
-                            //If data is null, we know that it needs to get the base component's values.
-                            if (info.data == default)
-                            {
-                                info.SetData(base_component_defaults[comp_name], null);
-                            }
-
-                            List<FieldInfo> over_fields = new List<FieldInfo>();
-
-                            //The "data" field defines the component values for this prototype, so if its there something is gonna get overwritten and I want to be able to do this in a 
-                            //Non-stupid way that is nice to write. So I have to grab the fields present in the overwriter and then apply them to the data in the component
-                            if (comp.Value["data"] != null)
-                            {
-                                List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
-                                foreach (JProperty f in comp_fields)
-                                {
-                                    if (comp_type.GetField(f.Name, field_flags) == null)
-                                    {
-                                        Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
-                                        continue;
-                                    }
-                                    over_fields.Add(comp_type.GetField(f.Name, field_flags));
-                                }
-
-                                object comp_genner = base_component_generators[type_name];
-                                object over_comp = comp_genner.GetType().
-                                    GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
-                                info.SetData(over_comp, over_fields);
-                            }
-
-                            p.SetComponent(info, info_fields, over_fields);
+                            continue;
                         }
-                        break;
+                        if (typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
+                        {
+                            Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
+                            continue;
+                        }
+                        info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
+                    }
+
+                    ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
+                    info.component_name = comp_name;
+                    info.component_type = type_name;
+
+                    //If data is null, we know that it needs to get the base component's values.
+                    if (info.data == default)
+                    {
+                        info.SetData(base_component_defaults[comp_name], null);
+                    }
+
+                    List<FieldInfo> over_fields = new List<FieldInfo>();
+
+                    //The "data" field defines the component values for this prototype, so if its there something is gonna get overwritten and I want to be able to do this in a 
+                    //Non-stupid way that is nice to write. So I have to grab the fields present in the overwriter and then apply them to the data in the component
+                    if (comp.Value["data"] != null)
+                    {
+                        List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
+                        foreach (JProperty f in comp_fields)
+                        {
+                            if (comp_type.GetField(f.Name, field_flags) == null)
+                            {
+                                Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
+                                continue;
+                            }
+                            over_fields.Add(comp_type.GetField(f.Name, field_flags));
+                        }
+
+                        object comp_genner = base_component_generators[type_name];
+                        object over_comp = comp_genner.GetType().
+                            GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
+                        info.SetData(over_comp, over_fields);
+                    }
+
+                    p.SetComponent(info, info_fields, over_fields);
                 }
             }
             prototypes.Add(prot_name, p);
@@ -520,4 +531,110 @@ public class TestDataStruct : GetsPut, ICloneable
 //{
 //    Debug.Log("TODO: Implement extention prototype search");
 //    Debug.LogError($"Could not find extention prototype: {prot.Name}, there are gonna be huge problems for anything loading that");
+//}
+
+//Iterate through the prototype subfields
+//foreach (JProperty sub in prot_sub)
+//{
+//    switch (sub.Name)
+//    {
+//        //Find any prototype that this has all the same components
+//        case "extends":
+//            if (prototypes.ContainsKey(sub.Value.ToString()))
+//            {
+//                //Debug.Log($"Cloning: {sub.Value.ToString()}");
+//                p = prototypes[sub.Value.ToString()].Clone(prot_name);
+//            }
+//            else
+//            {
+//                Debug.LogError($"Could not find the prototype {sub.Value.ToString()} that {prot_name} extends, skipping prototype");
+//                return;
+//            }
+//            break;
+//        //Generate the component values/overrides
+//        case "components":
+//            List<JToken> comps = sub.Values().ToList();
+//            foreach (JProperty comp in comps)
+//            {
+//                string comp_name = comp.Name;
+//                string type_name;
+//                if(comp.Value["component_type"] == null || comp.Value["_namespace"] == null)
+//                {
+//                    if(p.components.ContainsKey(comp_name))
+//                        type_name = p.components[comp_name].component_type;
+//                    else
+//                    {
+//                        Debug.LogError($"No typing information for {comp_name} for prototype: {prot_name}");
+//                        return;
+//                    }
+//                } else
+//                {
+//                    type_name = GenerateTypeName(comp.Value["component_type"].ToString(), comp.Value["_namespace"].ToString());
+//                }
+//                Type comp_type = Type.GetType(type_name);
+//                if (comp_type == null)
+//                {
+//                    Debug.Log($"Could not find component of type {type_name} for component named {comp_name}");
+//                    continue;
+//                }
+//                if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
+//                {
+//                    Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
+//                    continue;
+//                }
+//                //Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
+//                List<FieldInfo> info_fields = new List<FieldInfo>();
+//                List<JToken> fields = comp.Values().ToList();
+
+//                foreach(JProperty prop in fields)
+//                {
+//                    if(prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
+//                    {
+//                        continue;
+//                    }
+//                    if(typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
+//                    {
+//                        Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
+//                        continue;
+//                    }
+//                    info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
+//                }
+
+//                ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
+//                info.component_name = comp_name;
+//                info.component_type = type_name;
+
+//                //If data is null, we know that it needs to get the base component's values.
+//                if (info.data == default)
+//                {
+//                    info.SetData(base_component_defaults[comp_name], null);
+//                }
+
+//                List<FieldInfo> over_fields = new List<FieldInfo>();
+
+//                //The "data" field defines the component values for this prototype, so if its there something is gonna get overwritten and I want to be able to do this in a 
+//                //Non-stupid way that is nice to write. So I have to grab the fields present in the overwriter and then apply them to the data in the component
+//                if (comp.Value["data"] != null)
+//                {
+//                    List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
+//                    foreach (JProperty f in comp_fields)
+//                    {
+//                        if (comp_type.GetField(f.Name, field_flags) == null)
+//                        {
+//                            Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
+//                            continue;
+//                        }
+//                        over_fields.Add(comp_type.GetField(f.Name, field_flags));
+//                    }
+
+//                    object comp_genner = base_component_generators[type_name];
+//                    object over_comp = comp_genner.GetType().
+//                        GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
+//                    info.SetData(over_comp, over_fields);
+//                }
+
+//                p.SetComponent(info, info_fields, over_fields);
+//            }
+//            break;
+//    }
 //}

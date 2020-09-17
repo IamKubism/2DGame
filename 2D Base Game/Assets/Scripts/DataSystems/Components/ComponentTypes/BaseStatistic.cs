@@ -12,12 +12,12 @@ namespace HighKings
         public string stat_name { get; protected set; }
 
         [JsonProperty]
-        public float curr_value;
+        public int curr_value;
 
         [JsonProperty]
-        public float base_value;
+        public int base_value;
 
-        public BaseStatistic(string stat_name, float curr_value, float base_value)
+        public BaseStatistic(string stat_name, int curr_value, int base_value)
         {
             this.stat_name = stat_name;
             this.curr_value = curr_value;

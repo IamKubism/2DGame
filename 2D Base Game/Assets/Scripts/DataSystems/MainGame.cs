@@ -33,6 +33,8 @@ namespace HighKings
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
 
+        public Dictionary<string, InspectorDisplay> display_data;
+
         /// <summary>
         /// Current World that player controlled characters are in. It is the mediator for all area based systems.
         /// TODO: Make the game able to handle chuck based things so characters can be in multiple world tiles (Also possibly change the name)
@@ -56,6 +58,7 @@ namespace HighKings
 
             //Load All systems
             systems = new Dictionary<string, object>();
+            display_data = new Dictionary<string, InspectorDisplay>();
 
             MovementCalculator.SetTestCalculator();
         }

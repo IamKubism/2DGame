@@ -26,7 +26,6 @@ public class MouseController : MonoBehaviour
     List<GameObject> drag_preview_game_objects;
     List<GameObject> preview_objects;
 
-    public List<SelectionComponent> active_selectables;
     public List<Entity> selected_entities;
     int current_selectable;
 
@@ -41,7 +40,6 @@ public class MouseController : MonoBehaviour
     void Start()
     {
         selected_entities = new List<Entity>();
-        active_selectables = new List<SelectionComponent>();
         drag_preview_game_objects = new List<GameObject>();
 
         SimplePool.Preload(tile_cursor_prefab, 100);
@@ -164,12 +162,16 @@ public class MouseController : MonoBehaviour
         Entity next_selectable = GetNextSelectable();
         main_selected = next_selectable;
 
-        if (active_selectables.Count > 0)
+        if (selected_entities.Count > 0)
+        {
             Debug.Log("Active Selectable: " + next_selectable.ToString());
+            selection_info.MakeStatDisplays(main_selected);
+        }
         else
+        {
             Debug.Log("No Active Selectables");
+        }
 
-        selection_tabs.PassSelection(active_selectables);
     }
 
     void AddActiveSelectable(Entity selectable)
@@ -179,43 +181,38 @@ public class MouseController : MonoBehaviour
             return;
         }
         SelectionComponent select_comp = selectable.GetComponent<SelectionComponent>("selection_component");
-        int index = 0;
-        foreach (SelectionComponent s in active_selectables)
+        for(int i = 0; i < selected_entities.Count; i += 1)
         {
-            if (s.priority >= select_comp.priority)
+            if (selected_entities[i].GetComponent<SelectionComponent>("selection_component").priority >= select_comp.priority)
             {
-                active_selectables.Insert(index, select_comp);
-                selected_entities.Insert(index, selectable);
+                selected_entities.Insert(i, selectable);
                 return;
             }
-            index += 1;
         }
-        active_selectables.Add(select_comp);
         selected_entities.Add(selectable);
     }
 
     void RemoveActiveSelectable(SelectionComponent selected)
     {
         current_selectable = 0;
-        active_selectables.Remove(selected);
     }
 
     void RemoveActiveSelectable(Entity selected)
     {
         current_selectable = 0;
         selected_entities.Remove(selected);
-        active_selectables.Remove(selected.GetComponent<SelectionComponent>("SelectionComponent"));
     }
 
     Entity GetNextSelectable()
     {
-        Debug.Log(active_selectables.Count);
-        if (active_selectables.Count == 0)
+        Debug.Log(selected_entities.Count);
+        if (selected_entities.Count == 0)
         {
             return null;
         }
         int index = current_selectable;
-        current_selectable = (current_selectable + 1) % active_selectables.Count;
+        current_selectable = (current_selectable + 1) % selected_entities.Count;
+        Debug.Log($"current_selectable :{current_selectable}");
         return selected_entities[index];
     }
 
@@ -232,12 +229,12 @@ public class MouseController : MonoBehaviour
 
         List<Entity> selects = GameObjectManager.instance.GrabEntitiesFromObjects(sels);
 
-        foreach (Entity e in selected_entities)
+        for(int i = selected_entities.Count; i > 0; i -= 1)
         {
-            Debug.Log(e.entity_string_id);
-            if (selects.Contains(e) == false)
+            Debug.Log(selected_entities[i - 1].ToString());
+            if(selects.Contains(selected_entities[i-1]) == false)
             {
-                RemoveActiveSelectable(e);
+                RemoveActiveSelectable(selected_entities[i - 1]);
             }
         }
 

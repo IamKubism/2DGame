@@ -34,6 +34,8 @@ public class GameController : MonoBehaviour
     public BuildModeController buildModeController;
     public PrototypeLoader prototype_loader;
 
+    public SelectionStatInfoManager selection_info;
+
     //Sprite Managers
     public SpriteManager sprite_manager;
 
@@ -93,6 +95,8 @@ public class GameController : MonoBehaviour
         Dictionary<string, object[]> system_args = JsonParser.instance.ParseString<Dictionary<string, object[]>>(System.IO.File.ReadAllText(system_path));
         game.CreateSystems(system_args);
         world_controller.OnStart();
+
+        selection_info.SetDisplayQueue();
     }
 
     /// <summary>

@@ -2188,8 +2188,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1150263641}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 57970048}
+        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:

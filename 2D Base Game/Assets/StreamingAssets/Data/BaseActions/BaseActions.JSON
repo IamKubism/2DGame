@@ -1,0 +1,13 @@
+{
+    "actions": {
+        "AssignMovement": {
+            "listeners": {
+                "MoverAssign": {
+                    "namespace": "Default",
+                    "type": "Movers",
+                    "method_name": "MoverPathMaker"
+                }
+            }
+        }
+    }
+}

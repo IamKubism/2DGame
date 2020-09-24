@@ -12,17 +12,13 @@ namespace HighKings
         [JsonProperty]
         public int priority;
 
-        public Dictionary<string, Func<Entity, string>> string_generators;
-
         public SelectionComponent()
         {
-            string_generators = new Dictionary<string, Func<Entity, string>>();
         }
 
         public SelectionComponent(SelectionComponent s)
         {
             priority = s.priority;
-            string_generators = new Dictionary<string, Func<Entity, string>>(s.string_generators);
         }
     }
 }

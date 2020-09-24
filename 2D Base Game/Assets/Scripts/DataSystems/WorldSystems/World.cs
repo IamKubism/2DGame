@@ -70,7 +70,7 @@ public class World
     {
         return (x >= 0) && (y >= 0) && (z >= 0) && (x < len_x) && (y < len_y) && (z < len_z)
                ? tile_map.tiles[x, y, z] 
-               : null;
+               : default;
     }
 
     public List<Entity> GetTileSquare(Entity center, int sqr_dist)

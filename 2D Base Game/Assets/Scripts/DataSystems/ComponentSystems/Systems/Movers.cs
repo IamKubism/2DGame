@@ -208,6 +208,48 @@ namespace HighKings
 
         }
 
+        public static void MoverPathMaker(Entity source, Entity target)
+        {
+            //This in general should not happen but I am just going to do this for testing purposes
+            IBehavior temp = MovementCalculator.test_calculator;
+
+
+            Position end_p = target.GetComponent<Position>("Position");
+            List<Entity> end = new List<Entity> { World.instance.GetTileFromCoords(end_p.x, end_p.y, end_p.z) };
+            Position start_p = source.GetComponent<Position>("Position");
+            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, World.instance.GetTileFromCoords(start_p.x, start_p.y, start_p.z), end, temp);
+
+            if (path.Length() == 0)
+            {
+                return;
+            }
+
+            if (instance.paths.ContainsKey(source) == false)
+            {
+                if (instance.mover_progress.ContainsKey(source))
+                {
+                    instance.paths.Add(source, path);
+                    return;
+                }
+                Entity next_cell = path.DeQueue();
+                FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+                if (prog.max <= 0)
+                {
+                    return;
+                }
+
+                instance.mover_progress.Add(source, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                if (path.Length() > 0)
+                    instance.paths.Add(source, path);
+                return;
+            }
+            else
+            {
+                instance.paths[source] = path;
+            }
+
+        }
+
         public void AddEntities(List<Entity> entities)
         {
             foreach(Entity e in entities)

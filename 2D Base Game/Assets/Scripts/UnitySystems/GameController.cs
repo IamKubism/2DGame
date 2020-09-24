@@ -112,9 +112,8 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void StartGame()
     {
-        mouseController = GameObject.FindObjectOfType<MouseController>();
+        mouseController = FindObjectOfType<MouseController>();
         mouseController.OnGameStart();
-        //ImportJobLua();
         game.StartGame();
     }
 

@@ -46,20 +46,6 @@
                 "curr_value": 100,
                 "base_value": 100
             }
-        },
-        "Health2": {
-            "_namespace": "Default",
-            "type": "BaseStatistic",
-            "inspector_display": {
-                "default_position": 0,
-                "type": "bar",
-                "display_name": "Health2"
-            },
-            "data": {
-                "stat_name": "Health",
-                "curr_value": 100,
-                "base_value": 100
-            }
         }
     }
 }

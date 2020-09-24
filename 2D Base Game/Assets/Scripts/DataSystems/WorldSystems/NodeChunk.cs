@@ -107,5 +107,29 @@ namespace HighKings
             }
             return to_return;
         }
+
+        public Entity this[int x, int y, int z]
+        {
+            get
+            {
+                return tiles[Math.Max(0, Math.Min(x, len_x)), Math.Max(0, Math.Min(y, len_y)), Math.Max(0, Math.Min(z, len_z))];
+            }
+            set
+            {
+                Debug.LogError("Cannot set tile using this operator");
+            }
+        }
+
+        public Entity this[Position p]
+        {
+            get
+            {
+                return tiles[Math.Max(0, Math.Min(p.x, len_x)), Math.Max(0, Math.Min(p.y, len_y)), Math.Max(0, Math.Min(p.z, len_z))];
+            }
+            set
+            {
+                Debug.LogError("Cannot set tile using this operator");
+            }
+        }
     }
 }

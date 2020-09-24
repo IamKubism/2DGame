@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace HighKings
 {
-
     public class SelectionManager
     {
         public static SelectionManager instance;

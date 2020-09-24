@@ -12,43 +12,6 @@ using System;
 
 
 /// <summary>
-/// A struct that defines an update on an entity for a function that requires the argument type T
-/// </summary>
-/// <typeparam name="T"></typeparam>
-public struct Updater<T>
-{
-    private readonly string entity_string_id;
-    private readonly T argument;
-
-
-    public Updater(string enity_id, T argument): this()
-    {
-        entity_string_id = enity_id;
-        this.argument = argument;
-    }
-
-
-    public T argument_visible
-    {
-        get
-        {
-            return argument;
-        }
-    }
-
-
-    public string entity_id
-    {
-        get
-        {
-            return entity_string_id;
-        }
-    }
-}
-
-
-
-/// <summary>
 /// An updater that is run continuously and does not have return values that it uses.
 /// </summary>
 /// <typeparam name="T"></typeparam>

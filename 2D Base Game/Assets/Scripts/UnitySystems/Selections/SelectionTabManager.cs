@@ -22,24 +22,6 @@ public class SelectionTabManager : MonoBehaviour
         
     }
 
-    public void PassSelection(List<SelectionComponent> selects)
-    {
-        selections = selects;
-        SetAllButtons();
-    }
-
-    void SetAllButtons()
-    {
-        //while (transform.childCount > 0)
-        //{
-        //    Destroy(transform.GetChild(transform.childCount - 1).gameObject);
-        //}
-        foreach (SelectionComponent select in selections)
-        {
-            //CreateButtonForSelections(select);
-        }
-    }
-
     //void CreateButtonForSelections(SelectionComponent selected)
     //{
     //    GameObject b = Instantiate(button_prefab);

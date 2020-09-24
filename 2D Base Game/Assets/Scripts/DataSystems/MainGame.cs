@@ -33,7 +33,9 @@ namespace HighKings
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
 
-        public Dictionary<string, InspectorDisplay> display_data;
+        public Dictionary<string, InspectorData> display_data;
+
+        public ActionList action_list;
 
         /// <summary>
         /// Current World that player controlled characters are in. It is the mediator for all area based systems.
@@ -55,10 +57,11 @@ namespace HighKings
             //Load the prototypes and components
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(JsonParser.instance);
             entity_manager = EntityManager.instance ?? new EntityManager();
+            action_list = ActionList.instance ?? new ActionList();
 
             //Load All systems
             systems = new Dictionary<string, object>();
-            display_data = new Dictionary<string, InspectorDisplay>();
+            display_data = new Dictionary<string, InspectorData>();
 
             MovementCalculator.SetTestCalculator();
         }

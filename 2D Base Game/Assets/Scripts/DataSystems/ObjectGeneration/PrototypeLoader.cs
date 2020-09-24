@@ -70,7 +70,7 @@ namespace HighKings
                 List<JToken> comp_list = root["components"].ToList();
                 foreach (JProperty comp in comp_list)
                 {
-                    AddComponentType(comp);
+                    CreateComponentType(comp);
                 }
             }
             
@@ -79,15 +79,24 @@ namespace HighKings
                 List<JToken> prot_types = root["prototypes"].ToList();
                 foreach (JProperty prot in prot_types)
                 {
-                    CreatePrototype(prot);
+                    CreateEntityPrototype(prot);
+                }
+            }
+
+            if(root["actions"] != null)
+            {
+                List<JToken> action_types = root["actions"].ToList();
+                foreach(JProperty act in action_types)
+                {
+                    CreateActionPrototype(act);
                 }
             }
 
             watch.Stop();
-            Debug.Log($"Read file in {watch.Elapsed}");
+            //Debug.Log($"Read file in {watch.Elapsed}");
         }
 
-        void AddComponentType(JProperty comp_data)
+        void CreateComponentType(JProperty comp_data)
         {
             string type_name = GenerateTypeName(comp_data.Value["type"].ToString(), comp_data.Value["_namespace"].ToString());
             string comp_name = comp_data.Name;
@@ -113,7 +122,7 @@ namespace HighKings
 
             if (comp_data.Value["inspector_display"] != null)
             {
-                InspectorDisplay disp = parser.ParseString<InspectorDisplay>(comp_data.Value["inspector_display"].ToString());
+                InspectorData disp = parser.ParseString<InspectorData>(comp_data.Value["inspector_display"].ToString());
                 disp.component_name = comp_name;
                 disp.type = type_name;
 
@@ -160,7 +169,7 @@ namespace HighKings
             system_adders.Add(sys_name, sys);
         }
 
-        void CreatePrototype(JProperty prot)
+        void CreateEntityPrototype(JProperty prot)
         {
             string prot_name = prot.Name;
             
@@ -272,6 +281,12 @@ namespace HighKings
             //Debug.Log(p.ToString());
         }
 
+        public void CreateActionPrototype(JProperty act)
+        {
+            EntityAction action = new EntityAction(act);
+            ActionList.instance.RegisterAction(act.Name, action);
+        }
+
         public void AttachPrototype(string prototype_id, Dictionary<Entity, Dictionary<string, object[]>> entities)
         {
             System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
@@ -288,7 +303,7 @@ namespace HighKings
             {
                 //This loads the component data into the entities
                 ComponentInfo comp = load_queue.Dequeue();
-                Debug.Log($"Loading Component: {comp.component_name}");
+                //Debug.Log($"Loading Component: {comp.component_name}");
                 if (comp.variable)
                 {
                     Type[] t_args = Array.ConvertAll(entities.First().Value[comp.component_name], item => item.GetType());
@@ -333,10 +348,10 @@ namespace HighKings
                 w2.Restart();
                 sys.AddEntities(entities.Keys.ToList());
                 w2.Stop();
-                Debug.Log($"Added component {sys.SysCompName()} in {w2.Elapsed}");
+                //Debug.Log($"Added component {sys.SysCompName()} in {w2.Elapsed}");
             }
             watch.Stop();
-            Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
+            //Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
         }
 
         public ISystemAdder GetSystemById(string system_id)
@@ -356,11 +371,11 @@ namespace HighKings
             }
         }
 
-        public string GenerateTypeName(string comp_name, string namespace_name)
+        public static string GenerateTypeName(string comp_name, string namespace_name)
         {
             switch (namespace_name){
                 case "Default":
-                    return this.GetType().Namespace + "." + comp_name;
+                    return typeof(PrototypeLoader).Namespace + "." + comp_name;
                 default:
                     return namespace_name + "." + comp_name;
             }

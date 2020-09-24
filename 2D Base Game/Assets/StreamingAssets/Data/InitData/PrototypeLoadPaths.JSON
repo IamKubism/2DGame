@@ -19,5 +19,12 @@
             "CharacterTemplates",
             "PrototypeCharacter.JSON"
         ]
+    },
+    {
+        "Type": "action_prototypes",
+        "Path": [
+            "BaseActions",
+            "BaseActions.JSON"
+        ]
     }
 ]

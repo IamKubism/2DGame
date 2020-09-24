@@ -33,6 +33,7 @@ public class MouseController : MonoBehaviour
 
     Entity curr_tile;
     public Entity main_selected;
+    public EntityAction selectable_action;
 
     ITileBasedEffect effectTocall;
 
@@ -77,7 +78,7 @@ public class MouseController : MonoBehaviour
                 case 2:
                     break;
                 case 1:
-                    AssignMovement();
+                    InvokeClickAction();
                     break;
                 case 0:
                     SelectionProcedure();
@@ -106,16 +107,18 @@ public class MouseController : MonoBehaviour
         return GetTileUnderMouse().GetComponent<Position>("Position");
     }
 
-    public void AssignMovement()
+    public void InvokeClickAction()
     {
         if(main_selected != null)
         {
-            Movers.instance.MoverPathMaker(GetPositionUnderMouse(), main_selected);
+            selectable_action.Invoke(main_selected, GetTileUnderMouse());
         }
     }
 
     public void OnGameStart()
     {
+        selectable_action = ActionList.instance.GetAction("AssignMovement");
+        Debug.Log("Set movement action");
     }
 
     public void CleanUpDisplayed()
@@ -159,19 +162,9 @@ public class MouseController : MonoBehaviour
     {   
         SetActiveSelectablesFromMouse();
 
-        Entity next_selectable = GetNextSelectable();
-        main_selected = next_selectable;
+        main_selected = GetNextSelectable();
 
-        if (selected_entities.Count > 0)
-        {
-            Debug.Log("Active Selectable: " + next_selectable.ToString());
-            selection_info.MakeStatDisplays(main_selected);
-        }
-        else
-        {
-            Debug.Log("No Active Selectables");
-        }
-
+        selection_info.MakeStatDisplays(main_selected);
     }
 
     void AddActiveSelectable(Entity selectable)
@@ -205,21 +198,21 @@ public class MouseController : MonoBehaviour
 
     Entity GetNextSelectable()
     {
-        Debug.Log(selected_entities.Count);
+        //Debug.Log(selected_entities.Count);
         if (selected_entities.Count == 0)
         {
             return null;
         }
         int index = current_selectable;
         current_selectable = (current_selectable + 1) % selected_entities.Count;
-        Debug.Log($"current_selectable :{current_selectable}");
+        //Debug.Log($"current_selectable :{current_selectable}");
         return selected_entities[index];
     }
 
     void SetActiveSelectablesFromMouse()
     {
         List<RaycastHit> raycasts = new List<RaycastHit>(Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition)));
-        Debug.Log("Raycast num: " + raycasts.Count);
+        //Debug.Log("Raycast num: " + raycasts.Count);
         List<GameObject> sels = new List<GameObject>();
 
         foreach (RaycastHit r in raycasts)
@@ -231,7 +224,7 @@ public class MouseController : MonoBehaviour
 
         for(int i = selected_entities.Count; i > 0; i -= 1)
         {
-            Debug.Log(selected_entities[i - 1].ToString());
+            //Debug.Log(selected_entities[i - 1].ToString());
             if(selects.Contains(selected_entities[i-1]) == false)
             {
                 RemoveActiveSelectable(selected_entities[i - 1]);
@@ -240,7 +233,7 @@ public class MouseController : MonoBehaviour
 
         foreach (Entity e in selects)
         {
-            Debug.Log(e.entity_string_id);
+            //Debug.Log(e.entity_string_id);
             if(e.HasComponent("SelectionComponent"))
                 AddActiveSelectable(e);
         }

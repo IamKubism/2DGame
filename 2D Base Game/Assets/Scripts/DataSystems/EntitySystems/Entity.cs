@@ -10,6 +10,7 @@ namespace HighKings {
     {
         public readonly int entity_id;
         public readonly string entity_string_id;
+        public string entity_type;
         public Dictionary<string, IBaseComponent> components { get; protected set; }
 
         public Entity(string entity_string_id, int entity_id)

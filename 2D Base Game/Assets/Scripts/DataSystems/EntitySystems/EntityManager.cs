@@ -55,9 +55,11 @@ namespace HighKings
             foreach(string id in ids)
             {
                 Entity e = new Entity(id, entity_num);
+                e.entity_type = type;
                 es.Add(e);
                 entity_num += 1;
             }
+
             temp.AddRange(es);
 
             foreach(Entity e in es)
@@ -118,12 +120,13 @@ namespace HighKings
         }
 
         /// <summary>
-        /// This is gonna be super slow but it is for 
+        /// This is gonna be super slow but it is for debugging
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             string s = "";
+
             foreach(KeyValuePair<string,Entity> es in string_id_to_entity)
             {
                 s += es.Key + " " + es.Value.ToString() + "\n";
@@ -131,6 +134,13 @@ namespace HighKings
             }
 
             return s;
+        }
+
+        public void DestroyEntity(Entity e)
+        {
+            entities[e.entity_type].Remove(e);
+            entity_array.Remove(e);
+            string_id_to_entity.Remove(e.entity_string_id);
         }
     }
 

@@ -8,6 +8,15 @@
                     "method_name": "MoverPathMaker"
                 }
             }
+        },
+        "DebugAttack": {
+            "listeners": {
+                "Attack": {
+                    "namespace": "Default",
+                    "type": "HealthSystem",
+                    "method_name": "Attack"
+                }
+            }
         }
     }
 }

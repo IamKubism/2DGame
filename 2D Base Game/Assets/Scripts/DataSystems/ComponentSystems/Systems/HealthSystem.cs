@@ -28,7 +28,13 @@ namespace HighKings
             if (CheckDeath(health))
             {
                 e.RemoveFromAllSubscribers();
+                EntityManager.instance.DestroyEntity(e);
             }
+        }
+
+        public static void Attack(Entity source, Entity target)
+        {
+            target.GetComponent<BaseStatistic>("Health").curr_value -= 10;
         }
     }
 }

@@ -116,16 +116,6 @@ public class GameMenuManager : MonoBehaviour
         }
 
         OpenMenuFromData(menu_datas["build"]);
-
-        //Vector3 menuPos = GameObject.Find("Game Menu").transform.position;
-        //GameObject mainPan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
-        //mainPan.transform.name = "Menu_Main";
-
-        //GameObject b = CreateChangeCurrentTileEffectButton(mainPan, "Action", "TileType", "Set Tile");
-        //b = CreateChangeCurrentTileEffectButton(mainPan, "Action", "JobCreator", "Build Furniture");
-        //menuNum = 1;
-
-        //activeMenus.Add(mainPan);
     }
 
     void OpenMenuFromData(MenuData data)
@@ -177,17 +167,27 @@ public class GameMenuManager : MonoBehaviour
         }
     }
 
+    GameObject CreateSetMouseActionButton(GameObject parent, string display_name, string action_name)
+    {
+        GameObject b = Instantiate(button_prefab);
+        b.name = "Button - " + name;
+        b.transform.GetComponentInChildren<Text>().text = display_name.Length > 0 ? display_name : action_name;
+
+        b.GetComponent<Button>().onClick.AddListener(
+            delegate
+            {
+                mouse_controller.selectable_action = ActionList.instance.GetAction(action_name);
+            });
+        b.transform.SetParent(parent.transform);
+        return b;
+    }
+
     void OpenNewTileEffectChangeMenu(Dictionary<string,string> pairs)
     {
         CheckMenus();
 
         Vector3 menuPos = active_menus[active_menus.Count - 1].transform.position + new Vector3(110f,0,0);
         GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
-    }
-
-    void CreateMenu()
-    {
-        CheckMenus();
     }
 
     void CheckMenus()
@@ -205,20 +205,6 @@ public class GameMenuManager : MonoBehaviour
             Destroy(temp);
         }
     }
-
-    //void ManageSelectables()
-    //{
-    //    if (mouse_controller.active_selectables.Count < 1)
-    //    {
-    //        selection_info.SetActive(false);
-    //        return;
-    //    }
-
-    //    foreach (SelectionComponent s_info in mouse_controller.active_selectables)
-    //    {
-
-    //    }
-    //}
 }
 
 /// <summary>

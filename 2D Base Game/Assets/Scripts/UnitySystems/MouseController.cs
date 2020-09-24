@@ -8,6 +8,8 @@ using System.Linq;
 
 public class MouseController : MonoBehaviour
 {
+    public static MouseController instance;
+
     /// <summary>
     /// TODO: Depreciate
     /// </summary>
@@ -40,6 +42,11 @@ public class MouseController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if(instance == null)
+        {
+            instance = this;
+        }
+
         selected_entities = new List<Entity>();
         drag_preview_game_objects = new List<GameObject>();
 
@@ -113,6 +120,16 @@ public class MouseController : MonoBehaviour
         {
             selectable_action.Invoke(main_selected, GetTileUnderMouse());
         }
+    }
+
+    public static void SetClickAction(EntityAction action)
+    {
+        instance.selectable_action = action;
+    }
+
+    public static void SetClickAction(string action_id)
+    {
+        instance.selectable_action = ActionList.instance.GetAction(action_id);
     }
 
     public void OnGameStart()
@@ -237,11 +254,6 @@ public class MouseController : MonoBehaviour
             if(e.HasComponent("SelectionComponent"))
                 AddActiveSelectable(e);
         }
-    }
-
-    public void SetTileBasedEffect(ITileBasedEffect effect)
-    {
-        this.effectTocall = effect;
     }
 
     int GetWhichMouseButtonDown()

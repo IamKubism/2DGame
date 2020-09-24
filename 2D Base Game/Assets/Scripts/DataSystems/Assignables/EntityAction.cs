@@ -44,6 +44,17 @@ namespace HighKings
             this.action_id = action_id;
         }
 
+        public void AppendAction(EntityAction action)
+        {
+            foreach(EntityListener el in action.listeners.Values)
+            {
+                if (listeners.ContainsKey(el.id) == false)
+                {
+                    listeners.Add(el.id, el);
+                }
+            }
+        }
+
         public void Invoke(Entity source, Entity target)
         {
             List<string> ks = listeners.Keys.ToList();

@@ -11,6 +11,7 @@ namespace HighKings
     {
         public static ActionList instance;
         Dictionary<string, EntityAction> all_actions;
+        Dictionary<string, object> usable_params;
 
         public ActionList()
         {
@@ -19,6 +20,7 @@ namespace HighKings
                 instance = this;
             }
             all_actions = new Dictionary<string, EntityAction>();
+            usable_params = new Dictionary<string, object>();
         }
 
         public void CallAction(string id, Entity source, Entity target)

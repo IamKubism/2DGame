@@ -34,7 +34,7 @@ namespace HighKings
 
         public static void Attack(Entity source, Entity target)
         {
-            target.GetComponent<BaseStatistic>("Health").curr_value -= 10;
+            source.GetComponent<BaseStatistic>("Health").IncrementCurr(-10);
         }
     }
 }

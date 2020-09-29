@@ -92,6 +92,15 @@ namespace HighKings
                 }
             }
 
+            if(root["retrieval_actions"] != null)
+            {
+                List<JToken> action_types = root["retrieval_actions"].ToList();
+                foreach(JProperty prop in action_types)
+                {
+                    CreateRetrievalAction(prop);
+                }
+            }
+
             watch.Stop();
             //Debug.Log($"Read file in {watch.Elapsed}");
         }
@@ -128,7 +137,6 @@ namespace HighKings
 
                 MainGame.instance.display_data.Add(comp_name, disp);
             }
-
         }
 
         void AddComponentGenerator(string type_name)
@@ -285,6 +293,26 @@ namespace HighKings
         {
             EntityAction action = new EntityAction(act);
             ActionList.instance.RegisterAction(act.Name, action);
+            if(act.Value["tags"] == null)
+            {
+                Debug.LogError($"Action: {act.Name} has no tags");
+            } else
+            {
+                List<JToken> tags = act.Value["tags"].ToList();
+                if(tags.Count < 1)
+                {
+                    Debug.LogError($"Action: {act.Name} has no tags");
+                }
+                foreach (JToken tag in tags)
+                {
+                    ActionList.instance.AddTagged(tag.ToString(), action);
+                }
+            }
+        }
+
+        public void CreateRetrievalAction(JProperty prop)
+        {
+            ActionList.instance.RegisterRetrievalAction(prop);
         }
 
         public void AttachPrototype(string prototype_id, Dictionary<Entity, Dictionary<string, object[]>> entities)

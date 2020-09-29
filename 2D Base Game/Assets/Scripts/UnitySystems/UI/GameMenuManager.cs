@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity;
 using UnityEngine.UI;
 using System.Xml.Linq;
 using System;
 using Newtonsoft.Json;
 using HighKings;
 using System.Reflection;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 public class GameMenuManager : MonoBehaviour
 {
@@ -31,9 +34,19 @@ public class GameMenuManager : MonoBehaviour
     Dictionary<string, MenuData> menu_datas;
     MenuData next_menu;
 
+    public GameMenuManager instance;
+
     // Start is called before the first frame update
     void Start()
     {
+        if(instance != null)
+        {
+            Debug.LogError("There are two instances of the Game menu manager");
+        } else
+        {
+            instance = this;
+        }
+
         active_menus = new List<GameObject>();
         menu_datas = new Dictionary<string, MenuData>();
 
@@ -46,10 +59,9 @@ public class GameMenuManager : MonoBehaviour
 
     public void StartGame()
     { 
-        secondary_actions = GameObject.Find("Secondary Actions");
         Destroy(GameObject.Find("Button - Start Game"));
-        InitMainMenu();
         inventory_menu.SetActive(false);
+        InitMainMenu();
         MainGame.instance.StartGame();
     }
 
@@ -71,39 +83,6 @@ public class GameMenuManager : MonoBehaviour
         //GameObject.FindObjectOfType<InventoryManager>().OnOpen();
     }
 
-    public void CreateSpawnItemPane()
-    {
-
-    }
-
-
-    public void CreateActionButton(string name, Action action, GameObject parent)
-    {
-        GameObject b = Instantiate(button_prefab);
-        b.name = "Button - " + name;
-        b.transform.GetComponentInChildren<Text>().text = name;
-
-        b.GetComponent<Button>().onClick.AddListener(delegate { action(); });
-        b.transform.SetParent(parent.transform);
-    }
-
-
-
-    GameObject CreateChangeCurrentTileEffectButton(GameObject parent, string name, string value, string displayName)
-    {
-        GameObject b = Instantiate(button_prefab);
-        b.name = "Button - " + name;
-        b.transform.GetComponentInChildren<Text>().text = displayName.Length > 0 ? displayName : name + " - " + value;
-
-        b.GetComponent<Button>().onClick.AddListener(
-            delegate
-            {
-                //GameActionsController._instance.ChangeCurrentTileEffectValue(name, value);
-            });
-        b.transform.SetParent(parent.transform);
-        return b;
-    }
-
     /// <summary>
     /// For creating the highest hierarchy menu
     /// </summary>
@@ -116,56 +95,19 @@ public class GameMenuManager : MonoBehaviour
             Destroy(temp);
         }
 
-        OpenMenuFromData(menu_datas["build"]);
+        CreateAllUsableMouseCommandPanel(active_menus.Count);
     }
 
-    void OpenMenuFromData(MenuData data)
+    public void CreateAllUsableMouseCommandPanel(int i)
     {
-        CheckMenus();
-
-        //Check if this is the null menu (If it is then we don't have to open anything)
-        if (data.Id == "null")
+        GameObject pan = CreateSubMenu(i);
+        
+        foreach(EntityAction mouse_action in ActionList.instance.GetActionsByTag("user_assignable"))
         {
-            return;
+            CreateSetMouseActionButton(pan, mouse_action);
         }
 
-        //Place Menu (For now we assume that it only gives tile effect and possibly opens a new menu)
-        Vector3 menuPos = GameObject.Find("Game Menu").transform.position;
-        if (active_menus.Count > 0)
-        {
-            menuPos = active_menus[data.hier_num - 1].transform.position + new Vector3(150f+2f, 0, 0);
-
-        }//TODO: Menu Scaling
-        GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
-        active_menus.Add(pan);
-
-        //Get what number menu the next one to open would be
-        int next_num = active_menus.Count;
-
-        //Create all the buttons for the menu
-        for (int i = 0; i < data.button_Args.Length; i +=1)
-        {
-            //Creates the tile effect change
-            GameObject b = CreateChangeCurrentTileEffectButton(pan, data.action_Id, data.button_Args[i], data.button_Displays[i]);
-
-            MenuData temp_next_menu;
-            if (menu_datas.ContainsKey(data.menu_Args[i])== false)
-            {
-                Debug.Log("Could not find menu " + data.menu_Args[i]);
-                temp_next_menu = menu_datas["null"];
-            } else
-            {
-                temp_next_menu = menu_datas[data.menu_Args[i]];
-            }
-
-            //Institutes the open next menu change
-            b.GetComponent<Button>().onClick.AddListener(
-            delegate {
-                next_menu = temp_next_menu;
-                next_menu.hier_num = next_num;
-                OpenMenuFromData(next_menu);
-            });
-        }
+        //Debug.Log($"Created User Assign Menu");
     }
 
     GameObject CreateSetMouseActionButton(GameObject parent, string display_name, string action_name)
@@ -177,7 +119,25 @@ public class GameMenuManager : MonoBehaviour
         b.GetComponent<Button>().onClick.AddListener(
             delegate
             {
-                mouse_controller.selectable_action = ActionList.instance.GetAction(action_name);
+                MouseController.SetClickAction(action_name);
+            });
+        b.transform.SetParent(parent.transform);
+        return b;
+    }
+
+    GameObject CreateSetMouseActionButton(GameObject parent, EntityAction action)
+    {
+        GameObject b = Instantiate(button_prefab);
+        b.name = "Button - " + name;
+        b.transform.GetComponentInChildren<Text>().text = action.action_id;
+
+        int new_men_num = active_menus.Count;
+
+        b.GetComponent<Button>().onClick.AddListener(
+            delegate
+            {
+                menu_num = new_men_num;
+                MouseController.SetClickAction(action);
             });
         b.transform.SetParent(parent.transform);
         return b;
@@ -203,12 +163,22 @@ public class GameMenuManager : MonoBehaviour
             );
     }
 
-    void OpenNewTileEffectChangeMenu(Dictionary<string,string> pairs)
+    void CreateSubMenu(Dictionary<string,string> pairs)
     {
         CheckMenus();
 
         Vector3 menuPos = active_menus[active_menus.Count - 1].transform.position + new Vector3(110f,0,0);
         GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
+    }
+
+    GameObject CreateSubMenu(int i)
+    {
+        menu_num = i;
+        CheckMenus();
+
+        Vector3 menuPos = menu_num > 0 ? active_menus[menu_num - 1].transform.position + new Vector3(110f, 0, 0) : new Vector3(0,0,0);
+        GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
+        return pan;
     }
 
     void CheckMenus()
@@ -229,12 +199,58 @@ public class GameMenuManager : MonoBehaviour
 
 }
 
-public class ButtonClass
+public class ButtonType
 {
     public string id;
     public string display_name;
-    //Need some delegates?
 
+    //Need some delegates? Possibly should be static functions called to do whatever is needed? Could we cut down on button number by using some sort of get method that grabs relevant data and then makes a menu/button?
+    //We need some nice ordering method for the calling of these methods
+
+    Action invoke_action;
+
+    public Dictionary<string,ParameterInfo[]> param_infos;
+    public Dictionary<string, MethodInfo> method_infos;
+
+    /// <summary>
+    /// Default constructor, really its more of an error thing
+    /// </summary>
+    public ButtonType()
+    {
+        id = "NONE";
+        display_name = "NONE";
+        param_infos = new Dictionary<string, ParameterInfo[]>();
+        method_infos = new Dictionary<string, MethodInfo>();
+    }
+
+    public ButtonType(string id, string display_name, Action action = null)
+    {
+        this.id = id;
+        this.display_name = display_name;
+        invoke_action = action;
+        param_infos = new Dictionary<string, ParameterInfo[]>();
+        method_infos = new Dictionary<string, MethodInfo>();
+
+    }
+
+    public ButtonType(JProperty prop)
+    {
+        id = prop.Name;
+        display_name = prop.Value["display_name"].ToString();
+        param_infos = new Dictionary<string, ParameterInfo[]>();
+        method_infos = new Dictionary<string, MethodInfo>();
+
+        if (prop.Value["methods"] != null)
+        {
+            List<JToken> methods = prop.Value["methods"].ToList();
+            foreach(JProperty p in methods)
+            {
+                MethodInfo method_info = Type.GetType(PrototypeLoader.GenerateTypeName(p.Value<string>("type"), p.Value<string>("namespace"))).GetMethod(p.Value<string>("method_name"));
+                param_infos.Add(p.Value<string>("method_name"), method_info.GetParameters());
+                method_infos.Add(p.Value<string>("method_name"), method_info);
+            }
+        }
+    }
 }
 
 /// <summary>
@@ -453,4 +469,79 @@ public struct ButtonData
 //    //string furnID = s; //Fixme: ????
 
 //    //b.onClick.AddListener(delegate { bmc.SetMode_BuildInstalledObject(s); });
+//}
+
+//void OpenMenuFromData(MenuData data)
+//{
+//    CheckMenus();
+
+//    //Check if this is the null menu (If it is then we don't have to open anything)
+//    if (data.Id == "null")
+//    {
+//        return;
+//    }
+
+//    //Place Menu (For now we assume that it only gives tile effect and possibly opens a new menu)
+//    Vector3 menuPos = GameObject.Find("Game Menu").transform.position;
+//    if (active_menus.Count > 0)
+//    {
+//        menuPos = active_menus[data.hier_num - 1].transform.position + new Vector3(150f+2f, 0, 0);
+
+//    }//TODO: Menu Scaling
+//    GameObject pan = Instantiate(panel, menuPos, Quaternion.identity, GameObject.Find("UICanvas").transform);
+//    active_menus.Add(pan);
+
+//    //Get what number menu the next one to open would be
+//    int next_num = active_menus.Count;
+
+//    //Create all the buttons for the menu
+//    for (int i = 0; i < data.button_Args.Length; i +=1)
+//    {
+//        //Creates the tile effect change
+//        GameObject b = CreateChangeCurrentTileEffectButton(pan, data.action_Id, data.button_Args[i], data.button_Displays[i]);
+
+//        MenuData temp_next_menu;
+//        if (menu_datas.ContainsKey(data.menu_Args[i])== false)
+//        {
+//            Debug.Log("Could not find menu " + data.menu_Args[i]);
+//            temp_next_menu = menu_datas["null"];
+//        } else
+//        {
+//            temp_next_menu = menu_datas[data.menu_Args[i]];
+//        }
+
+//        //Institutes the open next menu change
+//        b.GetComponent<Button>().onClick.AddListener(
+//        delegate {
+//            next_menu = temp_next_menu;
+//            next_menu.hier_num = next_num;
+//            OpenMenuFromData(next_menu);
+//        });
+//    }
+//}
+
+
+//GameObject CreateChangeCurrentTileEffectButton(GameObject parent, string name, string value, string displayName)
+//{
+//    GameObject b = Instantiate(button_prefab);
+//    b.name = "Button - " + name;
+//    b.transform.GetComponentInChildren<Text>().text = displayName.Length > 0 ? displayName : name + " - " + value;
+
+//    b.GetComponent<Button>().onClick.AddListener(
+//        delegate
+//        {
+//            //GameActionsController._instance.ChangeCurrentTileEffectValue(name, value);
+//        });
+//    b.transform.SetParent(parent.transform);
+//    return b;
+//}
+
+//public void CreateGeneralButton(string name, Action action, GameObject parent)
+//{
+//    GameObject b = Instantiate(button_prefab);
+//    b.name = "Button - " + name;
+//    b.transform.GetComponentInChildren<Text>().text = name;
+
+//    b.GetComponent<Button>().onClick.AddListener(delegate { action(); });
+//    b.transform.SetParent(parent.transform);
 //}

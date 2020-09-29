@@ -26,5 +26,12 @@
             "BaseActions",
             "BaseActions.JSON"
         ]
+    },
+    {
+        "Type": "retrieval_actions",
+        "Path": [
+            "BaseActions",
+            "EntityRetrievalActions.JSON"
+        ]
     }
 ]

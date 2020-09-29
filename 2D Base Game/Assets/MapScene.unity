@@ -2047,6 +2047,7 @@ MonoBehaviour:
   selection_info: {fileID: 0}
   mouse_controller: {fileID: 1742309388}
   shift_dist: 110
+  instance: {fileID: 0}
 --- !u!1 &1164756100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2188,8 +2189,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 57970048}
-        m_TargetAssemblyTypeName: GameController, Assembly-CSharp
+      - m_Target: {fileID: 1150263641}
+        m_TargetAssemblyTypeName: GameMenuManager, Assembly-CSharp
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:

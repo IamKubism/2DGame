@@ -1,0 +1,18 @@
+{
+    "retrieval_actions": {
+        "GetTile": {
+            "method": {
+                "namespace": "Default",
+                "type": "MouseController",
+                "method_name": "GetTileUnderMouse"
+            }
+        },
+        "GetSelectable": {
+            "method": {
+                "namespace": "Default",
+                "type": "MouseController",
+                "method_name": "GetSelectableUnderMouse"
+            }
+        }
+    }
+}

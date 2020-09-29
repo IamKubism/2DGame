@@ -7,6 +7,7 @@ namespace HighKings
 {
     public interface IBaseComponent
     {
+        void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent;
     }
 }
 

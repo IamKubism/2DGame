@@ -12,6 +12,8 @@ namespace HighKings
         [JsonProperty]
         public float move_cost;
 
+        SubscriberEvent<Terrain> subscriber;
+
         [JsonConstructor]
         public Terrain(float move_cost = -1f)
         {
@@ -48,6 +50,18 @@ namespace HighKings
         {
             string s = $"Terrain Cost {move_cost}";
             return s;
+        }
+
+        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        {
+            if (typeof(T) != this.GetType())
+            {
+                Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
+            }
+            else
+            {
+                this.subscriber = (SubscriberEvent<Terrain>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<Terrain>));
+            }
         }
     }
 }

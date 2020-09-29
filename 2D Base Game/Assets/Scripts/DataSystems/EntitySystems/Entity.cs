@@ -73,6 +73,7 @@ namespace HighKings {
             return s;
         }
 
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

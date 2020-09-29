@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using System;
 
 namespace HighKings
 {
@@ -16,6 +17,8 @@ namespace HighKings
 
         [JsonProperty]
         public int base_value;
+
+        SubscriberEvent<BaseStatistic> subscriber;
 
         public BaseStatistic(string stat_name, int curr_value, int base_value)
         {
@@ -38,6 +41,31 @@ namespace HighKings
             stat_name = "NULL";
             curr_value = 0;
             base_value = 0;
+        }
+
+        public void SetCurr(int f)
+        {
+            subscriber.OperateBeforeOnComp();
+            curr_value = f;
+            subscriber.OperateAfterOnComp();
+        }
+
+        public void IncrementCurr(int f)
+        {
+            subscriber.OperateBeforeOnComp();
+            curr_value += f;
+            subscriber.OperateAfterOnComp();
+        }
+
+        public void SetListener<T>(SubscriberEvent<T> subscriber) where T: IBaseComponent
+        {
+            if(typeof(T) != this.GetType())
+            {
+                Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
+            } else
+            {
+                this.subscriber = (SubscriberEvent<BaseStatistic>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<BaseStatistic>));
+            }
         }
     }
 }

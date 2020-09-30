@@ -74,10 +74,14 @@ namespace HighKings
         //All startup tasks should be done in some form here
         public void StartGame()
         {
-            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "character_the_player_" + entity_num });
+            Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "test_char_1_" + entity_num });
             Dictionary<Entity, Dictionary<string, object[]>> entities = new Dictionary<Entity, Dictionary<string, object[]>>
             { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {51,51,0 } } } } };
-            prototype_loader.AttachPrototype("character", entities);
+            prototype_loader.AttachPrototype("test_char_1", entities);
+            cplayer =  entity_manager.CreateEntities("character", new string[1] { "test_char_2_" + entity_num });
+            entities = new Dictionary<Entity, Dictionary<string, object[]>>
+            { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {52,51,0 } } } } };
+            prototype_loader.AttachPrototype("test_char_2", entities);
             game_started = true;
         }
 

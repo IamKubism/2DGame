@@ -123,9 +123,10 @@ namespace HighKings
 
         public void InvokeClickAction()
         {
-            if (main_selected != null)
+            Entity target = curr_retrieval_action?.Invoke();
+            if (main_selected != null && target != null)
             {
-                selectable_action.Invoke(main_selected, curr_retrieval_action());
+                selectable_action.Invoke(main_selected, target);
             }
         }
 

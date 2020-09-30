@@ -98,7 +98,7 @@ namespace HighKings
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
-        public Position(string entity_id, int x, int y, int z)
+        public Position(string entity_id, int x, int y, int z, Position p)
         {
             tile = new Tile
             {
@@ -109,7 +109,7 @@ namespace HighKings
             disp_pos = new SerializableVector3(x, y, z);
         }
 
-        public Position(int x, int y, int z)
+        public Position(int x, int y, int z, Position p)
         {
             tile = new Tile
             {

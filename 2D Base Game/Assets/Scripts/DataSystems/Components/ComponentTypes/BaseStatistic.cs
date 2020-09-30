@@ -20,7 +20,7 @@ namespace HighKings
 
         SubscriberEvent<BaseStatistic> subscriber;
 
-        public BaseStatistic(string stat_name, int curr_value, int base_value)
+        public BaseStatistic(string stat_name, int curr_value, int base_value, BaseStatistic s)
         {
             this.stat_name = stat_name;
             this.curr_value = curr_value;
@@ -38,9 +38,14 @@ namespace HighKings
         //If this is called its pretty much an error
         public BaseStatistic()
         {
-            stat_name = "NULL";
+            stat_name = "";
             curr_value = 0;
             base_value = 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{stat_name}, curr: {curr_value}, base: {base_value}";
         }
 
         public void SetCurr(int f)

@@ -25,6 +25,7 @@ namespace HighKings
         ComponentSubscriber<Position> positions;
 
         Action<List<Entity>> on_add_action;
+        Action<List<Entity>> on_remove;
 
         /// <summary>
         /// Default constructor for the sprite manager, TODO: Give it custom sprite paths
@@ -64,6 +65,11 @@ namespace HighKings
                 render_values.SubscribeAfterAction(entities, SetSpriteValues, "SetSpriteValues");
             };
 
+            on_remove += (es) =>
+            {
+                GameObjectManager.instance.RemoveEntities(es);
+            };
+
             MakeSpriteCheckers(MainGame.instance);
         }
 
@@ -77,6 +83,7 @@ namespace HighKings
             positions = game.GetSubscriberSystem<Position>("Position");
 
             render_values.RegisterOnAdded(on_add_action);
+            render_values.RegisterOnRemove(on_remove);
         }
 
         void SetSpriteValues(Entity e)
@@ -137,6 +144,7 @@ namespace HighKings
         {
             entity_object_map[id].GetComponent<SpriteRenderer>().sprite = GetSprite(sprite_id);
         }
+
 
         /// <summary>
         /// Creates the sprite dictionary for all sprites in the game. imagePath is the file path to the image folder

@@ -3,42 +3,39 @@
         "tile_empty": {
             "components": {
                 "Position": {
-                    "component_type": "Position",
-                    "_namespace": "Default",
-                    "load_priority": 0,
-                    "constructor_arg_names": [
-                        "System.Int32",
-                        "System.Int32",
-                        "System.Int32"
+                    "constructor_args": [
+                        {
+                            "namespace": "System",
+                            "type": "Int32"
+                        },
+                        {
+                            "namespace": "System",
+                            "type": "Int32"
+                        },
+                        {
+                            "namespace": "System",
+                            "type": "Int32"
+                        }
+
                     ],
                     "data": {
-                    },
-                    "variable": true
+                    }
                 },
                 "RenderComponent": {
-                    "component_type": "RenderComponent",
-                    "_namespace": "Default",
-                    "load_priority": 2,
                     "data": {
                         "layer_name": "Ground",
                         "sprite_name": "tile_empty"
-                    },
-                    "variable": false
+                    }
                 },
                 "Terrain": {
-                    "component_type": "Terrain",
-                    "_namespace": "Default",
-                    "load_priority": 2,
                     "data": {
                         "move_cost": -1
-                    },
-                    "variable": false
+                    }
                 }
             }
         },
         "tile_stone_rough": {
             "extends": "tile_empty",
-            "prototype_name": "tile_stone_rough",
             "components": {
                 "RenderComponent": {
                     "data": {

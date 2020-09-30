@@ -83,14 +83,14 @@ namespace HighKings {
         {
             Type subscriber_type = typeof(ComponentSubscriber<>);
             MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem");
-            MethodInfo remove_method = subscriber_type.GetMethod("RemoveEntity");
             foreach(KeyValuePair<string, IBaseComponent> comps in components)
             {
-                remove_method.Invoke(
-                    get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
+                MethodInfo remove_method = subscriber_type.MakeGenericType(new Type[1] { comps.Value.GetType() }).GetMethod("RemoveEntity");
+                object subs = get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
                         MainGame.instance,
-                        new object[1] { comps.Key }),
-                    new object[1] { this });
+                        new object[1] { comps.Key });
+                remove_method.Invoke( subs, new object[1] { this });
+                //Debug.Log($"Removed {entity_string_id} from {comps.Key}");
             }
         }
     }

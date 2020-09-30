@@ -10,7 +10,7 @@ namespace HighKings
 
         public HealthSystem()
         {
-            healths = MainGame.instance.GetSubscriberSystem<BaseStatistic>("health");
+            healths = MainGame.instance.GetSubscriberSystem<BaseStatistic>("Health");
 
             healths.RegisterOnAdded((entities) =>
             {
@@ -34,7 +34,7 @@ namespace HighKings
 
         public static void Attack(Entity source, Entity target)
         {
-            source.GetComponent<BaseStatistic>("Health").IncrementCurr(-10);
+            target.GetComponent<BaseStatistic>("Health").IncrementCurr(-source.GetComponent<BaseStatistic>("Strength").curr_value);
         }
     }
 }

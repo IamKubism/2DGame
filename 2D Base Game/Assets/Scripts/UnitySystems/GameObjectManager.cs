@@ -103,6 +103,22 @@ namespace HighKings
             }
             return to_return;
         }
+
+        public void RemoveEntity(Entity e)
+        {
+            GameObject obj = entity_objects[e];
+            object_entities.Remove(obj);
+            entity_objects.Remove(e);
+            Destroy(obj);
+        }
+
+        public void RemoveEntities(List<Entity> es)
+        {
+            foreach(Entity e in es)
+            {
+                RemoveEntity(e);
+            }
+        }
     }
 }
 

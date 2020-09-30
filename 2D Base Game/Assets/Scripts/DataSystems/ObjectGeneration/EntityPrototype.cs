@@ -27,34 +27,14 @@ public class EntityPrototype
         this.prototype_name = prototype_name;
     }
 
-    public void SetComponent(ComponentInfo info, List<FieldInfo> info_fields, List<FieldInfo> comp_fields)
+    public void SetComponent(JProperty prop, object generated_comp)
     {
-        if(info.data == default)
+        if (components.ContainsKey(prop.Name))
         {
-            info.data = PrototypeLoader.instance.GetBaseComponent(info.component_name);
-        }
-        if (info_fields.Count == 0)
-        {
-            if (components.ContainsKey(info.component_name))
-            {
-                components[info.component_name].SetData(info.data, comp_fields);
-                return;
-            } else
-            {
-                Debug.LogError("Tried to set a component info without enough fields set");
-                return;
-            }
-        }
-        if (components.ContainsKey(info.component_name))
-        {
-            foreach(FieldInfo f in info_fields)
-            {
-                f.SetValue(components[info.component_name], f.GetValue(info));
-            }
-            components[info.component_name].OnDeserialized(default);
+            components[prop.Name] = components[prop.Name].OverwriteComponentInfo(prop, generated_comp);
         } else
         {
-            components.Add(info.component_name, info);
+            components.Add(prop.Name, new ComponentInfo(prop, generated_comp));
         }
     }
 

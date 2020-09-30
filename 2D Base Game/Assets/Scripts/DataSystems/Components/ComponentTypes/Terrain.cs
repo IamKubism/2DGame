@@ -20,6 +20,11 @@ namespace HighKings
             this.move_cost = move_cost;
         }
 
+        public Terrain(float move_cost, Terrain t)
+        {
+            this.move_cost = move_cost;
+        }
+
         public Terrain(Terrain t)
         {
             move_cost = t.move_cost;

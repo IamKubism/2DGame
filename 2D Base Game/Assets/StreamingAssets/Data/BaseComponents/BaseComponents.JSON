@@ -46,6 +46,20 @@
                 "curr_value": 100,
                 "base_value": 100
             }
+        },
+        "Strength": {
+            "_namespace": "Default",
+            "type": "BaseStatistic",
+            "inspector_display": {
+                "default_position": 2,
+                "type": "bar",
+                "display_name": "Strength"
+            },
+            "data": {
+                "stat_name": "Strength",
+                "curr_value": 10,
+                "base_value": 10
+            }
         }
     }
 }

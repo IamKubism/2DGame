@@ -27,7 +27,7 @@ namespace HighKings
             layer_name = r.layer_name;
         }
 
-        public RenderComponent(string layer_name, string sprite_name)
+        public RenderComponent(string layer_name, string sprite_name, RenderComponent r)
         {
             this.layer_name = layer_name;
             this.sprite_name = sprite_name;

@@ -88,6 +88,7 @@ namespace HighKings
 
             obj.SetActive(true);
 
+            Debug.Log(stat.stat_name);
             MainGame.instance.GetSubscriberSystem<BaseStatistic>(stat.stat_name).SubscribeAfterAction(new List<Entity> { e }, ResetCompDisplay, "UpdateStatDisplay" );
 
             Debug.Log($"Made {stat.stat_name} bar");

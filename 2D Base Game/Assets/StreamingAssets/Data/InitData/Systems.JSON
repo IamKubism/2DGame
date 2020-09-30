@@ -52,5 +52,19 @@
 
             ]
         }
+    },
+    {
+        "name": "health_system",
+        "type": "HealthSystem",
+        "_namespace": "Default",
+        "load_priority": 5,
+        "constructor_args": {
+            "constructor_types": [
+
+            ],
+            "arg_names": [
+
+            ]
+        }
     }
 ]

@@ -38,17 +38,6 @@ public class EntityPrototype
         }
     }
 
-    public void SetComponentData(string name, object data, List<FieldInfo> fields)
-    {
-        if (components.ContainsKey(name))
-        {
-            components[name].SetData(data, fields);
-        } else
-        {
-            Debug.LogError($"Could not find component {name} in prototype {prototype_name} to overwrite");
-        }
-    }
-
     public EntityPrototype Clone(string name)
     {
         EntityPrototype cloned = new EntityPrototype(name);

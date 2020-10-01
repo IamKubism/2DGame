@@ -137,9 +137,6 @@ namespace HighKings
 
                 MainGame.instance.display_data.Add(comp_name, disp);
             }
-
-            Debug.Log(base_component_defaults[comp_name].ToString());
-
         }
 
         void AddComponentGenerator(string comp_name, string type_name)
@@ -192,7 +189,6 @@ namespace HighKings
             {
                 if (prototypes.ContainsKey(prot.Value["extends"].ToString()))
                 {
-                    //Debug.Log($"Cloning: {sub.Value.ToString()}");
                     p = prototypes[prot.Value["extends"].ToString()].Clone(prot_name);
                 }
                 else
@@ -224,7 +220,7 @@ namespace HighKings
                         } else
                         {
                             comp_type = base_component_defaults[comp_name].GetType();
-                            generated_comp = comp_type.GetConstructor(new Type[1] { comp_type }).Invoke(new object[1] { base_component_defaults[comp_name] });
+                            generated_comp = GetBaseComponent(comp_name);
                             p.SetComponent(comp, generated_comp);
                         }
                     }
@@ -236,75 +232,9 @@ namespace HighKings
                     }
 
                     p.SetComponent(comp, generated_comp);
-
-                    //if (comp_type == null)
-                    //{
-                    //    Debug.Log($"There was a problem typing {comp_name}");
-                    //    continue;
-                    //}
-                    //if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
-                    //{
-                    //    Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
-                    //    continue;
-                    //}
-
-
-                    ////Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
-                    //List<FieldInfo> info_fields = new List<FieldInfo>();
-                    //List<JToken> fields = comp.Values().ToList();
-
-                    //foreach (JProperty prop in fields)
-                    //{
-                    //    if (prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
-                    //    {
-                    //        continue;
-                    //    }
-                    //    if (typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
-                    //    {
-                    //        Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
-                    //        continue;
-                    //    }
-                    //    info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
-                    //}
-
-                    //ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
-                    //info.component_name = comp_name;
-                    //info.component_type = type_name;
-
-                    ////If data is null, we know that it needs to get the base component's values.
-                    //if (info.data == default)
-                    //{
-                    //    info.SetData(base_component_defaults[comp_name], null);
-                    //}
-
-                    //List<FieldInfo> over_fields = new List<FieldInfo>();
-
-                    ////The "data" field defines the component values for this prototype, so if its there something is gonna get overwritten and I want to be able to do this in a 
-                    ////Non-stupid way that is nice to write. So I have to grab the fields present in the overwriter and then apply them to the data in the component
-                    //if (comp.Value["data"] != null)
-                    //{
-                    //    List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
-                    //    foreach (JProperty f in comp_fields)
-                    //    {
-                    //        if (comp_type.GetField(f.Name, field_flags) == null)
-                    //        {
-                    //            Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
-                    //            continue;
-                    //        }
-                    //        over_fields.Add(comp_type.GetField(f.Name, field_flags));
-                    //    }
-
-                    //    object comp_genner = base_component_generators[type_name];
-                    //    object over_comp = comp_genner.GetType().
-                    //        GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
-                    //    info.SetData(over_comp, over_fields);
-                    //}
-
-                    //p.SetComponent(info, info_fields, over_fields);
                 }
             }
             prototypes.Add(prot_name, p);
-            Debug.Log(p.ToString());
         }
 
         public void CreateActionPrototype(JProperty act)
@@ -341,79 +271,46 @@ namespace HighKings
             List<ISystemAdder> adders = new List<ISystemAdder>();
             List<ComponentInfo> comps = p.components.Values.ToList();
 
-            foreach(ComponentInfo info in comps)
+            foreach (ComponentInfo info in comps)
             {
-                if(info.errored == false)
+                if (!info.errored)
                 {
-                    foreach(KeyValuePair<Entity, Dictionary<string, object[]>> ekv in entities)
+                    foreach (KeyValuePair<Entity, Dictionary<string, object[]>> ekv in entities)
                     {
-                        List<object> args = new List<object>();
-                        if (ekv.Value.ContainsKey(info.component_name))
+                        object[] dict_args = ekv.Value.ContainsKey(info.component_name) ? ekv.Value[info.component_name] : new object[0];
+                        object[] args = new object[dict_args.Length + 1];
+                        Array.Copy(dict_args, args, dict_args.Length);
+                        args[dict_args.Length] = info.data;
+
+                        //I'm thinking its possible this will get slow but idk it seems not that bad, and might be more dynamic and would clean up the prototyping
+                        ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
+                        if(c == null)
                         {
-                            args.AddRange(ekv.Value[info.component_name]);
+                            string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
+                            foreach(object o in args)
+                            {
+                                s += $" {o.ToString()}";
+                            }
+                            Debug.LogError(s);
+                            continue;
                         }
-                        args.Add(info.data);
-                        ekv.Key.AddComponent(info.component_name, (IBaseComponent)info.construct.Invoke(args.ToArray()));
+                        ekv.Key.AddComponent(info.component_name, (IBaseComponent)c.Invoke(args));
                     }
                     if (system_adders.ContainsKey(info.component_name + "_subscriber"))
                         adders.Add(system_adders[info.component_name + "_subscriber"]);
                 }
             }
 
-            //I get scared of things ending up not removing properly so I do this so I don't get infinite loops
-            //while (i > 0)
-            //{
-            //    //This loads the component data into the entities
-            //    ComponentInfo comp = comps[i - 1];
-            //    //Debug.Log($"Loading Component: {comp.component_name}");
-            //    if (comp.variable)
-            //    {
-            //        Type[] t_args = Array.ConvertAll(entities.First().Value[comp.component_name], item => item.GetType());
-            //        ConstructorInfo constructor = Type.GetType(comp.data.GetType()).GetConstructor(t_args);
-            //        if (constructor == null)
-            //        {
-            //            string s = $"Could not find correct constructor for {comp.component_name} with arguments: {{";
-            //            foreach (Type t in t_args)
-            //            {
-            //                s += t.Name + " ";
-            //            }
-            //            Debug.LogError(s + "}");
-            //        }
-            //        foreach (Entity e in entities.Keys)
-            //        {
-            //            e.AddComponent(comp.component_name, (IBaseComponent)constructor.Invoke(entities[e][comp.component_name]));
-            //        }
-            //    }
-            //    else
-            //    {
-            //        ConstructorInfo constructor = Type.GetType(comp.component_type).GetConstructor(new Type[1]
-            //        { Type.GetType(comp.component_type) });
-            //        if (constructor == null)
-            //        {
-            //            string s = $"Could not find correct constructor for {comp.component_name} with fixed type arguments";
-            //            Debug.LogError(s);
-            //        }
-            //        foreach (Entity e in entities.Keys)
-            //        {
-            //            e.AddComponent(comp.component_name,
-            //                (IBaseComponent)constructor.Invoke(new object[1] { p.components[comp.component_name].data }));
-            //        }
-            //    }
-            //    //This adds the components to the subscriber systems
-            //    if (system_adders.ContainsKey(comp.component_name + "_subscriber"))
-            //        adders.Add(system_adders[comp.component_name + "_subscriber"]);
-            //    i -= 1;
-            //}
-            System.Diagnostics.Stopwatch w2 = System.Diagnostics.Stopwatch.StartNew();
+            //System.Diagnostics.Stopwatch w2 = System.Diagnostics.Stopwatch.StartNew();
             foreach (ISystemAdder sys in adders)
             {
-                w2.Restart();
+                //w2.Restart();
                 sys.AddEntities(entities.Keys.ToList());
-                w2.Stop();
+                //w2.Stop();
                 //Debug.Log($"Added component {sys.SysCompName()} in {w2.Elapsed}");
             }
             watch.Stop();
-            //Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
+            Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
         }
 
         public ISystemAdder GetSystemById(string system_id)
@@ -425,7 +322,7 @@ namespace HighKings
         {
             if (base_component_defaults.ContainsKey(comp_name))
             {
-                return base_component_defaults[comp_name];
+                return base_component_defaults[comp_name].GetType().GetConstructor(new Type[1] { base_component_defaults[comp_name].GetType() }).Invoke(new object[1] { base_component_defaults[comp_name] });
             } else
             {
                 Debug.LogError($"Could not find default for component {comp_name}");
@@ -443,8 +340,6 @@ namespace HighKings
             }
         }
     }
-
-
 }
 
 
@@ -715,3 +610,113 @@ public class TestDataStruct : GetsPut, ICloneable
 //            break;
 //    }
 //}
+
+//I get scared of things ending up not removing properly so I do this so I don't get infinite loops
+//while (i > 0)
+//{
+//    //This loads the component data into the entities
+//    ComponentInfo comp = comps[i - 1];
+//    //Debug.Log($"Loading Component: {comp.component_name}");
+//    if (comp.variable)
+//    {
+//        Type[] t_args = Array.ConvertAll(entities.First().Value[comp.component_name], item => item.GetType());
+//        ConstructorInfo constructor = Type.GetType(comp.data.GetType()).GetConstructor(t_args);
+//        if (constructor == null)
+//        {
+//            string s = $"Could not find correct constructor for {comp.component_name} with arguments: {{";
+//            foreach (Type t in t_args)
+//            {
+//                s += t.Name + " ";
+//            }
+//            Debug.LogError(s + "}");
+//        }
+//        foreach (Entity e in entities.Keys)
+//        {
+//            e.AddComponent(comp.component_name, (IBaseComponent)constructor.Invoke(entities[e][comp.component_name]));
+//        }
+//    }
+//    else
+//    {
+//        ConstructorInfo constructor = Type.GetType(comp.component_type).GetConstructor(new Type[1]
+//        { Type.GetType(comp.component_type) });
+//        if (constructor == null)
+//        {
+//            string s = $"Could not find correct constructor for {comp.component_name} with fixed type arguments";
+//            Debug.LogError(s);
+//        }
+//        foreach (Entity e in entities.Keys)
+//        {
+//            e.AddComponent(comp.component_name,
+//                (IBaseComponent)constructor.Invoke(new object[1] { p.components[comp.component_name].data }));
+//        }
+//    }
+//    //This adds the components to the subscriber systems
+//    if (system_adders.ContainsKey(comp.component_name + "_subscriber"))
+//        adders.Add(system_adders[comp.component_name + "_subscriber"]);
+//    i -= 1;
+//}
+
+//if (comp_type == null)
+//{
+//    Debug.Log($"There was a problem typing {comp_name}");
+//    continue;
+//}
+//if (MainGame.instance.component_subscribers.ContainsKey(comp_name + "_subscriber") == false)
+//{
+//    Debug.LogError($"Could not find subscriber system for {comp_name}, skipping");
+//    continue;
+//}
+
+
+////Set which fields will be overwritten by the loader for the info (load priority, constructor types, ect)
+//List<FieldInfo> info_fields = new List<FieldInfo>();
+//List<JToken> fields = comp.Values().ToList();
+
+//foreach (JProperty prop in fields)
+//{
+//    if (prop.Name == "data" || prop.Name == "component_name" || prop.Name == "_namespace" || prop.Name == "component_type")
+//    {
+//        continue;
+//    }
+//    if (typeof(ComponentInfo).GetField(prop.Name, field_flags) == null)
+//    {
+//        Debug.LogError($"Could not find field: {prop.Name} for info of {comp_name} for {prot_name}");
+//        continue;
+//    }
+//    info_fields.Add(typeof(ComponentInfo).GetField(prop.Name, field_flags));
+//}
+
+//ComponentInfo info = JsonParser.instance.ParseString<ComponentInfo>(comp.Value.ToString());
+//info.component_name = comp_name;
+//info.component_type = type_name;
+
+////If data is null, we know that it needs to get the base component's values.
+//if (info.data == default)
+//{
+//    info.SetData(base_component_defaults[comp_name], null);
+//}
+
+//List<FieldInfo> over_fields = new List<FieldInfo>();
+
+////The "data" field defines the component values for this prototype, so if its there something is gonna get overwritten and I want to be able to do this in a 
+////Non-stupid way that is nice to write. So I have to grab the fields present in the overwriter and then apply them to the data in the component
+//if (comp.Value["data"] != null)
+//{
+//    List<JProperty> comp_fields = comp.Value["data"].Values<JProperty>().ToList();
+//    foreach (JProperty f in comp_fields)
+//    {
+//        if (comp_type.GetField(f.Name, field_flags) == null)
+//        {
+//            Debug.LogError($"Could not find field {f.Name} for component {comp_type.Name}");
+//            continue;
+//        }
+//        over_fields.Add(comp_type.GetField(f.Name, field_flags));
+//    }
+
+//    object comp_genner = base_component_generators[type_name];
+//    object over_comp = comp_genner.GetType().
+//        GetMethod("GenThing").Invoke(comp_genner, new object[2] { comp.Value["data"].ToString(), parser });
+//    info.SetData(over_comp, over_fields);
+//}
+
+//p.SetComponent(info, info_fields, over_fields);

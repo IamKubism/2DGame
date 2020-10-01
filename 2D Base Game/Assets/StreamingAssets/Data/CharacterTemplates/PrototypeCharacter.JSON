@@ -3,22 +3,6 @@
         "character": {
             "components": {
                 "Position": {
-                    "data": {
-                    },
-                    "constructor_args": [
-                        {
-                            "namespace": "System",
-                            "type": "Int32"
-                        },
-                        {
-                            "namespace": "System",
-                            "type": "Int32"
-                        },
-                        {
-                            "namespace": "System",
-                            "type": "Int32"
-                        }
-                    ]
                 },
                 "RenderComponent": {
                     "data": {

@@ -10,7 +10,7 @@ namespace HighKings
     {
         public static Movers instance;
 
-        ComponentSubscriber<Position> positions;
+        ComponentSubscriberSystem<Position> positions;
 
         public Dictionary<Entity, Position> entity_positions;
 
@@ -70,7 +70,7 @@ namespace HighKings
 
             for (int i = to_remove.Count; i > 0; i -= 1)
             {
-                mover_progress.Remove(to_remove[i - 1]);
+                RemoveFromMoverProgress(to_remove[i - 1]);
                 to_remove.RemoveAt(i - 1);
             }
         }
@@ -110,6 +110,8 @@ namespace HighKings
                 to_remove.Add(e);
                 return;
             }
+
+            //e.GetComponent<FlagComponent>("PhysicalActive").SetActive();
             Entity next_cell = paths[e].DeQueue();
             mover_progress[e].a = next_cell.GetComponent<Position>("Position");
             if(movement_behavior.CalculateOnEntity(next_cell) <= 0)
@@ -138,6 +140,7 @@ namespace HighKings
 
             List<Entity> end = World.instance.GetTileArea(end_area);
             Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end, temp);
+
             if (path.Length() == 0)
             {
                 return;
@@ -156,7 +159,7 @@ namespace HighKings
                 {
                     return;
                 }
-                mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                AddToMoverProgress(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
                 if (path.Length() > 0)
                     paths.Add(entity, path);
             } else
@@ -167,6 +170,12 @@ namespace HighKings
 
         public void MoverPathMaker(Position end_area, Entity entity, IBehavior move_behavior = default)
         {
+            //if (!entity.HasComponent("PhysicalActive"))
+            //{
+            //    Debug.LogError($"{entity.entity_string_id} does not have a PhysicalActive flag");
+            //    return;
+            //}
+
             //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = move_behavior;
             if(temp == default)
@@ -197,7 +206,7 @@ namespace HighKings
                     return;
                 }
 
-                mover_progress.Add(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                AddToMoverProgress(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
                 if (path.Length() > 0)
                     paths.Add(entity, path);
                 return;
@@ -210,9 +219,14 @@ namespace HighKings
 
         public static void MoverPathMaker(Entity source, Entity target)
         {
+            //if (!source.HasComponent("PhysicalActive"))
+            //{
+            //    Debug.LogError($"{source.entity_string_id} does not have a PhysicalActive flag");
+            //    return;
+            //}
+
             //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = MovementCalculator.test_calculator;
-
 
             Position end_p = target.GetComponent<Position>("Position");
             List<Entity> end = new List<Entity> { World.instance.GetTileFromCoords(end_p.x, end_p.y, end_p.z) };
@@ -238,7 +252,7 @@ namespace HighKings
                     return;
                 }
 
-                instance.mover_progress.Add(source, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                instance.AddToMoverProgress(source, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
                 if (path.Length() > 0)
                     instance.paths.Add(source, path);
                 return;
@@ -248,6 +262,18 @@ namespace HighKings
                 instance.paths[source] = path;
             }
 
+        }
+
+        void AddToMoverProgress(Entity e, ItemVector<Position, FloatMinMax> pf)
+        {
+            //e.GetComponent<FlagComponent>("PhysicalActive").SetActive();
+            mover_progress.Add(e, pf);
+        }
+
+        void RemoveFromMoverProgress(Entity e)
+        {
+            //e.GetComponent<FlagComponent>("PhysicalActive").SetInactive();
+            mover_progress.Remove(e);
         }
 
         public void AddEntities(List<Entity> entities)

@@ -11,7 +11,7 @@ namespace HighKings
     public class MapCells
     {
         World world;
-        ComponentSubscriber<Position> positions;
+        ComponentSubscriberSystem<Position> positions;
         Action<List<Entity>> pos_on_add_action;
 
         public MapCells()

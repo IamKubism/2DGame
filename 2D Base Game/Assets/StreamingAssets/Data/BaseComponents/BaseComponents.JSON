@@ -1,7 +1,7 @@
 {
     "components": {
         "Position": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "Position",
             "data": {
                 "tile": {
@@ -12,29 +12,29 @@
             }
         },
         "Terrain": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "Terrain",
             "data": {
                 "move_cost": -1
             }
         },
         "RenderComponent": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "RenderComponent",
             "data": {
-                "sprite_name": "NULL",
+                "sprite_name": "NULL", 
                 "layer_name": "NULL"
             }
         },
         "SelectionComponent": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "SelectionComponent",
             "data": {
                 "priority": 100
             }
         },
         "Health": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "BaseStatistic",
             "inspector_display": {
                 "default_position": 0,
@@ -48,7 +48,7 @@
             }
         },
         "Strength": {
-            "_namespace": "Default",
+            "namespace": "Default",
             "type": "BaseStatistic",
             "inspector_display": {
                 "default_position": 2,
@@ -60,6 +60,20 @@
                 "curr_value": 10,
                 "base_value": 10
             }
-        }
+        },
+		"PhysicalActive":{
+			"namespace":"Default",
+			"type":"FlagComponent",
+			"data":{
+				"flag_name": "PhysicalActive",
+				"active": true
+			}
+		},
+		"Conscious":{
+			"namespace": "Default",
+			"type": "Conscious",
+			"data":{
+			}
+		}
     }
 }

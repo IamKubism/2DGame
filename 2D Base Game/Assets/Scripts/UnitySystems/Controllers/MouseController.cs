@@ -134,7 +134,7 @@ namespace HighKings
         {
             instance.selectable_action = action;
             instance.curr_retrieval_action = ActionList.instance.GetRetrievalAction(action.retrieval_action);
-            //Debug.Log($"Set action to: {action.action_id}, retrieval action: {action.retrieval_action}");
+            Debug.Log($"Set action to: {action.action_id}, retrieval action: {action.retrieval_action}");
         }
 
         public static void SetClickAction(string action_id)

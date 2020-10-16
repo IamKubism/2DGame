@@ -53,7 +53,7 @@ namespace HighKings
                 id_to_computation[computation_name] = (ent) => {
                     if (ent.GetComponent<CompType>(component_name) == default)
                     {
-                        return 0.0000000001f;
+                        return 0;
                     }
                     return float_computer(ent.GetComponent<CompType>(component_name));
                 };
@@ -62,7 +62,7 @@ namespace HighKings
                 id_to_computation.Add(component_name, (ent) => {
                     if (ent.GetComponent<CompType>(component_name) == default)
                     {
-                        return 0.0000000001f;
+                        return 0;
                     }
                     return float_computer(ent.GetComponent<CompType>(component_name));
                 });

@@ -107,7 +107,7 @@ namespace HighKings
 
         void CreateComponentType(JProperty comp_data)
         {
-            string type_name = GenerateTypeName(comp_data.Value["type"].ToString(), comp_data.Value["_namespace"].ToString());
+            string type_name = GenerateTypeName(comp_data.Value["type"].ToString(), comp_data.Value["namespace"].ToString());
             string comp_name = comp_data.Name;
 
             if (base_component_generators.ContainsKey(comp_name) == false)
@@ -157,7 +157,7 @@ namespace HighKings
             {
                 Debug.LogError($"Could not find component type {type_name}");
             }
-            ConstructorInfo constructor = typeof(ComponentSubscriber<>).MakeGenericType(type).
+            ConstructorInfo constructor = typeof(ComponentSubscriberSystem<>).MakeGenericType(type).
                 GetConstructor(new Type[1] { typeof(string) });
             if (constructor == null)
             {
@@ -261,6 +261,11 @@ namespace HighKings
         public void CreateRetrievalAction(JProperty prop)
         {
             ActionList.instance.RegisterRetrievalAction(prop);
+        }
+
+        public void CreateGoalPrototype<T>(JProperty prop) where T: IGoal
+        {
+
         }
 
         public void AttachPrototype(string prototype_id, Dictionary<Entity, Dictionary<string, object[]>> entities)

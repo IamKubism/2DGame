@@ -45,6 +45,7 @@ namespace HighKings
 
         public MainGame()
         {
+
             game_started = false;
 
             if (instance == null) { instance = this; }
@@ -101,14 +102,26 @@ namespace HighKings
             //Debug.Log($"Added {component_name}_subscriber");
         }
 
-        public ComponentSubscriber<T> GetSubscriberSystem<T>(string comp_name) where T: IBaseComponent
+        public ComponentSubscriberSystem<T> GetSubscriberSystem<T>(string comp_name) where T: IBaseComponent
         {
             if (component_subscribers.ContainsKey(comp_name+"_subscriber"))
             {
-                return (ComponentSubscriber<T>)component_subscribers[comp_name+"_subscriber"];
+                return (ComponentSubscriberSystem<T>)component_subscribers[comp_name+"_subscriber"];
             } else
             {
                 Debug.LogError($"Could not find correct subscriber system for {comp_name}");
+                return null;
+            }
+        }
+
+        public object GetSystem(string system_name)
+        {
+            try
+            {
+                return systems[system_name];
+            } catch
+            {
+                Exception e = new NullReferenceException($"Could not find system: {system_name}");
                 return null;
             }
         }

@@ -21,8 +21,8 @@ namespace HighKings
         public Dictionary<Entity, GameObject> entity_object_map;
         World world { get { return WorldController.Instance.world; } }
 
-        ComponentSubscriber<RenderComponent> render_values;
-        ComponentSubscriber<Position> positions;
+        ComponentSubscriberSystem<RenderComponent> render_values;
+        ComponentSubscriberSystem<Position> positions;
 
         Action<List<Entity>> on_add_action;
         Action<List<Entity>> on_remove;

@@ -81,7 +81,7 @@ namespace HighKings {
 
         public void RemoveFromAllSubscribers()
         {
-            Type subscriber_type = typeof(ComponentSubscriber<>);
+            Type subscriber_type = typeof(ComponentSubscriberSystem<>);
             MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem");
             foreach(KeyValuePair<string, IBaseComponent> comps in components)
             {

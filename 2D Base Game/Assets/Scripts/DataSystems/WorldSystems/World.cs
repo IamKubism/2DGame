@@ -20,11 +20,9 @@ public class World
     
     //TODO: Make this handle multichunks
     public Path_TileGraph graph { get; protected set; }
-    protected Path_Astar utility_astar;
 
     //TODO: Make this handle multichunks
     public NodeChunk tile_map;
-    public Movers entity_movers;
 
     /// <summary>
     /// The currently running world (I might want to change this in the future)

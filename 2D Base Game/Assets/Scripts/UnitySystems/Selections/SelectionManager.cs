@@ -7,7 +7,7 @@ namespace HighKings
     public class SelectionManager
     {
         public static SelectionManager instance;
-        ComponentSubscriber<SelectionComponent> selects;
+        ComponentSubscriberSystem<SelectionComponent> selects;
         public List<SelectionComponent> active_selectables;
         public Dictionary<Entity, SelectionComponent> selection_data;
         public GameObjectManager go_manager;

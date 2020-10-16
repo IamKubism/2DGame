@@ -6,7 +6,7 @@ namespace HighKings
 {
     public class HealthSystem
     {
-        ComponentSubscriber<BaseStatistic> healths;
+        ComponentSubscriberSystem<BaseStatistic> healths;
 
         public HealthSystem()
         {

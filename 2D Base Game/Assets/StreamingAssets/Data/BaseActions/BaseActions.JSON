@@ -3,7 +3,8 @@
         "AssignMovement": {
             "tags": [
                 "user_assignable",
-                "movement"
+                "movement",
+				"physical"
             ],
             "listeners": {
                 "MoverAssign": {
@@ -16,7 +17,8 @@
         },
         "DebugAttack": {
             "tags": [
-                "user_assignable"
+                "user_assignable",
+				"physical"
             ],
             "listeners": {
                 "Attack": {
@@ -27,5 +29,10 @@
             },
             "retrieval_action": "GetSelectable"
         }
-    }
+    },
+	"goals":{
+		"NoGoal":{
+			"type": "NoGoal"
+		}
+	}
 }

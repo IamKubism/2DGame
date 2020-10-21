@@ -28,6 +28,8 @@ namespace HighKings
             goals = new List<IGoal>();
             goal_targets = new Dictionary<IGoal, Entity>();
             this.parent = parent;
+            goals.Add(FullGoalMap.instance["NoGoal"]);
+            goal_targets.Add(goals[0], parent);
         }
 
         public Conscious(Conscious conscious)
@@ -35,7 +37,8 @@ namespace HighKings
             parent = conscious.parent;
             goals = new List<IGoal>(conscious.goals);
             goal_targets = new Dictionary<IGoal, Entity>(conscious.goal_targets);
-
+            //goals.Add(FullGoalMap.instance["NoGoal"]);
+            //goal_targets.Add(goals[0], parent);
         }
 
         public Conscious(Entity parent, Conscious conscious)
@@ -43,6 +46,8 @@ namespace HighKings
             this.parent = parent;
             goals = new List<IGoal>(conscious.goals);
             goal_targets = new Dictionary<IGoal, Entity>(conscious.goal_targets);
+            goals.Add(FullGoalMap.instance["NoGoal"]);
+            goal_targets.Add(goals[0], parent);
         }
 
         /// <summary>
@@ -55,41 +60,39 @@ namespace HighKings
             goal_targets = new Dictionary<IGoal, Entity>();
         }
 
-        public void SetGoals(IGoal goal, Entity target)
+        public void SetGoals(Entity target)
         {
             listener.OperateBeforeOnComp();
-            Path_Node<IGoal> goal_node = FullGoalMap.instance[goal];
-            List<IGoal> new_path = new List<IGoal>();
-            while(goal_node.edges.Count > 0)
+            DjkistraGoal decision = new DjkistraGoal(FullGoalMap.instance, goals[goals.Count - 1], parent, target);
+            Dictionary<IGoal, Entity> target_map = decision.TargetMap();
+            foreach(IGoal goal in decision.GetPath())
             {
-                List<Path_Node<IGoal>> edges = new List<Path_Node<IGoal>>();
-                int max_pref = 0;
-
-                foreach (Path_Edge<IGoal> e in goal_node.edges)
+                if (goals.Contains(goal))
                 {
-                    if (e.node.data.Preference(parent,target) >= max_pref)
-                    {
-                        if (e.node.data.Preference(parent, target) == max_pref)
-                        {
-                            edges.Add(e.node);
-                        }
-                        else
-                        {
-                            edges = new List<Path_Node<IGoal>> { e.node };
-                            max_pref = e.node.data.Preference(parent, target);
-                        }
-                    }
-                }
-
-                if(edges.Count == 0)
-                {
+                    Debug.LogError("Cannot have a cyclic goal pattern");
                     return;
                 }
-
-                goal_node = edges[UnityEngine.Random.Range(0, edges.Count)];
-                new_path.Add(goal_node.data);
             }
-            goals.AddRange(new_path);
+            foreach (IGoal goal in decision.GetPath())
+            {
+                goals.Add(goal);
+                goal_targets.Add(goal, target_map[goal]);
+                goal.Assign(parent, target_map[goal]);
+            }
+            listener.OperateAfterOnComp();
+        }
+
+        public void SetGoal(IGoal goal, Entity target)
+        {
+            listener.OperateBeforeOnComp();
+            if (goal_targets.ContainsKey(goal))
+            {
+                Debug.LogError("Cannot have cyclic goals");
+                return;
+            }
+            goals.Add(goal);
+            goal_targets.Add(goal, target);
+            goal.Assign(parent, target);
             listener.OperateAfterOnComp();
         }
 
@@ -103,7 +106,9 @@ namespace HighKings
                 {
                     if (goals[i].Achieved(parent, goal_targets[goals[i]]))
                     {
-                        while(i < goals.Count)
+                        goal_targets.Remove(goals[i]);
+                        goals.RemoveAt(i);
+                        while (i < goals.Count)
                         {
                             goals[i].Cancel(parent, goal_targets[goals[i]]);
                             goal_targets.Remove(goals[i]);
@@ -115,6 +120,14 @@ namespace HighKings
                     }
                 }
             }
+            listener.OperateAfterOnComp();
+        }
+
+        public void ReEvaluate()
+        {
+            listener.OperateBeforeOnComp();
+            CheckGoalsForward();
+            SetGoals(goal_targets[goals[goals.Count - 1]]);
             listener.OperateAfterOnComp();
         }
 

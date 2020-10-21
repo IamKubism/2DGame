@@ -168,6 +168,45 @@ namespace HighKings
             }
         }
 
+        public void MoverPathMaker(List<Entity> end_area, Entity entity, IBehavior move_behavior = default)
+        {
+            //This in general should not happen but I am just going to do this for testing purposes
+            IBehavior temp = move_behavior;
+            if(temp == null)
+            {
+                Debug.Log("Set to default behavior");
+                temp = MovementCalculator.test_calculator;
+            }
+
+            Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end_area, temp);
+
+            if (path.Length() == 0)
+            {
+                return;
+            }
+
+            if (paths.ContainsKey(entity) == false)
+            {
+                if (mover_progress.ContainsKey(entity))
+                {
+                    paths.Add(entity, path);
+                    return;
+                }
+                Entity next_cell = path.DeQueue();
+                FloatMinMax prog = new FloatMinMax(0f, temp.CalculateOnEntity(next_cell));
+                if (prog.max <= 0)
+                {
+                    return;
+                }
+                AddToMoverProgress(entity, new ItemVector<Position, FloatMinMax>(next_cell.GetComponent<Position>("Position"), prog));
+                if (path.Length() > 0)
+                    paths.Add(entity, path);
+            } else
+            {
+                paths[entity] = path;
+            }
+        }
+
         public void MoverPathMaker(Position end_area, Entity entity, IBehavior move_behavior = default)
         {
             //if (!entity.HasComponent("PhysicalActive"))
@@ -176,7 +215,6 @@ namespace HighKings
             //    return;
             //}
 
-            //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = move_behavior;
             if(temp == default)
             {
@@ -261,7 +299,11 @@ namespace HighKings
             {
                 instance.paths[source] = path;
             }
+        }
 
+        public static void CancelMove(Entity source, Entity target)
+        {
+            MoverPathMaker(source, World.instance.GetTileFromCoords(source.GetComponent<Position>("Position").p));
         }
 
         void AddToMoverProgress(Entity e, ItemVector<Position, FloatMinMax> pf)

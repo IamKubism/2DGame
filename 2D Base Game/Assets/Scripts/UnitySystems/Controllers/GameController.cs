@@ -107,71 +107,6 @@ public class GameController : MonoBehaviour
         game.Update(Time.deltaTime);
     }
 
-    /// <summary>
-    /// Called on the clicking of "Start Game", all game related actions to set up prototypes, ect should be put in here
-    /// </summary>
-    //public void StartGame()
-    //{
-    //    mouseController = FindObjectOfType<MouseController>();
-    //    mouseController.OnGameStart();
-    //    game.StartGame();
-    //    Debug.Log($"Started Game");
-    //}
-
-    /// <summary>
-    /// Creates a text file that is parsed into code for the job actions.
-    /// TODO: Make this loadable from alternative file paths (for mod support)
-    /// </summary>
-    //private void ImportJobLua()
-    //{
-    //    string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "LUA");
-    //    filePath = System.IO.Path.Combine(filePath, "Job");
-
-    //    List<string[]> dirpaths = new List<string[]>();
-    //    dirpaths.Add(System.IO.Directory.GetFiles(filePath));
-    //    string codeText = "";
-
-    //    foreach (string s in System.IO.Directory.EnumerateDirectories(filePath))
-    //    {
-    //        if (s.Contains(".meta") == false)
-    //            dirpaths.Add(System.IO.Directory.GetFiles(s));
-    //    }
-    //    foreach (string[] paths in dirpaths)
-    //    {
-    //        foreach (string s in paths)
-    //        {
-    //            if (s.Contains(".meta"))
-    //                continue;
-    //            //Add file's text to full lua string, should be able to take all possible mod job luas and put em in here
-    //            codeText += System.IO.File.ReadAllText(s) + "\n \n"; 
-    //        }
-    //    }
-    //    //Parse the full code into the interpreter
-    //    game.ImportCodeToActions(game.job_actions, codeText);
-    //}
-
-    //private void LoadAllLua()
-    //{
-    //    string jobLua = "";
-    //    string furnLua = "";
-    //    string rootPath = System.IO.Path.Combine(Application.streamingAssetsPath, "LUA");
-    //    foreach (LoadPath path in luaLoadPaths)
-    //    {
-    //        string tempPath = path.MakePathFromRoot(rootPath);
-    //        switch (path.Type)
-    //        {
-    //            case "Furniture":
-    //                furnLua += System.IO.File.ReadAllText(tempPath);
-    //                break;
-    //            case "Job":
-    //                jobLua += System.IO.File.ReadAllText(tempPath)  + "\n \n";
-    //                break;
-    //        }
-    //    }
-    //    //game.ImportCodeToActions(game.job_actions, jobLua);
-    //    //game.ImportCodeToActions(game.furn_actions, furnLua);
-    //}
-
     public void DebugUnsuspendJob()
     {
     }
@@ -194,3 +129,69 @@ public class GameController : MonoBehaviour
         }
     }
 }
+
+
+/// <summary>
+/// Called on the clicking of "Start Game", all game related actions to set up prototypes, ect should be put in here
+/// </summary>
+//public void StartGame()
+//{
+//    mouseController = FindObjectOfType<MouseController>();
+//    mouseController.OnGameStart();
+//    game.StartGame();
+//    Debug.Log($"Started Game");
+//}
+
+/// <summary>
+/// Creates a text file that is parsed into code for the job actions.
+/// TODO: Make this loadable from alternative file paths (for mod support)
+/// </summary>
+//private void ImportJobLua()
+//{
+//    string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "LUA");
+//    filePath = System.IO.Path.Combine(filePath, "Job");
+
+//    List<string[]> dirpaths = new List<string[]>();
+//    dirpaths.Add(System.IO.Directory.GetFiles(filePath));
+//    string codeText = "";
+
+//    foreach (string s in System.IO.Directory.EnumerateDirectories(filePath))
+//    {
+//        if (s.Contains(".meta") == false)
+//            dirpaths.Add(System.IO.Directory.GetFiles(s));
+//    }
+//    foreach (string[] paths in dirpaths)
+//    {
+//        foreach (string s in paths)
+//        {
+//            if (s.Contains(".meta"))
+//                continue;
+//            //Add file's text to full lua string, should be able to take all possible mod job luas and put em in here
+//            codeText += System.IO.File.ReadAllText(s) + "\n \n"; 
+//        }
+//    }
+//    //Parse the full code into the interpreter
+//    game.ImportCodeToActions(game.job_actions, codeText);
+//}
+
+//private void LoadAllLua()
+//{
+//    string jobLua = "";
+//    string furnLua = "";
+//    string rootPath = System.IO.Path.Combine(Application.streamingAssetsPath, "LUA");
+//    foreach (LoadPath path in luaLoadPaths)
+//    {
+//        string tempPath = path.MakePathFromRoot(rootPath);
+//        switch (path.Type)
+//        {
+//            case "Furniture":
+//                furnLua += System.IO.File.ReadAllText(tempPath);
+//                break;
+//            case "Job":
+//                jobLua += System.IO.File.ReadAllText(tempPath)  + "\n \n";
+//                break;
+//        }
+//    }
+//    //game.ImportCodeToActions(game.job_actions, jobLua);
+//    //game.ImportCodeToActions(game.furn_actions, furnLua);
+//}

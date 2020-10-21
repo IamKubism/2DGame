@@ -1,38 +1,107 @@
 {
-    "actions": {
-        "AssignMovement": {
-            "tags": [
-                "user_assignable",
-                "movement",
+	"actions": {
+		"AssignMovement": {
+			"tags": [
+				"user_assignable",
+				"movement",
 				"physical"
-            ],
-            "listeners": {
-                "MoverAssign": {
-                    "namespace": "Default",
-                    "type": "Movers",
-                    "method_name": "MoverPathMaker"
-                }
-            },
-            "retrieval_action": "GetTile"
-        },
-        "DebugAttack": {
-            "tags": [
-                "user_assignable",
+			],
+			"listeners": {
+				"MoverAssign": {
+					"namespace": "Default",
+					"type": "Movers",
+					"method_name": "MoverPathMaker"
+				}
+			},
+			"retrieval_action": "GetTile"
+		},
+		"CancelMovement": {
+			"tags": [
+				"movement"
+			],
+			"listeners": {
+				"CancelMovement": {
+					"namespace": "Default",
+					"type": "Movers",
+					"method_name": "CancelMove"
+				}
+			},
+			"retrieval_action": "None"
+		},
+		"DebugAttack": {
+			"tags": [
+				"user_assignable",
 				"physical"
-            ],
-            "listeners": {
-                "Attack": {
-                    "namespace": "Default",
-                    "type": "HealthSystem",
-                    "method_name": "Attack"
-                }
-            },
-            "retrieval_action": "GetSelectable"
-        }
-    },
-	"goals":{
-		"NoGoal":{
-			"type": "NoGoal"
+			],
+			"listeners": {
+				"Attack": {
+					"namespace": "Default",
+					"type": "HealthSystem",
+					"method_name": "Attack"
+				}
+			},
+			"retrieval_action": "GetSelectable"
 		}
-	}
+	},
+	"goals": {
+		"NoGoal": {
+			"type": "GenericGoal",
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_cancelled": [],
+			"on_assigned": [],
+			"child_nodes": [],
+			"parent_nodes": []
+		},
+		"MoveGoals": {
+			"type": "GenericGoal",
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_cancelled": [],
+			"on_assigned": [],
+			"child_nodes": [],
+			"parent_nodes": [
+				"NoGoal"
+			]
+		},
+		"MoveToTarget": {
+			"type": "MoveGoal",
+			"namespace": "Default",
+			"min_dist": 0,
+			"max_dist": 2,
+			"on_achieved": [],
+			"on_cancelled": [],
+			"on_assigned": [],
+			"parent_nodes": [
+				"MoveGoals"
+			],
+			"child_nodes": []
+		},
+		"AttackEntity": {
+			"type": "GenericGoal",
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"NoGoal"
+			],
+			"child_nodes": [
+				"MoveGoals"
+			]
+		},
+		"MeleeAttack": {
+			"type": "GenericGoal",
+			"namespace": "Default",
+			"on_achieved": [
+			],
+			"on_assigned": ["DebugAttack"],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"AttackEntity"
+			],
+			"child_nodes": []
+		}
+	},
+	"state_checks": {}
 }

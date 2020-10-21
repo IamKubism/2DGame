@@ -235,5 +235,10 @@ namespace HighKings
                 return null;
             }
         }
+
+        public static Entity NoFunction()
+        {
+            return null;
+        }
     }
 }

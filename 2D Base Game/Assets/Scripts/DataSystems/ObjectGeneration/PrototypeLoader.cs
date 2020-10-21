@@ -101,6 +101,11 @@ namespace HighKings
                 }
             }
 
+            if(root["goals"] != null)
+            {
+                CreateGoalSet(root["goals"].ToList());
+            }
+
             watch.Stop();
             //Debug.Log($"Read file in {watch.Elapsed}");
         }
@@ -263,9 +268,50 @@ namespace HighKings
             ActionList.instance.RegisterRetrievalAction(prop);
         }
 
-        public void CreateGoalPrototype<T>(JProperty prop) where T: IGoal
+        public void CreateGoalPrototype(JProperty prop)
         {
+            Type t = Type.GetType(GenerateTypeName(prop.Value["type"].ToString(), prop.Value["namespace"].ToString()));
+            if(t == null)
+            {
+                Debug.LogError($"Could not find type: {GenerateTypeName(prop.Value["type"].ToString(), prop.Value["namespace"].ToString())}");
+                return;
+            }
+            ConstructorInfo constructor = t.GetConstructor(new Type[1] { typeof(JProperty) });
+            if(constructor == null)
+            {
+                Debug.LogError($"Could not find Json Constructor for {t.ToString()}");
+                return;
+            }
+            IGoal g = (IGoal)constructor.Invoke(new object[1] { prop });
+            FullGoalMap.instance.AddGoal(g);
+        }
 
+        public void CreateGoalSet(List<JToken> goals)
+        {
+            foreach(JProperty p in goals)
+            {
+                CreateGoalPrototype(p);
+            }
+
+            List<Tuple<string, string>> edges = new List<Tuple<string, string>>();
+            foreach(JProperty p in goals)
+            {
+                if(p.Value["child_nodes"] != null)
+                {
+                    foreach(JToken j in p.Value["child_nodes"].ToList())
+                    {
+                        edges.Add(new Tuple<string, string>(p.Name, j.Value<string>()));
+                    }
+                }
+                if (p.Value["parent_nodes"] != null)
+                {
+                    foreach(JToken j in p.Value["parent_nodes"].ToList())
+                    {
+                        edges.Add(new Tuple<string, string>(j.Value<string>(), p.Name));
+                    }
+                }
+            }
+            FullGoalMap.instance.AddEdgesToGraph(edges);
         }
 
         public void AttachPrototype(string prototype_id, Dictionary<Entity, Dictionary<string, object[]>> entities)
@@ -317,7 +363,7 @@ namespace HighKings
             watch.Stop();
             Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
         }
-
+        
         public ISystemAdder GetSystemById(string system_id)
         {
             return system_adders[system_id];

@@ -71,6 +71,29 @@ public class World
                : default;
     }
 
+    public Entity GetTileFromCoords(int[] p)
+    {
+        return (p[0] >= 0) && (p[1] >= 0) && (p[2] >= 0) && (p[1] < len_x) && (p[1] < len_y) && (p[2] < len_z)
+               ? tile_map.tiles[p[1], p[2], p[3]] 
+               : default;
+    }
+
+    public List<Entity> GetTilesAroundEntity(Entity center, int min_sqr_dist, int max_sqr_dist)
+    {
+        List<Entity> tiles = tile_map.GetNeighborTiles(center, max_sqr_dist);
+
+        int[] p = center.GetComponent<Position>("Position").p;
+        for(int i = tiles.Count; i > 0; i-= 1)
+        {
+            if(MathFunctions.SqrDist(p, tiles[i-1].GetComponent<Position>("Position").p) > min_sqr_dist)
+            {
+                tiles.RemoveAt(i-1);
+            }
+        }
+
+        return tiles;
+    } 
+
     public List<Entity> GetTileSquare(Entity center, int sqr_dist)
     {
         return tile_map.GetNeighborTiles(center, sqr_dist);

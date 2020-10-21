@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace HighKings
 {
@@ -11,8 +12,7 @@ namespace HighKings
     {
         public static FullGoalMap instance;
         public Dictionary<IGoal,Path_Node<IGoal>> graph;
-        Dictionary<string, IGoal> goals_by_id;
-        public Dictionary<string, List<string>> prototype_sub_maps;
+        public Dictionary<string, IGoal> goals_by_id;
 
         public FullGoalMap()
         {
@@ -25,53 +25,27 @@ namespace HighKings
             }
             graph = new Dictionary<IGoal, Path_Node<IGoal>>();
             goals_by_id = new Dictionary<string, IGoal>();
-            prototype_sub_maps = new Dictionary<string, List<string>>();
         }
 
-        public void RegisterMap(List<ItemVector<IGoal,List<IGoal>>> goals)
+        public void AddGoal(IGoal goal)
         {
-            foreach(ItemVector<IGoal, List<IGoal>> g in goals)
+            if (graph.ContainsKey(goal))
             {
-                if(graph.ContainsKey(g.a) == false)
-                {
-                    Debug.LogWarning($"Goal: {g.a.id()} was not in the node map, this could cause problems");
-                    graph.Add(g.a, new Path_Node<IGoal>(g.a));
-                    goals_by_id.Add(g.a.id(), g.a);
-
-                }
-                foreach (IGoal p in g.b)
-                {
-                    if (graph.ContainsKey(p))
-                    {
-                        graph[p].MakeNewEdge(graph[g.a], 1);
-                    } else
-                    {
-                        Debug.LogWarning($"Could not find the goal node {p.id()}, not adding edge");
-                    }
-                }
+                Debug.LogError($"Tried to add goal: {goal.id()} twice");
+                return;
             }
+            graph.Add(goal, new Path_Node<IGoal>(goal));
+            goals_by_id.Add(goal.id(), goal);
         }
 
-        public void RegisterMap(List<ItemVector<IGoal,List<string>>> goals)
+        public void AddEdgesToGraph(List<Tuple<string,string>> edges)
         {
-            foreach(ItemVector<IGoal, List<string>> g in goals)
+            if (graph == null)
             {
-                if(graph.ContainsKey(g.a) == false)
-                {
-                    Debug.LogWarning($"Goal: {g.a.id()} was not in the node map, this could cause problems");
-                    graph.Add(g.a, new Path_Node<IGoal>(g.a));
-                    goals_by_id.Add(g.a.id(), g.a);
-                }
-                foreach (string p in g.b)
-                {
-                    if (graph.ContainsKey(goals_by_id[p]))
-                    {
-                        graph[goals_by_id[p]].MakeNewEdge(graph[g.a], 1);
-                    } else
-                    {
-                        Debug.LogWarning($"Could not find the goal node {p}, not adding edge");
-                    }
-                }
+                graph = new Dictionary<IGoal, Path_Node<IGoal>>();
+            } else
+            {
+                GraphUtilities.AddToGraph(graph, goals_by_id, edges);
             }
         }
 

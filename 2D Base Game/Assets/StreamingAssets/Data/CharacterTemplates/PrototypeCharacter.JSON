@@ -16,7 +16,8 @@
                     }
                 },
                 "Health": {
-                }
+                },
+				"Conscious":{}
             }
         },
         "test_char_1": {

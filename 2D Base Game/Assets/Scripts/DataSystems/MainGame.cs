@@ -29,6 +29,7 @@ namespace HighKings
         MathFunctions math;
         PrototypeLoader prototype_loader;
         SystemLoader system_loader;
+        FullGoalMap goals;
 
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
@@ -59,10 +60,13 @@ namespace HighKings
             prototype_loader = PrototypeLoader.instance ?? new PrototypeLoader(JsonParser.instance);
             entity_manager = EntityManager.instance ?? new EntityManager();
             action_list = ActionList.instance ?? new ActionList();
+            goals = FullGoalMap.instance ?? new FullGoalMap();
+
 
             //Load All systems
             systems = new Dictionary<string, object>();
             display_data = new Dictionary<string, InspectorData>();
+            
 
             MovementCalculator.SetTestCalculator();
         }

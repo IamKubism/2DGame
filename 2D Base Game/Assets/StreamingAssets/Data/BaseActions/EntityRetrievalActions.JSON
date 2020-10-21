@@ -1,6 +1,13 @@
 {
     "retrieval_actions": {
-        "GetTile": {
+        "None":{
+			"method":{
+				"namespace": "Default",
+				"type": "ActionList",
+				"method_name": "NoFunction"
+			}
+		},
+		"GetTile": {
             "method": {
                 "namespace": "Default",
                 "type": "MouseController",

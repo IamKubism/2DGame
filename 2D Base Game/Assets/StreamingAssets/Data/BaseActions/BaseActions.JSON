@@ -93,9 +93,10 @@
 		"MeleeAttack": {
 			"type": "GenericGoal",
 			"namespace": "Default",
-			"on_achieved": [
+			"on_achieved": [],
+			"on_assigned": [
+				"DebugAttack"
 			],
-			"on_assigned": ["DebugAttack"],
 			"on_cancelled": [],
 			"parent_nodes": [
 				"AttackEntity"

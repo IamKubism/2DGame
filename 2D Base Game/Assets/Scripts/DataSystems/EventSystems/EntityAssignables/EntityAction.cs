@@ -37,7 +37,7 @@ namespace HighKings
             sorted_call_list = new List<EntityListener>();
             action_id = prop.Name;
             List<JToken> toks = prop.Value["listeners"].ToList();
-            foreach(JProperty p in toks)
+            foreach (JProperty p in toks)
             {
                 RegisterListener(new EntityListener(p));
             }
@@ -76,7 +76,7 @@ namespace HighKings
 
         public void AppendAction(EntityAction action)
         {
-            foreach(EntityListener el in action.listeners.Values)
+            foreach (EntityListener el in action.listeners.Values)
             {
                 if (listeners.ContainsKey(el.id) == false)
                 {
@@ -87,7 +87,7 @@ namespace HighKings
 
         public void Invoke(Entity source, Entity target)
         {
-            for(int i = listeners.Count; i > 0; i -= 1)
+            for (int i = listeners.Count; i > 0; i -= 1)
             {
                 sorted_call_list[i - 1].Invoke(source, target);
             }
@@ -98,7 +98,8 @@ namespace HighKings
             if (listeners.ContainsKey(listener.id))
             {
                 Debug.LogError("Already had listener of name: " + listener.id);
-            } else
+            }
+            else
             {
                 listeners.Add(listener.id, listener);
                 for (int i = 0; i < sorted_call_list.Count; i += 1)
@@ -118,9 +119,9 @@ namespace HighKings
             sorted_call_list = new List<EntityListener>();
             foreach (EntityListener listener in listeners)
             {
-                for(int i = 0; i < sorted_call_list.Count; i += 1)
+                for (int i = 0; i < sorted_call_list.Count; i += 1)
                 {
-                    if(sorted_call_list[i].priority >= listener.priority)
+                    if (sorted_call_list[i].priority >= listener.priority)
                     {
                         sorted_call_list.Insert(i, listener);
                         continue;
@@ -160,7 +161,7 @@ namespace HighKings
         public static EntityAction operator +(EntityAction a, EntityAction b)
         {
             EntityAction c = new EntityAction(a);
-            foreach(EntityListener listener in b.listeners.Values)
+            foreach (EntityListener listener in b.listeners.Values)
             {
                 if (c.listeners.ContainsKey(listener.id))
                 {
@@ -171,7 +172,6 @@ namespace HighKings
 
             return c;
         }
-
     }
 }
 

@@ -23,6 +23,8 @@ namespace HighKings
         /// </summary>
         Action<Entity, Entity> action;
 
+        MethodInfo method;
+
         public int priority;
 
         /// <summary>
@@ -79,7 +81,6 @@ namespace HighKings
         {
             action(source, target);
         }
-
     }
 
     public class EntityListener<T>

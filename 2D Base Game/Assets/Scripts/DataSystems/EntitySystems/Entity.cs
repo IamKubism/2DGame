@@ -53,6 +53,11 @@ namespace HighKings {
             return components.ContainsKey(comp_name) ? (T)components[comp_name] : default;
         }
 
+        public T GetComponent<T>() where T : IBaseComponent
+        {
+            return components.ContainsKey(typeof(T).Name) ? (T)components[typeof(T).Name] : default;
+        }
+
         public override bool Equals(object obj)
         {
             return entity_string_id == ((Entity)obj).entity_string_id;

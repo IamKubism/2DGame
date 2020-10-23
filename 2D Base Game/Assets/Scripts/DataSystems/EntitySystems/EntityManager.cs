@@ -119,6 +119,16 @@ namespace HighKings
             return es;
         }
 
+        public Entity GetEntityFromId(string id)
+        {
+            if (string_id_to_entity.ContainsKey(id))
+            {
+                return string_id_to_entity[id];
+            }
+            Debug.LogWarning($"Could not find entity with id {id}");
+            return null;
+        }
+
         /// <summary>
         /// This is gonna be super slow but it is for debugging
         /// </summary>

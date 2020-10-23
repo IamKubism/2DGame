@@ -78,6 +78,18 @@ namespace HighKings
         {
             get => graph[key];
         }
+
+        public override string ToString()
+        {
+            string s = "FullGoalMap: ";
+            foreach(Path_Node<IGoal> gn in graph.Values)
+            {
+
+            }
+            return s;
+        }
     }
 }
 
+// Ideas on how I want this shit to work:
+// 

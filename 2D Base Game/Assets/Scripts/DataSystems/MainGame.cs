@@ -118,6 +118,18 @@ namespace HighKings
             }
         }
 
+        public ComponentSubscriberSystem<T> GetSubscriberSystem<T>() where T: IBaseComponent
+        {
+            if (component_subscribers.ContainsKey(typeof(T).Name+"_subscriber"))
+            {
+                return (ComponentSubscriberSystem<T>)component_subscribers[typeof(T).Name+"_subscriber"];
+            } else
+            {
+                Debug.LogError($"Could not find correct subscriber system for {typeof(T).Name}");
+                return null;
+            }
+        }
+
         public object GetSystem(string system_name)
         {
             try

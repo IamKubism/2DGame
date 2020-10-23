@@ -18,8 +18,6 @@ namespace HighKings
         public MoveGoal(JProperty prop)
         {
             _id = prop.Name;
-            pref_sqr_dist_max = prop.Value<int>("max_dist");
-            pref_sqr_dist_min = prop.Value<int>("min_dist");
             on_assigned = new List<EntityAction>();
             on_cancelled = new List<EntityAction>();
             on_achieved = new List<EntityAction>();
@@ -41,7 +39,7 @@ namespace HighKings
 
         public void Assign(Entity source, Entity target)
         {
-            Movers.instance.MoverPathMaker(World.instance.GetTilesAroundEntity(target, pref_sqr_dist_min, pref_sqr_dist_max), source);
+            source.GetComponent<MoveArea>("MoveArea").SetMoveTiles(World.instance.GetTilesAroundEntity(target, pref_sqr_dist_min, pref_sqr_dist_max));
             foreach(EntityAction act in on_assigned)
             {
                 act.Invoke(source, target);

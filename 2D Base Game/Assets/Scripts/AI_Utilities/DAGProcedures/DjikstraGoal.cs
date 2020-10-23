@@ -25,16 +25,16 @@ namespace HighKings
         /// <param name="start"></param>
         /// <param name="source"></param>
         /// <param name="inital_target"></param>
-        public DjkistraGoal(FullGoalMap map, IGoal start, Entity source, Entity inital_target)
+        public DjkistraGoal(Dictionary<IGoal,Path_Node<IGoal>> map, IGoal start, Entity source, Entity inital_target)
         {
-            if (map.HasGoal(start) == false)
+            if (map.ContainsKey(start) == false)
             {
                 Debug.LogError("Goal Map has no start");
                 return;
             }
 
             Entity target = inital_target;
-            Dictionary<IGoal, Path_Node<IGoal>> node_map = map.graph;
+            Dictionary<IGoal, Path_Node<IGoal>> node_map = map;
             target_map = new Dictionary<Path_Node<IGoal>, Entity> { { node_map[start], inital_target } };
             List<Path_Node<IGoal>> closed_set = new List<Path_Node<IGoal>>();
             SimplePriorityQueue<Path_Node<IGoal>, int> open_set = new SimplePriorityQueue<Path_Node<IGoal>, int>();
@@ -67,7 +67,7 @@ namespace HighKings
                     {
                         continue;
                     }
-                    if (Mathf.CeilToInt(e.modifier) * e.node.data.Adversion(source, inital_target) <= 0)
+                    if (Mathf.CeilToInt(e.modifier) * e.node.data.Adversion(source, inital_target) <= 0 || e.node.data.Achieved(source,target))
                     {
                         continue;
                     }
@@ -101,22 +101,22 @@ namespace HighKings
         /// <param name="end"></param>
         /// <param name="source"></param>
         /// <param name="inital_target"></param>
-        public DjkistraGoal(FullGoalMap map, IGoal start, IGoal end, Entity source, Entity inital_target)
+        public DjkistraGoal(Dictionary<IGoal, Path_Node<IGoal>> map, IGoal start, IGoal end, Entity source, Entity inital_target)
         {
-            if (map.HasGoal(start) == false)
+            if (map.ContainsKey(start) == false)
             {
                 Debug.LogError("Goal Map has no start");
                 return;
             }
 
-            if(map.HasGoal(end) == false)
+            if(map.ContainsKey(end) == false)
             {
                 Debug.LogError("Goal Map has no end");
                 return;
             }
 
             Entity target = inital_target;
-            Dictionary<IGoal, Path_Node<IGoal>> node_map = map.graph;
+            Dictionary<IGoal, Path_Node<IGoal>> node_map = map;
             target_map = new Dictionary<Path_Node<IGoal>, Entity> { { node_map[start], inital_target } };
             List<Path_Node<IGoal>> closed_set = new List<Path_Node<IGoal>>();
             SimplePriorityQueue<Path_Node<IGoal>, int> open_set = new SimplePriorityQueue<Path_Node<IGoal>, int>();
@@ -149,7 +149,7 @@ namespace HighKings
                     {
                         continue;
                     }
-                    if (Mathf.CeilToInt(e.modifier) * e.node.data.Adversion(source, inital_target) <= 0)
+                    if (Mathf.CeilToInt(e.modifier) * e.node.data.Adversion(source, inital_target) <= 0 || e.node.data.Achieved(source,target))
                     {
                         continue;
                     }

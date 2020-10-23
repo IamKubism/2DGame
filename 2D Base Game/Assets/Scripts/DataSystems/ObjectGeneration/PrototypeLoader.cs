@@ -258,7 +258,7 @@ namespace HighKings
                 }
                 foreach (JToken tag in tags)
                 {
-                    ActionList.instance.AddTagged(tag.ToString(), action);
+                    ActionList.instance.AddTagged(tag.Value<string>(), action);
                 }
             }
         }

@@ -1,58 +1,115 @@
 {
-    "prototypes": {
-        "character": {
-            "components": {
-                "Position": {
-                },
-                "RenderComponent": {
-                    "data": {
-                        "layer_name": "Characters",
-                        "sprite_name": "charSprite"
-                    }
-                },
-                "SelectionComponent": {
-                    "data": {
-                        "priority": 0
-                    }
-                },
-                "Health": {
-                },
-				"Conscious":{}
-            }
-        },
-        "test_char_1": {
-            "extends": "character",
-            "components": {
-                "Health": {
-                    "data": {
-                        "curr_value": 200,
-                        "base_value": 200
-                    }
-                },
-                "Strength": {
-                    "data": {
-                        "curr_value": 20,
-                        "base_value": 20
-                    }
-                }
-            }
-        },
-        "test_char_2": {
-            "extends": "character",
-            "components": {
-                "Health": {
-                    "data": {
-                        "curr_value": 150,
-                        "base_value": 150
-                    }
-                },
-                "Strength": {
-                    "data": {
-                        "curr_value": 15,
-                        "base_value": 15
-                    }
-                }
-            }
-        }
-    }
+	"components": {
+		"BaseDamage": {
+			"namespace": "Default",
+			"type": "BaseStatistic",
+			"data": {
+				"stat_name": "BaseDamage",
+				"curr_value": 10,
+				"base_value": 10
+			}
+		},
+		"ActivationDistance": {
+			"namespace": "Default",
+			"type": "BaseStatistic",
+			"data": {
+				"stat_name": "ActivationDistance",
+				"curr_value": 1,
+				"base_value": 1
+			}
+		},
+		"BluntResistance":{
+			"namespace":"Default",
+			"type": "BaseStatistic",
+			"data":{
+				"stat_name":"BluntResistance",
+				"curr_value":0,
+				"base_value":0
+			}
+		}
+	},
+	"prototypes": {
+		"character": {
+			"components": {
+				"Position": {},
+				"RenderComponent": {
+					"data": {
+						"layer_name": "Characters",
+						"sprite_name": "charSprite"
+					}
+				},
+				"SelectionComponent": {
+					"data": {
+						"priority": 0
+					}
+				},
+				"Health": {},
+				"Conscious": {},
+				"MoveArea":{},
+				"BluntResistance":{}
+			}
+		},
+		"test_char_1": {
+			"extends": "character",
+			"components": {
+				"Health": {
+					"data": {
+						"curr_value": 200,
+						"base_value": 200
+					}
+				},
+				"Strength": {
+					"data": {
+						"curr_value": 20,
+						"base_value": 20
+					}
+				},
+				"BluntResistance":{
+					"data":{
+						"curr_value":10,
+						"base_value":10
+					}
+				}
+			}
+		},
+		"test_char_2": {
+			"extends": "character",
+			"components": {
+				"Health": {
+					"data": {
+						"curr_value": 150,
+						"base_value": 150
+					}
+				},
+				"Strength": {
+					"data": {
+						"curr_value": 15,
+						"base_value": 15
+					}
+				},
+				"BluntResistance":{
+					"data":{
+						"curr_value":5,
+						"base_value":5
+					}
+				}
+			}
+		},
+		"attack": {
+			"components": {
+				"BaseDamage": {
+					"data": {
+						"curr_value": 1,
+						"base_value": 1
+					}
+				},
+				"ActivationDistance": {
+					"data": {
+						"curr_value": 2,
+						"base_value": 2
+					}
+				}
+			}
+		}
+	}
 }

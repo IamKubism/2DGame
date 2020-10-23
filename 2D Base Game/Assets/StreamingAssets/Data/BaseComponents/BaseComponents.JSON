@@ -74,6 +74,12 @@
 			"type": "Conscious",
 			"data":{
 			}
+		},
+		"MoveArea":{
+			"namespace": "Default",
+			"type": "MoveArea",
+			"data":{
+			}
 		}
     }
 }

@@ -83,10 +83,6 @@ namespace HighKings
         {
         }
 
-        Dictionary<string, Tuple<int, int>> IGoal.ValuesToPass(Entity source, Entity target, IGoal prev_goal)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
 

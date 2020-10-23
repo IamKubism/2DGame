@@ -9,9 +9,7 @@ namespace HighKings
     public class Movers : IUpdater, ISystemAdder
     {
         public static Movers instance;
-
         ComponentSubscriberSystem<Position> positions;
-
         public Dictionary<Entity, Position> entity_positions;
 
         /// <summary>
@@ -38,6 +36,12 @@ namespace HighKings
                 instance = this;
             }
             PrototypeLoader.instance.AddSystemLoc("movers", this);
+            ComponentSubscriberSystem<MoveArea> dest_tiles = MainGame.instance.GetSubscriberSystem<MoveArea>();
+            dest_tiles.RegisterOnAdded((es) =>
+            {
+                dest_tiles.SubscribeAfterAction(es, MoverPathMaker, "MoverPathMaker");
+                dest_tiles.SubscribeBeforeAction(es, CancelMove, "CancelMove");
+            });
         }
 
         public void Update(float dt)
@@ -60,7 +64,7 @@ namespace HighKings
 
                 } else
                 {
-                    to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>("Position"), epf.Value.a, epf.Value.b.curr));
+                    to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>(), epf.Value.a, epf.Value.b.curr));
                     disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
                 }
             }
@@ -255,15 +259,17 @@ namespace HighKings
 
         }
 
+        public void MoverPathMaker(Entity e, MoveArea m)
+        {
+            if (m.tile_entities == null)
+                return;
+            if (m.tile_entities.Count == 0)
+                return;
+            MoverPathMaker(m.tile_entities, e);
+        }
+
         public static void MoverPathMaker(Entity source, Entity target)
         {
-            //if (!source.HasComponent("PhysicalActive"))
-            //{
-            //    Debug.LogError($"{source.entity_string_id} does not have a PhysicalActive flag");
-            //    return;
-            //}
-
-            //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = MovementCalculator.test_calculator;
 
             Position end_p = target.GetComponent<Position>("Position");
@@ -306,15 +312,21 @@ namespace HighKings
             MoverPathMaker(source, World.instance.GetTileFromCoords(source.GetComponent<Position>("Position").p));
         }
 
+        public void CancelMove(Entity e, MoveArea m)
+        {
+            if (paths.ContainsKey(e))
+            {
+                paths.Remove(e);
+            }
+        }
+
         void AddToMoverProgress(Entity e, ItemVector<Position, FloatMinMax> pf)
         {
-            //e.GetComponent<FlagComponent>("PhysicalActive").SetActive();
             mover_progress.Add(e, pf);
         }
 
         void RemoveFromMoverProgress(Entity e)
         {
-            //e.GetComponent<FlagComponent>("PhysicalActive").SetInactive();
             mover_progress.Remove(e);
         }
 

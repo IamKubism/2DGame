@@ -37,8 +37,6 @@ namespace HighKings
             parent = conscious.parent;
             goals = new List<IGoal>(conscious.goals);
             goal_targets = new Dictionary<IGoal, Entity>(conscious.goal_targets);
-            //goals.Add(FullGoalMap.instance["NoGoal"]);
-            //goal_targets.Add(goals[0], parent);
         }
 
         public Conscious(Entity parent, Conscious conscious)
@@ -60,12 +58,13 @@ namespace HighKings
             goal_targets = new Dictionary<IGoal, Entity>();
         }
 
-        public void SetGoals(Entity target)
+        public void SetGoals(Entity target, bool call_listeners = false)
         {
-            listener.OperateBeforeOnComp();
-            DjkistraGoal decision = new DjkistraGoal(FullGoalMap.instance, goals[goals.Count - 1], parent, target);
+            if(call_listeners)
+                listener.OperateBeforeOnComp();
+            DjkistraGoal decision = new DjkistraGoal(FullGoalMap.instance.graph, goals[goals.Count - 1], parent, target);
             Dictionary<IGoal, Entity> target_map = decision.TargetMap();
-            foreach(IGoal goal in decision.GetPath())
+            foreach (IGoal goal in decision.GetPath())
             {
                 if (goals.Contains(goal))
                 {
@@ -79,7 +78,8 @@ namespace HighKings
                 goal_targets.Add(goal, target_map[goal]);
                 goal.Assign(parent, target_map[goal]);
             }
-            listener.OperateAfterOnComp();
+            if(call_listeners)
+                listener.OperateAfterOnComp();
         }
 
         public void SetGoal(IGoal goal, Entity target)
@@ -96,9 +96,11 @@ namespace HighKings
             listener.OperateAfterOnComp();
         }
 
-        public void CheckGoalsForward()
+        public bool CheckGoalsForward(bool call_listeners = false)
         {
-            listener.OperateBeforeOnComp();
+            bool eval = false;
+            if(call_listeners)
+                listener.OperateBeforeOnComp();
             if (goals.Count > 0)
             {
                 int i = 0;
@@ -106,6 +108,7 @@ namespace HighKings
                 {
                     if (goals[i].Achieved(parent, goal_targets[goals[i]]))
                     {
+                        eval = true;
                         goal_targets.Remove(goals[i]);
                         goals.RemoveAt(i);
                         while (i < goals.Count)
@@ -120,7 +123,9 @@ namespace HighKings
                     }
                 }
             }
-            listener.OperateAfterOnComp();
+            if(call_listeners)
+                listener.OperateAfterOnComp();
+            return eval;
         }
 
         public void ReEvaluate()

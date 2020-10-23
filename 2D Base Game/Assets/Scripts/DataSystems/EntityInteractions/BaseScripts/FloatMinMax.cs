@@ -36,6 +36,14 @@ public class FloatMinMax
         this.dt_mod = dt_mod;
     }
 
+    public FloatMinMax(FloatMinMax fl)
+    {
+        curr = fl.curr;
+        max = fl.max;
+        min = fl.min;
+        dt_mod = fl.dt_mod;
+    }
+
     public bool IsOverMax()
     {
         return curr >= max;

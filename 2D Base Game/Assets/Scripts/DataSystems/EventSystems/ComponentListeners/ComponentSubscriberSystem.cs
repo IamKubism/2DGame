@@ -177,8 +177,22 @@ namespace HighKings
         {
             foreach(Entity e in components)
             {
-                events[e].RemoveAfterAction(action);
+                if(events.ContainsKey(e))
+                    events[e].RemoveAfterAction(action);
             }
+        }
+
+        public void UnsubscribeAfterAction(Entity entity, string action)
+        {
+            if(events.ContainsKey(entity))
+                events[entity].RemoveAfterAction(action);
+        }
+
+        public void UnsubscribeAfterAction(string entity, string action)
+        {
+            if(EntityManager.instance.GetEntityFromId(entity) != null)
+                if(events.ContainsKey(EntityManager.instance.GetEntityFromId(entity)))
+                    events[EntityManager.instance.GetEntityFromId(entity)].RemoveAfterAction(action);
         }
 
         public void SubscribeBeforeAction(List<Entity> entities, Action<Entity,T> action, string action_name)

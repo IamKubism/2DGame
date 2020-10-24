@@ -56,6 +56,11 @@ namespace HighKings
                 this.subscriber = (SubscriberEvent<RenderComponent>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<RenderComponent>));
             }
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
 

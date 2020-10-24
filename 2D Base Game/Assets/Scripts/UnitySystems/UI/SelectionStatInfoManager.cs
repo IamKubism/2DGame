@@ -14,7 +14,7 @@ namespace HighKings
         public Vector2 padding;
         public GameObject stat_prefab;
         public List<InspectorData> display_queue;
-        public Entity active_entity;
+        public string active_entity;
 
         void Awake()
         {
@@ -53,23 +53,24 @@ namespace HighKings
 
         public void MakeStatDisplays(Entity e)
         {
-            if(active_entity != null)
+            if(active_entity != "NULL")
             {
                 for (int i = active_stats.Count; i > 0; i -= 1)
                 {
                     GameObject obj = active_stats[i - 1];
-                    MainGame.instance.GetSubscriberSystem<BaseStatistic>(obj.GetComponent<InspectorDisplay>().component_name).UnsubscribeAfterAction(new List<Entity> { active_entity }, "UpdateStatDisplay");
+                    MainGame.instance.GetSubscriberSystem<BaseStatistic>(obj.GetComponent<InspectorDisplay>().component_name).UnsubscribeAfterAction(active_entity, "UpdateStatDisplay");
                     active_stats.Remove(obj);
                     Destroy(obj);
                 }
             }
-            active_entity = e;
             if(e == null)
             {
+                active_entity = "NULL";
                 return;
             }
             for(int j = 0; j < display_queue.Count; j += 1)
             {
+                active_entity = e.entity_string_id;
                 if (e.HasComponent(display_queue[j].component_name))
                 {
                     active_stats.Add(MakeStatBarDisplay(stat_prefab, e, e.GetComponent<BaseStatistic>(display_queue[j].component_name), display_queue[j]));

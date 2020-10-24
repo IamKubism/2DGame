@@ -30,6 +30,7 @@ namespace HighKings
         PrototypeLoader prototype_loader;
         SystemLoader system_loader;
         FullGoalMap goals;
+        public Dictionary<string, ITriggeredUpdater> triggered_updaters;
 
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
@@ -37,6 +38,8 @@ namespace HighKings
         public Dictionary<string, InspectorData> display_data;
 
         public ActionList action_list;
+
+        public static float turn_time = 1f;
 
         /// <summary>
         /// Current World that player controlled characters are in. It is the mediator for all area based systems.
@@ -61,7 +64,7 @@ namespace HighKings
             entity_manager = EntityManager.instance ?? new EntityManager();
             action_list = ActionList.instance ?? new ActionList();
             goals = FullGoalMap.instance ?? new FullGoalMap();
-
+            triggered_updaters = new Dictionary<string, ITriggeredUpdater>();
 
             //Load All systems
             systems = new Dictionary<string, object>();
@@ -81,25 +84,34 @@ namespace HighKings
         {
             Dictionary<string, Entity> cplayer =  entity_manager.CreateEntities("character", new string[1] { "test_char_1_" + entity_num });
             Dictionary<Entity, Dictionary<string, object[]>> entities = new Dictionary<Entity, Dictionary<string, object[]>>
-            { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {51,51,0 } } } } };
+            { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {64,64,0 } } } } };
             prototype_loader.AttachPrototype("test_char_1", entities);
             cplayer =  entity_manager.CreateEntities("character", new string[1] { "test_char_2_" + entity_num });
             entities = new Dictionary<Entity, Dictionary<string, object[]>>
-            { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {52,51,0 } } } } };
+            { { cplayer.Values.ToArray()[0], new Dictionary<string, object[]>{ {"Position", new object[3] {62,61,0 } } } } };
             prototype_loader.AttachPrototype("test_char_2", entities);
             game_started = true;
         }
 
         public void Update(float dt)
         {
+            turn_time -= dt;
             Movers.instance.Update(dt);
+            if(turn_time <= 0)
+            {
+                foreach(ITriggeredUpdater updates in triggered_updaters.Values)
+                {
+                    updates.Update();
+                }
+                turn_time = 1f;
+            }
         }
 
         public void AddComponentSubscribers(string component_name, object o)
         {
             if (component_subscribers.ContainsKey(component_name))
             {
-                Debug.LogError($"Tried to add subscriber system for {component_name}");
+                Debug.LogError($"Tried to add subscriber system for {component_name} twice");
                 return;
             }
             component_subscribers.Add(component_name + "_subscriber", o);

@@ -31,7 +31,6 @@ public class GameController : MonoBehaviour
 
     public MouseController mouseController;
     public WorldController world_controller;
-    public BuildModeController buildModeController;
     public PrototypeLoader prototype_loader;
 
     public SelectionStatInfoManager selection_info;
@@ -39,13 +38,16 @@ public class GameController : MonoBehaviour
     //Sprite Managers
     public SpriteManager sprite_manager;
 
-    public List<LoadPath> dataLoadPaths;
+    public List<LoadPath> data_load_paths;
     public List<LoadPath> prototype_load_paths;
-    public List<LoadPath> luaLoadPaths;
+    public List<LoadPath> lua_load_paths;
+
+    static float time_mod;
 
     // Start is called before the first frame update
     void OnEnable()
     {
+        time_mod = 1f;
         json_parser = JsonParser.instance ?? new JsonParser();
 
         string initPath = System.IO.Path.Combine(Application.streamingAssetsPath, "Data");
@@ -104,29 +106,12 @@ public class GameController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        game.Update(Time.deltaTime);
+        game.Update(Time.deltaTime*time_mod);
     }
 
-    public void DebugUnsuspendJob()
+    public void SetTimeMod(float time_mod)
     {
-    }
-
-    void DoDictionaryLoading()
-    {
-        foreach (LoadPath l in dataLoadPaths)
-        {
-            string path = l.MakePathFromRoot(System.IO.Path.Combine(Application.streamingAssetsPath,"Data"));
-            //game.SetUpAllPrototypes(System.IO.File.ReadAllText(path), l.Type, jsonParser);
-        }
-    }
-
-    void DoLUAPaths()
-    {
-        foreach (LoadPath l in dataLoadPaths)
-        {
-            string path = l.MakePathFromRoot(System.IO.Path.Combine(Application.streamingAssetsPath, "LUA"));
-            //game.SetUpAllPrototypes(System.IO.File.ReadAllText(path), l.Type, jsonParser);
-        }
+        GameController.time_mod = time_mod;
     }
 }
 

@@ -19,5 +19,10 @@ namespace HighKings
         {
             listener = (SubscriberEvent<ActiveAttack>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<ActiveAttack>));
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

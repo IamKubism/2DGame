@@ -86,7 +86,7 @@ namespace HighKings {
         public void RemoveFromAllSubscribers()
         {
             Type subscriber_type = typeof(ComponentSubscriberSystem<>);
-            MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem");
+            MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem", new Type[1] { typeof(string) });
             foreach(KeyValuePair<string, IBaseComponent> comps in components)
             {
                 MethodInfo remove_method = subscriber_type.MakeGenericType(new Type[1] { comps.Value.GetType() }).GetMethod("RemoveEntity");
@@ -96,6 +96,27 @@ namespace HighKings {
                 remove_method.Invoke( subs, new object[1] { this });
                 //Debug.Log($"Removed {entity_string_id} from {comps.Key}");
             }
+        }
+
+        public static EntityManager Manager()
+        {
+            return EntityManager.instance;
+        }
+
+        public static void Destroy(Entity e)
+        {
+            e.RemoveFromAllSubscribers();
+            Manager().DestroyEntity(e);
+        }
+
+        public static bool Exists(Entity e)
+        {
+            return Manager().CheckExistance(e);
+        }
+
+        internal void Deconstructor()
+        {
+            throw new NotImplementedException();
         }
     }
 }

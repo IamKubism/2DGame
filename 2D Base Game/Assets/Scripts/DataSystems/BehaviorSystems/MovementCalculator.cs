@@ -82,7 +82,7 @@ namespace HighKings
         public static void SetTestCalculator()
         {
             test_calculator = new MovementCalculator();
-            test_calculator.SetComputation<Terrain>(
+            test_calculator.SetComputation<TileTerrain>(
             (t) =>
             {
                 return t.move_cost;

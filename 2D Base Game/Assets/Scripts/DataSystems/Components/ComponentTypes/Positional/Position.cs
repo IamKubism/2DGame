@@ -284,5 +284,10 @@ namespace HighKings
                 this.subscriber = (SubscriberEvent<Position>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<Position>));
             }
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

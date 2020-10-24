@@ -9,6 +9,7 @@ namespace HighKings
     public interface IBaseComponent
     {
         void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent;
+        bool Trigger(Event e);
     }
 
     //public static class BaseCompSys

@@ -12,7 +12,7 @@ namespace HighKings
         SubscriberEvent<EntityType> listener;
 
         [JsonProperty]
-        public string type_name { get; protected set; }
+        public string type_name;
 
         public EntityType()
         {
@@ -46,6 +46,11 @@ namespace HighKings
         public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
         {
             listener = (SubscriberEvent<EntityType>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<EntityType>));
+        }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

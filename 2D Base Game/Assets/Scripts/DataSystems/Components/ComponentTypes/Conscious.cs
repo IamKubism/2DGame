@@ -82,9 +82,10 @@ namespace HighKings
                 listener.OperateAfterOnComp();
         }
 
-        public void SetGoal(IGoal goal, Entity target)
+        public void SetGoal(IGoal goal, Entity target, bool call_listeners = false)
         {
-            listener.OperateBeforeOnComp();
+            if(call_listeners)
+                listener.OperateBeforeOnComp();
             if (goal_targets.ContainsKey(goal))
             {
                 Debug.LogError("Cannot have cyclic goals");
@@ -93,7 +94,8 @@ namespace HighKings
             goals.Add(goal);
             goal_targets.Add(goal, target);
             goal.Assign(parent, target);
-            listener.OperateAfterOnComp();
+            if(call_listeners)
+                listener.OperateAfterOnComp();
         }
 
         public bool CheckGoalsForward(bool call_listeners = false)
@@ -139,6 +141,11 @@ namespace HighKings
         public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
         {
             listener = (SubscriberEvent<Conscious>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<Conscious>));
+        }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

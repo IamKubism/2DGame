@@ -56,6 +56,11 @@ namespace HighKings
             listener = (SubscriberEvent<MoveArea>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<MoveArea>));
         }
 
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public static implicit operator MoveArea(Entity e)
         {
             return new MoveArea(e);

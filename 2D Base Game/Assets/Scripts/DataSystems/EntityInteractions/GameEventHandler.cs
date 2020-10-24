@@ -9,22 +9,22 @@ namespace HighKings
         public class EventQueue
         {
             public Entity target;
-            public List<EntityEvent> discrete_events;
-            public List<EntityEvent> continuous_events;
+            public List<HighKings.EventQueue> discrete_events;
+            public List<HighKings.EventQueue> continuous_events;
             public FloatMinMax continuous_time;
 
             public EventQueue()
             {
-                discrete_events = new List<EntityEvent>();
-                continuous_events = new List<EntityEvent>();
+                discrete_events = new List<HighKings.EventQueue>();
+                continuous_events = new List<HighKings.EventQueue>();
                 continuous_time = new FloatMinMax();
             }
 
             public EventQueue(Entity target)
             {
-                discrete_events = new List<EntityEvent>();
+                discrete_events = new List<HighKings.EventQueue>();
                 continuous_time = new FloatMinMax();
-                continuous_events = new List<EntityEvent>();
+                continuous_events = new List<HighKings.EventQueue>();
                 this.target = target;
             }
 
@@ -40,7 +40,7 @@ namespace HighKings
                 }
             }
 
-            public void AddEvent(EntityEvent discrete_event, EntityEvent continuous_event, int turn)
+            public void AddEvent(HighKings.EventQueue discrete_event, HighKings.EventQueue continuous_event, int turn)
             {
 
             }

@@ -25,7 +25,7 @@ namespace HighKings
 
         public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
         {
-            if (typeof(T) != this.GetType())
+            if (typeof(T) != GetType())
             {
                 Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
             }
@@ -33,6 +33,11 @@ namespace HighKings
             {
                 this.subscriber = (SubscriberEvent<SelectionComponent>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<SelectionComponent>));
             }
+        }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

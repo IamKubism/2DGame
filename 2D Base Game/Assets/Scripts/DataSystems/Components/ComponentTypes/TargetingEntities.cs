@@ -97,5 +97,10 @@ namespace HighKings
         {
             listener = (SubscriberEvent<TargetingEntities>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<TargetingEntities>));
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

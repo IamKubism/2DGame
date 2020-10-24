@@ -85,6 +85,11 @@ namespace HighKings
                 this.subscriber_event = (SubscriberEvent<FlagComponent>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<FlagComponent>));
             }
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
 

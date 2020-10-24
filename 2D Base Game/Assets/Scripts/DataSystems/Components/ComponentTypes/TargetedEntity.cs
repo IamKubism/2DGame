@@ -43,14 +43,28 @@ namespace HighKings
             return targeted_entity;
         }
 
-        public void SetTargetedEntity(Entity e)
+        public void SetTargetedEntity(Entity e, bool call_listeners)
         {
-
+            if (call_listeners)
+                listener.OperateBeforeOnComp();
+            targeted_entity = e;
+            if (call_listeners)
+                listener.OperateAfterOnComp();
         }
 
         public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
         {
             listener = (SubscriberEvent<TargetedEntity>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<TargetedEntity>));
+        }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public static implicit operator Entity(TargetedEntity e)
+        {
+            return e.targeted_entity;
         }
     }
 }

@@ -81,7 +81,7 @@ namespace HighKings
             return to_return;
         }
 
-        public Dictionary<string,Entity> GrabEntities(string type, string[] ids)
+        public Dictionary<string,Entity> GetEntities(string type, string[] ids)
         {
             Dictionary<string, Entity> temp = new Dictionary<string, Entity>(ids.Length);
             foreach (string s in ids)
@@ -127,6 +127,21 @@ namespace HighKings
             }
             Debug.LogWarning($"Could not find entity with id {id}");
             return null;
+        }
+
+        public bool CheckExistance(Entity e)
+        {
+            return string_id_to_entity.ContainsKey(e.entity_string_id);
+        }
+
+        public bool CheckExistance(string key)
+        {
+            return string_id_to_entity.ContainsKey(key);
+        }
+
+        public Entity this[string s]
+        {
+            get => GetEntityFromId(s);
         }
 
         /// <summary>

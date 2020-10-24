@@ -1,115 +1,91 @@
 {
-	"components": {
-		"BaseDamage": {
-			"namespace": "Default",
-			"type": "BaseStatistic",
-			"data": {
-				"stat_name": "BaseDamage",
-				"curr_value": 10,
-				"base_value": 10
-			}
-		},
-		"ActivationDistance": {
-			"namespace": "Default",
-			"type": "BaseStatistic",
-			"data": {
-				"stat_name": "ActivationDistance",
-				"curr_value": 1,
-				"base_value": 1
-			}
-		},
-		"BluntResistance":{
-			"namespace":"Default",
-			"type": "BaseStatistic",
-			"data":{
-				"stat_name":"BluntResistance",
-				"curr_value":0,
-				"base_value":0
-			}
-		}
-	},
-	"prototypes": {
-		"character": {
-			"components": {
-				"Position": {},
-				"RenderComponent": {
-					"data": {
-						"layer_name": "Characters",
-						"sprite_name": "charSprite"
-					}
-				},
-				"SelectionComponent": {
-					"data": {
-						"priority": 0
-					}
-				},
-				"Health": {},
-				"Conscious": {},
-				"MoveArea":{},
-				"BluntResistance":{}
-			}
-		},
-		"test_char_1": {
-			"extends": "character",
-			"components": {
-				"Health": {
-					"data": {
-						"curr_value": 200,
-						"base_value": 200
-					}
-				},
-				"Strength": {
-					"data": {
-						"curr_value": 20,
-						"base_value": 20
-					}
-				},
-				"BluntResistance":{
-					"data":{
-						"curr_value":10,
-						"base_value":10
-					}
-				}
-			}
-		},
-		"test_char_2": {
-			"extends": "character",
-			"components": {
-				"Health": {
-					"data": {
-						"curr_value": 150,
-						"base_value": 150
-					}
-				},
-				"Strength": {
-					"data": {
-						"curr_value": 15,
-						"base_value": 15
-					}
-				},
-				"BluntResistance":{
-					"data":{
-						"curr_value":5,
-						"base_value":5
-					}
-				}
-			}
-		},
-		"attack": {
-			"components": {
-				"BaseDamage": {
-					"data": {
-						"curr_value": 1,
-						"base_value": 1
-					}
-				},
-				"ActivationDistance": {
-					"data": {
-						"curr_value": 2,
-						"base_value": 2
-					}
-				}
-			}
-		}
-	}
+    "prototypes": {
+        "attack": {
+            "components": {
+                "ActivationDistance": {
+                    "data": {
+                        "base_value": 2,
+                        "curr_value": 2
+                    }
+                },
+                "BaseDamage": {
+                    "data": {
+                        "base_value": 1,
+                        "curr_value": 1
+                    }
+                }
+            }
+        },
+        "character": {
+            "components": {
+                "BluntResistance": {},
+                "Conscious": {},
+                "EntityType": {
+                    "data": {
+                        "type_name": "character"
+                    }
+                },
+                "Health": {},
+                "MoveArea": {},
+                "Position": {},
+                "RenderComponent": {
+                    "data": {
+                        "layer_name": "Characters",
+                        "sprite_name": "charSprite"
+                    }
+                },
+                "SelectionComponent": {
+                    "data": {
+                        "priority": 0
+                    }
+                }
+            }
+        },
+        "test_char_1": {
+            "components": {
+                "BluntResistance": {
+                    "data": {
+                        "base_value": 10,
+                        "curr_value": 10
+                    }
+                },
+                "Health": {
+                    "data": {
+                        "base_value": 200,
+                        "curr_value": 200
+                    }
+                },
+                "Strength": {
+                    "data": {
+                        "base_value": 20,
+                        "curr_value": 20
+                    }
+                }
+            },
+            "extends": "character"
+        },
+        "test_char_2": {
+            "components": {
+                "BluntResistance": {
+                    "data": {
+                        "base_value": 5,
+                        "curr_value": 5
+                    }
+                },
+                "Health": {
+                    "data": {
+                        "base_value": 150,
+                        "curr_value": 150
+                    }
+                },
+                "Strength": {
+                    "data": {
+                        "base_value": 15,
+                        "curr_value": 15
+                    }
+                }
+            },
+            "extends": "character"
+        }
+    }
 }

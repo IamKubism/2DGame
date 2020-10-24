@@ -36,6 +36,11 @@ namespace HighKings
         {
             target.GetComponent<BaseStatistic>("Health").IncrementCurr(-source.GetComponent<BaseStatistic>("Strength").curr_value);
         }
+
+        public static void TakeDamage(Entity target, int amount)
+        {
+            target.GetComponent<BaseStatistic>("Health").IncrementCurr(-amount);
+        }
     }
 }
 

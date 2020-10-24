@@ -1,85 +1,117 @@
 {
     "components": {
-        "Position": {
+        "ActivationDistance": {
+            "data": {
+                "base_value": 1,
+                "curr_value": 1,
+                "stat_name": "ActivationDistance"
+            },
             "namespace": "Default",
-            "type": "Position",
+            "type": "BaseStatistic"
+        },
+        "BaseDamage": {
+            "data": {
+                "base_value": 10,
+                "curr_value": 10,
+                "stat_name": "BaseDamage"
+            },
+            "namespace": "Default",
+            "type": "BaseStatistic"
+        },
+        "BluntResistance": {
+            "data": {
+                "base_value": 0,
+                "curr_value": 0,
+                "stat_name": "BluntResistance"
+            },
+            "namespace": "Default",
+            "type": "BaseStatistic"
+        },
+        "Conscious": {
+            "data": {},
+            "namespace": "Default",
+            "type": "Conscious"
+        },
+        "EntityType": {
+            "data": {
+                "type_name": "NULL"
+            },
+            "namespace": "Default",
+            "type": "EntityType"
+        },
+        "Health": {
+            "data": {
+                "base_value": 100,
+                "curr_value": 100,
+                "stat_name": "Health"
+            },
+            "inspector_display": {
+                "default_position": 0,
+                "display_name": "Health",
+                "type": "bar"
+            },
+            "namespace": "Default",
+            "type": "BaseStatistic"
+        },
+        "MoveArea": {
+            "data": {},
+            "namespace": "Default",
+            "type": "MoveArea"
+        },
+        "PhysicalActive": {
+            "data": {
+                "active": true,
+                "flag_name": "PhysicalActive"
+            },
+            "namespace": "Default",
+            "type": "FlagComponent"
+        },
+        "Position": {
             "data": {
                 "tile": {
                     "x": 0,
                     "y": 0,
                     "z": 0
                 }
-            }
-        },
-        "Terrain": {
+            },
             "namespace": "Default",
-            "type": "Terrain",
-            "data": {
-                "move_cost": -1
-            }
+            "type": "Position"
         },
         "RenderComponent": {
-            "namespace": "Default",
-            "type": "RenderComponent",
             "data": {
-                "sprite_name": "NULL", 
-                "layer_name": "NULL"
-            }
+                "layer_name": "NULL",
+                "sprite_name": "NULL"
+            },
+            "namespace": "Default",
+            "type": "RenderComponent"
         },
         "SelectionComponent": {
-            "namespace": "Default",
-            "type": "SelectionComponent",
             "data": {
                 "priority": 100
-            }
-        },
-        "Health": {
-            "namespace": "Default",
-            "type": "BaseStatistic",
-            "inspector_display": {
-                "default_position": 0,
-                "type": "bar",
-                "display_name": "Health"
             },
-            "data": {
-                "stat_name": "Health",
-                "curr_value": 100,
-                "base_value": 100
-            }
+            "namespace": "Default",
+            "type": "SelectionComponent"
         },
         "Strength": {
-            "namespace": "Default",
-            "type": "BaseStatistic",
+            "data": {
+                "base_value": 10,
+                "curr_value": 10,
+                "stat_name": "Strength"
+            },
             "inspector_display": {
                 "default_position": 2,
-                "type": "bar",
-                "display_name": "Strength"
+                "display_name": "Strength",
+                "type": "bar"
             },
-            "data": {
-                "stat_name": "Strength",
-                "curr_value": 10,
-                "base_value": 10
-            }
+            "namespace": "Default",
+            "type": "BaseStatistic"
         },
-		"PhysicalActive":{
-			"namespace":"Default",
-			"type":"FlagComponent",
-			"data":{
-				"flag_name": "PhysicalActive",
-				"active": true
-			}
-		},
-		"Conscious":{
-			"namespace": "Default",
-			"type": "Conscious",
-			"data":{
-			}
-		},
-		"MoveArea":{
-			"namespace": "Default",
-			"type": "MoveArea",
-			"data":{
-			}
-		}
+        "TileTerrain": {
+            "data": {
+                "move_cost": -1
+            },
+            "namespace": "Default",
+            "type": "TileTerrain"
+        }
     }
 }

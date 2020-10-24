@@ -13,6 +13,11 @@ namespace HighKings
         {
             listener = (SubscriberEvent<GoalMap>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<GoalMap>));
         }
+
+        public bool Trigger(Event e)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 }

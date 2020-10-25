@@ -56,7 +56,10 @@ namespace HighKings
 
         public object GetParamValue(string key)
         {
-            parameters.TryGetValue(key, out object to_return);
+            if(!parameters.TryGetValue(key, out object to_return))
+            {
+                Debug.LogWarning($"Could not find Key {key} for parameters with event {id}");
+            }
             return to_return;
         }
         

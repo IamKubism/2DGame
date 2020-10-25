@@ -8,14 +8,11 @@ namespace HighKings
     public class InspectorDisplay : MonoBehaviour
     {
         public string display_name;
-
         public string component_name;
-
+        public string component_type;
         public int default_position;
-
         public int position;
-
-        public string type;
+        public string display_type;
 
         void Awake()
         {
@@ -29,7 +26,8 @@ namespace HighKings
             component_name = id.component_name;
             default_position = id.default_position;
             position = id.position;
-            type = id.type;
+            display_type = id.display_type;
+            component_type = id.component_type;
         }
     }
 
@@ -37,16 +35,14 @@ namespace HighKings
     {
         [JsonProperty]
         public string display_name;
-
         [JsonProperty]
         public string component_name;
-
+        [JsonProperty]
+        public string component_type;
         [JsonProperty]
         public int default_position;
-
         public int position;
-
         [JsonProperty]
-        public string type;
+        public string display_type;
     }
 }

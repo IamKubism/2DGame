@@ -56,7 +56,7 @@ namespace HighKings
                 List<JToken> toks = prop.Value["data"].ToList();
                 foreach(JProperty p in toks)
                 {
-                    FieldInfo f = generated_obj.GetType().GetField(p.Name);
+                    FieldInfo f = generated_obj.GetType().GetField(p.Name, PrototypeLoader.field_flags);
                     if(f == null)
                     {
                         Debug.LogError($"Could not find field {p.Name} for component {component_info.component_name}");

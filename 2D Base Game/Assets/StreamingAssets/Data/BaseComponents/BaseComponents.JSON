@@ -51,7 +51,7 @@
                 "type": "bar"
             },
             "namespace": "Default",
-            "type": "BaseStatistic"
+            "type": "Health"
         },
         "MoveArea": {
             "data": {},

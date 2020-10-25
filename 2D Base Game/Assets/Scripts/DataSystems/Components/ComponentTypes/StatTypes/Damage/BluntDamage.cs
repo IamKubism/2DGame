@@ -12,22 +12,24 @@ namespace HighKings
     {
         SubscriberEvent<BluntDamage> listener;
 
-        [JsonProperty]
-        int base_damage;
-
+        Dice d;
         public BluntDamage()
         {
-            base_damage = 0;
+            d = new Dice();
         }
 
         public BluntDamage(BluntDamage prot)
         {
-            base_damage = prot.base_damage;
+            prot.d = new Dice(d);
         }
 
         public BluntDamage(JProperty p)
         {
-            base_damage = p.Value<int>("base_damage");
+            d = new Dice();
+            if(p.Value["dice"] != null)
+            {
+                d = new Dice(p.Value.Value<string>("dice"));
+            }
         }
 
         public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
@@ -35,9 +37,27 @@ namespace HighKings
             listener = (SubscriberEvent<BluntDamage>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<BluntDamage>));
         }
 
+        /// <summary>
+        /// TODO: This kind of thing could be for sure defined in some text document
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            bool eval = true;
+            switch (e.type)
+            {
+                case "DoDamage":
+                    e.AddUpdate(
+                        (v) => {
+                            v.SetParamValue("blunt_damage", new DiceGroup(d));
+                            if(!v.HasParamValue("total_damage"))
+                                v.SetParamValue("total_damage", new DiceGroup());
+                            v.SetParamValue("damage_type", v.GetParamValue("damage_type") + ",blunt");
+                        }, 1);
+                    break;
+            }
+            return eval;
         }
     }
 }

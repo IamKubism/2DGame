@@ -59,7 +59,18 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            switch (e.type)
+            {
+                case "DoDamage":
+                    e.AddUpdate((v) =>
+                    {
+                        EventManager.instance.AddEvent(targeted_entity, new Event(v, "TakeDamage"));
+                    }, 100);
+                    break;
+                default:
+                    break;
+            }
+            return true;
         }
 
         public static implicit operator Entity(TargetedEntity e)

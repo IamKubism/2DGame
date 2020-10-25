@@ -138,7 +138,7 @@ namespace HighKings
             {
                 InspectorData disp = parser.ParseString<InspectorData>(comp_data.Value["inspector_display"].ToString());
                 disp.component_name = comp_name;
-                disp.type = type_name;
+                disp.display_type = type_name;
 
                 MainGame.instance.display_data.Add(comp_name, disp);
             }

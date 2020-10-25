@@ -1215,3 +1215,7 @@ C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assem
 C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp-firstpass.csproj.CopyComplete
 C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp-firstpass.dll
 C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp-firstpass.pdb
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.Purchasing.dll
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.dll
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.pdb
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.Purchasing.pdb

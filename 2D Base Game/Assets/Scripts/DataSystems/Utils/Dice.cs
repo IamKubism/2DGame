@@ -17,46 +17,184 @@ namespace HighKings
             d = 1;
         }
 
-        public Dice(int c, int d)
+        public Dice(int c, int n, int d)
         {
             this.c = c;
-            this.n = 1;
+            this.n = n;
             this.d = d;
         }
 
         public Dice(string s)
         {
-            string[] parsed = s.Split('d');
-            b = int.Parse(parsed[0]);
-            d = new List<int> { int.Parse(parsed[1]) };
+            string[] parsed = s.Split('+','d');
+            c = int.Parse(parsed[0]);
+            n = int.Parse(parsed[1]);
+            d = int.Parse(parsed[2]);
+        }
+
+        public Dice(Dice dice)
+        {
+            c = dice.c;
+            n = dice.n;
+            d = dice.d;
+        }
+
+        public void SetNum(int n)
+        {
+            this.n = n;
+        }
+
+        public void SetSize(int d)
+        {
+            this.d = d;
+        }
+
+        public void SetConst(int c)
+        {
+            this.c = c;
+        }
+
+        public void AddSize(int dd)
+        {
+            d = Mathf.Max(1, d + dd);
+        }
+
+        public void AddDiceNum(int dn)
+        {
+            n = Mathf.Max(0, n+dn);
+        }
+
+        public void AddConst(int dc)
+        {
+            c += dc;
         }
 
         public override string ToString()
         {
-            string s = b.ToString() + "d" + d[0];
-            for(int i = 1; i < d.Count; i += 1)
-            {
-                s += "," + d[i].ToString();
-            }
-
-            return s;
+            return $"{c}+{n}d{d}";
         }
 
-        public static Dice operator +(Dice d1, Dice d2)
+        public static implicit operator int(Dice d)
         {
-            List<int> d = new List<int>(d1.d);
-            d.AddRange(d2.d);
-            return new Dice(d1.b + d2.b, d);
+            return Roll(d);
+        }
+
+        public static List<Dice> operator +(Dice d1, Dice d2)
+        {
+            return new List<Dice> { d1, d2 };
+        }
+
+        public static List<Dice> operator +(List<Dice> ds, Dice d)
+        {
+            ds.Add(d);
+            return ds;
+        }
+
+        public static implicit operator DiceGroup(Dice d)
+        {
+            return new DiceGroup(d);
+        }
+
+        public static List<Dice> ParseDice(string s)
+        {
+            string[] dice = s.Split(',');
+            List<Dice> d = new List<Dice>();
+            foreach (string ds in dice)
+            {
+                d.Add(new Dice(ds));
+            }
+            return d;
         }
 
         public static int Roll(Dice d)
         {
-            int total = d.b;
-            foreach(int i in d.d)
+            int total = d.c;
+            for(int i = 0; i < d.n; i += 1)
             {
-                total += Random.Range(0, i);
+                total += Random.Range(1, d.d+1);
+            }
+            return Mathf.Max(0,total);
+        }
+
+        public static int RollAll(List<Dice> ds)
+        {
+            int total = 0;
+            foreach(Dice d in ds)
+            {
+                total += d;
             }
             return total;
+        }
+    }
+
+    public class DiceGroup
+    {
+        int displacement;
+        List<Dice> group;
+
+        public DiceGroup()
+        {
+            displacement = 0;
+            group = new List<Dice>();
+        }
+
+        public DiceGroup(Dice d)
+        {
+            group = new List<Dice> { d };
+            displacement = 0;
+        }
+
+        public DiceGroup(string s)
+        {
+            group = new List<Dice>();
+            displacement = 0;
+            string[] vals = s.Split('+');
+            int i = 0;
+            if (vals.Length > 1 && vals[i] != "")
+            {
+                displacement = int.Parse(vals[i]);
+                i += 1;
+            }
+            if (vals[i] != "")
+                group = Dice.ParseDice(vals[i]);
+        }
+
+        public DiceGroup(DiceGroup g)
+        {
+            group = new List<Dice>();
+            foreach(Dice d in g.group)
+            {
+                group.Add(new Dice(d));
+            }
+            displacement = g.displacement;
+        }
+
+        public void AddToDisplacement(int disp)
+        {
+            displacement += disp;
+        }
+
+        public static DiceGroup operator +(DiceGroup d1, DiceGroup d2)
+        {
+            DiceGroup c = new DiceGroup(d1);
+            foreach(Dice d in d2.group)
+            {
+                c.group.Add(new Dice(d));
+            }
+            return c;
+        }
+
+        public static DiceGroup operator +(DiceGroup d1, int disp)
+        {
+            DiceGroup c = new DiceGroup(d1);
+            c.displacement += disp;
+            return c;
+        }
+        
+
+        public static implicit operator int(DiceGroup dg)
+        {
+            return Mathf.Max(0,Dice.RollAll(dg.group)+dg.displacement);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace HighKings {
             components = new Dictionary<string, IBaseComponent>();
         }
 
-        public void AddComponent(string id, IBaseComponent comp)
+        public IBaseComponent AddComponent(string id, IBaseComponent comp)
         {
             if (components.ContainsKey(id))
             {
@@ -30,6 +30,7 @@ namespace HighKings {
             {
                 components.Add(id, comp);
             }
+            return comp;
         }
 
         public void RemoveComponent(string id)
@@ -37,9 +38,10 @@ namespace HighKings {
             if (components.ContainsKey(id))
             {
                 components.Remove(id);
-            } else
+            }
+            else
             {
-                Debug.LogError($"Tried to remove a component of type {id} on {entity_string_id} when none exists");
+                Debug.LogWarning($"Tried to remove a component of type {id} on {entity_string_id} when none exists");
             }
         }
 
@@ -50,12 +52,20 @@ namespace HighKings {
 
         public T GetComponent<T>(string comp_name) where T : IBaseComponent
         {
-            return components.ContainsKey(comp_name) ? (T)components[comp_name] : default;
+            if (!components.TryGetValue(comp_name, out IBaseComponent bc))
+            {
+                Debug.LogWarning($"Could not find component {comp_name} for entity {entity_string_id}");
+            }
+            return (T)bc;
         }
 
         public T GetComponent<T>() where T : IBaseComponent
         {
-            return components.ContainsKey(typeof(T).Name) ? (T)components[typeof(T).Name] : default;
+            if (!components.TryGetValue(nameof(T), out IBaseComponent b))
+            {
+                Debug.LogWarning($"Could not find component {nameof(T)} for entity {entity_string_id}");
+            }
+            return (T)b;
         }
 
         public override bool Equals(object obj)
@@ -66,17 +76,16 @@ namespace HighKings {
         public override string ToString()
         {
             string s = entity_string_id;
-            if(components.Count == 0)
+            if (components.Count == 0)
             {
                 s += "No components";
             }
-            foreach(KeyValuePair<string,IBaseComponent> ko in components)
+            foreach (KeyValuePair<string, IBaseComponent> ko in components)
             {
                 s += $"\n {ko.Key}: {ko.Value.ToString()}";
             }
             return s;
         }
-
 
         public override int GetHashCode()
         {
@@ -87,13 +96,13 @@ namespace HighKings {
         {
             Type subscriber_type = typeof(ComponentSubscriberSystem<>);
             MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem", new Type[1] { typeof(string) });
-            foreach(KeyValuePair<string, IBaseComponent> comps in components)
+            foreach (KeyValuePair<string, IBaseComponent> comps in components)
             {
                 MethodInfo remove_method = subscriber_type.MakeGenericType(new Type[1] { comps.Value.GetType() }).GetMethod("RemoveEntity");
                 object subs = get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
                         MainGame.instance,
                         new object[1] { comps.Key });
-                remove_method.Invoke( subs, new object[1] { this });
+                remove_method.Invoke(subs, new object[1] { this });
                 //Debug.Log($"Removed {entity_string_id} from {comps.Key}");
             }
         }
@@ -112,11 +121,6 @@ namespace HighKings {
         public static bool Exists(Entity e)
         {
             return Manager().CheckExistance(e);
-        }
-
-        internal void Deconstructor()
-        {
-            throw new NotImplementedException();
         }
     }
 }

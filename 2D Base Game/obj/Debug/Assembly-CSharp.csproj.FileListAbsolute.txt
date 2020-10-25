@@ -908,3 +908,7 @@ C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp.c
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp.dll
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.Purchasing.dll
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.dll
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.pdb
+C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.Purchasing.pdb

@@ -121,12 +121,11 @@ namespace HighKings
 
         public Entity GetEntityFromId(string id)
         {
-            if (string_id_to_entity.ContainsKey(id))
+            if(!string_id_to_entity.TryGetValue(id, out Entity e))
             {
-                return string_id_to_entity[id];
+                Debug.LogWarning($"Could not find entity with id {id}");
             }
-            Debug.LogWarning($"Could not find entity with id {id}");
-            return null;
+            return e;
         }
 
         public bool CheckExistance(Entity e)

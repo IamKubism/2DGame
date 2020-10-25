@@ -6,11 +6,11 @@ namespace HighKings
 {
     public class HealthSystem
     {
-        ComponentSubscriberSystem<BaseStatistic> healths;
+        ComponentSubscriberSystem<Health> healths;
 
         public HealthSystem()
         {
-            healths = MainGame.instance.GetSubscriberSystem<BaseStatistic>("Health");
+            healths = MainGame.instance.GetSubscriberSystem<Health>();
 
             healths.RegisterOnAdded((entities) =>
             {
@@ -18,12 +18,12 @@ namespace HighKings
             });
         }
 
-        public bool CheckDeath(BaseStatistic health)
+        public bool CheckDeath(Health health)
         {
             return health.curr_value <= 0;
         }
 
-        public void OnDeath(Entity e, BaseStatistic health)
+        public void OnDeath(Entity e, Health health)
         {
             if (CheckDeath(health))
             {

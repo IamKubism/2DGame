@@ -144,14 +144,11 @@ namespace HighKings
 
         public object GetSystem(string system_name)
         {
-            try
+            if(!systems.TryGetValue(system_name, out object sys))
             {
-                return systems[system_name];
-            } catch
-            {
-                Exception e = new NullReferenceException($"Could not find system: {system_name}");
-                return null;
+                Debug.LogWarning($"Could not find system {system_name}");
             }
+            return sys;
         }
 
         //////////////////////////////////////////////////////////////////////////

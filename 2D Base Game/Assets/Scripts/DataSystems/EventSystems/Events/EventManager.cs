@@ -85,7 +85,7 @@ namespace HighKings
             }
         }
 
-        public EventManager instance;
+        public static EventManager instance;
         public Dictionary<string, TurnQueue> turn_pairs;
 
         public EventManager()

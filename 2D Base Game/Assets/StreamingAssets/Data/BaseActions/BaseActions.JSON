@@ -43,6 +43,16 @@
 			]
 		}
 	},
+	"events":{
+		"DoDamage":{
+			"type":"DoDamage",
+			"priority": 10,
+		},
+		"TakeDamage":{
+			"type":"TakeDamage",
+			"priority": 0
+		}
+	}
 	"goals": {
 		"AttackEntity": {
 			"child_nodes": [

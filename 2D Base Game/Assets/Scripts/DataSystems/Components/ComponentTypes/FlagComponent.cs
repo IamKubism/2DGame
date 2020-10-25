@@ -88,7 +88,7 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            return true;
         }
     }
 }

@@ -2,21 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using System;
 
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class BluntResistance : IBaseComponent
     {
-        SubscriberEvent<BluntResistance> listener;
+        public SubscriberEvent subscriber { get; set; }
+
 
         [JsonProperty]
         public int res_val;
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<BluntResistance>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<BluntResistance>));
-        }
 
         public bool Trigger(Event e)
         {
@@ -26,13 +23,18 @@ namespace HighKings
                 case "TakeDamage":
                     e.AddUpdate((v) =>
                     {
-                        v.SetParamValue("blunt_damage", ((DiceGroup)v.GetParamValue("blunt_value"))+(-res_val));
+                        v.SetParamValue("blunt_damage", ((DiceGroup)v.GetParamValue("blunt_damage"))+(-res_val));
                     }, 10);
                     break;
                 default:
                     break;
             }
             return eval;
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 

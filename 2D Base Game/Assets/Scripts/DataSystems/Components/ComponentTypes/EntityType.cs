@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class EntityType : IBaseComponent
     {
-        SubscriberEvent<EntityType> listener;
+        public SubscriberEvent subscriber { get; set; }
 
         [JsonProperty]
         public string type_name;
@@ -37,20 +38,20 @@ namespace HighKings
         public void SetTypeName(string type_name, bool call_listeners)
         {
             if (call_listeners)
-                listener.OperateBeforeOnComp();
+                subscriber.OperateBeforeOnComp();
             this.type_name = type_name;
             if (call_listeners)
-                listener.OperateAfterOnComp();
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<EntityType>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<EntityType>));
+                subscriber.OperateAfterOnComp();
         }
 
         public bool Trigger(Event e)
         {
             throw new System.NotImplementedException();
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

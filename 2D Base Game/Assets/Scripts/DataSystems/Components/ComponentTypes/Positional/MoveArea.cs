@@ -10,7 +10,8 @@ namespace HighKings
     [JsonObject]
     public class MoveArea : IBaseComponent
     {
-        SubscriberEvent<MoveArea> listener;
+        public SubscriberEvent subscriber { get; set; }
+
         public List<Entity> tile_entities;
 
         public MoveArea()
@@ -36,24 +37,19 @@ namespace HighKings
         public void SetMoveTile(Entity e, bool call_listeners = false)
         {
             if (call_listeners)
-                listener.OperateBeforeOnComp();
+                subscriber.OperateBeforeOnComp();
             tile_entities = new List<Entity>{e};
             if (call_listeners)
-                listener.OperateAfterOnComp();
+                subscriber.OperateAfterOnComp();
         }
 
         public void SetMoveTiles(List<Entity> es, bool call_listeners = false)
         {
             if (call_listeners)
-                listener.OperateBeforeOnComp();
+                subscriber.OperateBeforeOnComp();
             tile_entities = new List<Entity>(es);
             if (call_listeners)
-                listener.OperateAfterOnComp();
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<MoveArea>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<MoveArea>));
+                subscriber.OperateAfterOnComp();
         }
 
         public bool Trigger(Event e)

@@ -26,10 +26,22 @@ namespace HighKings
 
         public Dice(string s)
         {
+            c = n = 0; d = 1;
             string[] parsed = s.Split('+','d');
-            c = int.Parse(parsed[0]);
-            n = int.Parse(parsed[1]);
-            d = int.Parse(parsed[2]);
+            int i = 0;
+            if (s.Contains("+"))
+            {
+                if(parsed[i] != "")
+                    c = int.Parse(parsed[i]);
+                i += 1;
+            }
+            if (s.Contains("d"))
+            {
+                if (parsed[i] != "")
+                    n = int.Parse(parsed[i]);
+                if (parsed[i + 1] != "")
+                    d = int.Parse(parsed[i + 1]);
+            }
         }
 
         public Dice(Dice dice)
@@ -95,13 +107,24 @@ namespace HighKings
             return new DiceGroup(d);
         }
 
+        public static implicit operator string(Dice d)
+        {
+            return d.ToString();
+        }
+
+        public static implicit operator Dice(string s)
+        {
+            return new Dice(s);
+        }
+
         public static List<Dice> ParseDice(string s)
         {
             string[] dice = s.Split(',');
             List<Dice> d = new List<Dice>();
             foreach (string ds in dice)
             {
-                d.Add(new Dice(ds));
+                if(ds != "")
+                    d.Add(new Dice(ds));
             }
             return d;
         }
@@ -148,7 +171,7 @@ namespace HighKings
         {
             group = new List<Dice>();
             displacement = 0;
-            string[] vals = s.Split('+');
+            string[] vals = s.Split(':');
             int i = 0;
             if (vals.Length > 1 && vals[i] != "")
             {
@@ -174,6 +197,23 @@ namespace HighKings
             displacement += disp;
         }
 
+        public override string ToString()
+        {
+            string s = $"{displacement}:";
+            if(group.Count == 0)
+            {
+                s += "0d1";
+                return s;
+            }
+            s += $"{group[0].ToString()}";
+            int i = 1;
+            while(i < group.Count)
+            {
+                s += $",{group[i].ToString()}";
+            }
+            return s;
+        }
+
         public static DiceGroup operator +(DiceGroup d1, DiceGroup d2)
         {
             DiceGroup c = new DiceGroup(d1);
@@ -191,6 +231,15 @@ namespace HighKings
             return c;
         }
         
+        public static implicit operator DiceGroup(string s)
+        {
+            return new DiceGroup(s);
+        }
+
+        public static implicit operator string(DiceGroup d)
+        {
+            return d.ToString();
+        }
 
         public static implicit operator int(DiceGroup dg)
         {

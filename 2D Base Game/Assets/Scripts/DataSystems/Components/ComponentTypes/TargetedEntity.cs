@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class TargetedEntity : IBaseComponent
     {
-        SubscriberEvent<TargetedEntity> listener;
+        public SubscriberEvent subscriber { get; set; }
+
         Entity targeted_entity;
 
         public TargetedEntity()
@@ -46,16 +48,12 @@ namespace HighKings
         public void SetTargetedEntity(Entity e, bool call_listeners)
         {
             if (call_listeners)
-                listener.OperateBeforeOnComp();
+                subscriber.OperateBeforeOnComp();
             targeted_entity = e;
             if (call_listeners)
-                listener.OperateAfterOnComp();
+                subscriber.OperateAfterOnComp();
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<TargetedEntity>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<TargetedEntity>));
-        }
 
         public bool Trigger(Event e)
         {
@@ -71,6 +69,11 @@ namespace HighKings
                     break;
             }
             return true;
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
 
         public static implicit operator Entity(TargetedEntity e)

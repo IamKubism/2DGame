@@ -21,8 +21,8 @@ namespace HighKings
         public Dictionary<Entity, GameObject> entity_object_map;
         World world { get { return WorldController.Instance.world; } }
 
-        ComponentSubscriberSystem<RenderComponent> render_values;
-        ComponentSubscriberSystem<Position> positions;
+        ComponentSubscriberSystem render_values;
+        ComponentSubscriberSystem positions;
 
         Action<List<Entity>> on_add_action;
         Action<List<Entity>> on_remove;
@@ -61,8 +61,8 @@ namespace HighKings
             {
                 GameObjectManager.instance.AddObjectsForEntities(entities);
                 GameObjectManager.instance.AddComponentToObjects<SpriteRenderer>(entities, SetRenderValues);
-                positions.SubscribeAfterAction(entities, SetSpritePosition, "SetSpritePosition");
-                render_values.SubscribeAfterAction(entities, SetSpriteValues, "SetSpriteValues");
+                positions.SubscribeAfterAction<Position>(entities, SetSpritePosition, "SetSpritePosition");
+                render_values.SubscribeAfterAction<RenderComponent>(entities, SetSpriteValues, "SetSpriteValues");
             };
 
             on_remove += (es) =>
@@ -79,8 +79,8 @@ namespace HighKings
         /// <param name="game"></param>
         public void MakeSpriteCheckers(MainGame game)
         {
-            render_values = game.GetSubscriberSystem<RenderComponent>("RenderComponent");
-            positions = game.GetSubscriberSystem<Position>("Position");
+            render_values = game.GetSubscriberSystem<RenderComponent>();
+            positions = game.GetSubscriberSystem<Position>();
 
             render_values.RegisterOnAdded(on_add_action);
             render_values.RegisterOnRemove(on_remove);

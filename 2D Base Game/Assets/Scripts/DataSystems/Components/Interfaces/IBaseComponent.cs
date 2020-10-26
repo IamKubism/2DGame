@@ -8,18 +8,21 @@ namespace HighKings
 {
     public interface IBaseComponent
     {
-        void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent;
+        SubscriberEvent subscriber { get; set; }
         bool Trigger(Event e);
     }
 
-    //public static class BaseCompSys
-    //{
-    //    static BindingFlags field_flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Default;
+    public static class BaseComponentUtils
+    {
+        public static ComponentSubscriberSystem GetSubscriberSystem(string component_name)
+        {
+            return MainGame.instance.GetSubscriberSystem(component_name);
+        }
 
-    //    public static void SetListener(object c, SubscriberEvent<T> subscriber)
-    //    {
-    //        FieldInfo f = c.GetType().GetField("listener", field_flags);
-    //    }
-    //}
+        public static ComponentSubscriberSystem GetSubscriberSystem<T>() where T : IBaseComponent
+        {
+            return MainGame.instance.GetSubscriberSystem<T>();
+        }
+    }
 }
 

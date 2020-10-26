@@ -6,7 +6,7 @@ namespace HighKings
 {
     public class HealthSystem
     {
-        ComponentSubscriberSystem<Health> healths;
+        ComponentSubscriberSystem healths;
 
         public HealthSystem()
         {
@@ -14,7 +14,7 @@ namespace HighKings
 
             healths.RegisterOnAdded((entities) =>
             {
-                healths.SubscribeAfterAction(entities, OnDeath, "CheckDeath");
+                healths.SubscribeAfterAction(entities,(e,b) => { OnDeath(e, (Health)b); }, "CheckDeath");
             });
         }
 

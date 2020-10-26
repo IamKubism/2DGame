@@ -10,7 +10,7 @@ namespace HighKings
     [JsonObject(MemberSerialization.OptIn)]
     public class BluntDamage : IBaseComponent
     {
-        SubscriberEvent<BluntDamage> listener;
+        public SubscriberEvent subscriber { get; set; }
 
         Dice d;
         public BluntDamage()
@@ -32,9 +32,9 @@ namespace HighKings
             }
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
         {
-            listener = (SubscriberEvent<BluntDamage>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<BluntDamage>));
+            throw new NotImplementedException();
         }
 
         /// <summary>

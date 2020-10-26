@@ -90,12 +90,13 @@ namespace HighKings
             return parameters.ContainsKey(key);
         }
 
-        public void SetParamValue(string key, object o)
+        public void SetParamValue(string key, object o, Func<object, object, object> combine_func = null)
         {
             if (parameters.ContainsKey(key))
             {
-                parameters[key] = o;
-            } else
+                parameters[key] = combine_func?.Invoke(parameters[key], o);
+            }
+            else
             {
                 parameters.Add(key, o);
             }

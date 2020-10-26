@@ -52,7 +52,7 @@
 			"type":"TakeDamage",
 			"priority": 0
 		}
-	}
+	},
 	"goals": {
 		"AttackEntity": {
 			"child_nodes": [

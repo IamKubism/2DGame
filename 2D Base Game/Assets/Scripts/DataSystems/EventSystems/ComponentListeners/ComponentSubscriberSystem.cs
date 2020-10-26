@@ -4,12 +4,12 @@ using System;
 
 namespace HighKings
 {
-    public class ComponentSubscriberSystem<T> : ISystemAdder where T : IBaseComponent
+    public class ComponentSubscriberSystem: ISystemAdder
     {
         /// <summary>
         /// The actions that run after this component is changed
         /// </summary>
-        Dictionary<Entity, SubscriberEvent<T>> events;
+        Dictionary<Entity, SubscriberEvent> events;
         
         public string component_name;
 
@@ -19,7 +19,7 @@ namespace HighKings
         public ComponentSubscriberSystem(string component_name)
         {
             this.component_name = component_name;
-            events = new Dictionary<Entity, SubscriberEvent<T>>();
+            events = new Dictionary<Entity, SubscriberEvent>();
             PrototypeLoader.instance.AddSystemLoc($"{component_name}_subscriber", this);
         }
 
@@ -43,7 +43,7 @@ namespace HighKings
             }
         }
 
-        public void UpdateEntities(Dictionary<Entity, object[]> to_update, SubscriberEvent<T> action)
+        public void UpdateEntities<T>(Dictionary<Entity, object[]> to_update, SubscriberEvent action) where T: IBaseComponent
         {
             foreach (Entity t in to_update.Keys)
             {
@@ -63,7 +63,7 @@ namespace HighKings
             }
         }
 
-        public void UpdateComponents(Dictionary<Entity, object[]> to_update, Action<T, object[]> action)
+        public void UpdateComponents<T>(Dictionary<Entity, object[]> to_update, Action<T, object[]> action) where T : IBaseComponent
         {
             Dictionary<T, object[]> comps = new Dictionary<T, object[]>();
 
@@ -90,9 +90,9 @@ namespace HighKings
             }
         }
 
-        public void UpdateComponents(Dictionary<Entity, object[]> to_update, SubscriberEvent<T> action)
+        public void UpdateComponents(Dictionary<Entity, object[]> to_update, SubscriberEvent action)
         {
-            Dictionary<T, object[]> comps = new Dictionary<T, object[]>();
+            Dictionary<IBaseComponent, object[]> comps = new Dictionary<IBaseComponent, object[]>();
 
             foreach (Entity t in to_update.Keys)
             {
@@ -101,10 +101,10 @@ namespace HighKings
 
             foreach (KeyValuePair<Entity, object[]> kv in to_update)
             {
-                comps.Add(kv.Key.GetComponent<T>(component_name), kv.Value);
+                comps.Add(kv.Key.GetComponent<IBaseComponent>(component_name), kv.Value);
             }
 
-            foreach (KeyValuePair<T, object[]> e in comps)
+            foreach (KeyValuePair<IBaseComponent, object[]> e in comps)
             {
                 action.OperateAllOnComp(e.Key, e.Value);
             }
@@ -121,7 +121,7 @@ namespace HighKings
             {
                 if(events.ContainsKey(e) == false)
                 {
-                    events.Add(e, new SubscriberEvent<T>(e, component_name));
+                    events.Add(e, new SubscriberEvent(e, component_name));
                 }
             }
             on_entities_added?.Invoke(entities);
@@ -165,11 +165,19 @@ namespace HighKings
             on_entities_removed -= to_reg;
         }
 
-        public void SubscribeAfterAction(List<Entity> entities, Action<Entity,T> action, string action_name)
+        public void SubscribeAfterAction(List<Entity> entities, Action<Entity,IBaseComponent> action, string action_name)
         {
             foreach(Entity e in entities)
             {
                 events[e].RegisterAfterAction(action_name, (t) => action(e, t));
+            }
+        }
+
+        public void SubscribeAfterAction<T>(List<Entity> entities, Action<Entity,T> action, string action_name)
+        {
+            foreach(Entity e in entities)
+            {
+                events[e].RegisterAfterAction(action_name, (t) => action(e, (T)t));
             }
         }
 
@@ -195,11 +203,19 @@ namespace HighKings
                     events[EntityManager.instance.GetEntityFromId(entity)].RemoveAfterAction(action);
         }
 
-        public void SubscribeBeforeAction(List<Entity> entities, Action<Entity,T> action, string action_name)
+        public void SubscribeBeforeAction(List<Entity> entities, Action<Entity,IBaseComponent> action, string action_name)
         {
             foreach(Entity e in entities)
             {
                 events[e].RegisterBeforeAction(action_name, (t) => action(e,t));
+            }
+        }
+
+        public void SubscribeBeforeAction<T>(List<Entity> entities, Action<Entity,T> action, string action_name)
+        {
+            foreach(Entity e in entities)
+            {
+                events[e].RegisterBeforeAction(action_name, (t) => action(e,(T)t));
             }
         }
 

@@ -9,7 +9,7 @@ namespace HighKings
     public class Movers : IUpdater, ISystemAdder
     {
         public static Movers instance;
-        ComponentSubscriberSystem<Position> positions;
+        ComponentSubscriberSystem positions;
         public Dictionary<Entity, Position> entity_positions;
 
         /// <summary>
@@ -30,17 +30,17 @@ namespace HighKings
             mover_progress = new Dictionary<Entity, ItemVector<Position, FloatMinMax>>();
             to_remove = new List<Entity>();
             entity_positions = new Dictionary<Entity, Position>();
-            positions = MainGame.instance.GetSubscriberSystem<Position>("Position");
+            positions = MainGame.instance.GetSubscriberSystem<Position>();
             if(instance == null)
             {
                 instance = this;
             }
             PrototypeLoader.instance.AddSystemLoc("movers", this);
-            ComponentSubscriberSystem<MoveArea> dest_tiles = MainGame.instance.GetSubscriberSystem<MoveArea>();
+            ComponentSubscriberSystem dest_tiles = MainGame.instance.GetSubscriberSystem<MoveArea>();
             dest_tiles.RegisterOnAdded((es) =>
             {
-                dest_tiles.SubscribeAfterAction(es, MoverPathMaker, "MoverPathMaker");
-                dest_tiles.SubscribeBeforeAction(es, CancelMove, "CancelMove");
+                dest_tiles.SubscribeAfterAction<MoveArea>(es, MoverPathMaker, "MoverPathMaker");
+                dest_tiles.SubscribeBeforeAction<MoveArea>(es, CancelMove, "CancelMove");
             });
         }
 
@@ -69,8 +69,8 @@ namespace HighKings
                 }
             }
 
-            positions.UpdateComponents(disp_vals, DisplaceVector);
-            positions.UpdateComponents(tile_change, SetTilePosition);
+            positions.UpdateComponents<Position>(disp_vals, DisplaceVector);
+            positions.UpdateComponents<Position>(tile_change, SetTilePosition);
 
             for (int i = to_remove.Count; i > 0; i -= 1)
             {

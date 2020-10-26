@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,8 @@ namespace HighKings
     [JsonObject(MemberSerialization.OptIn)]
     public class TargetingEntities : IBaseComponent
     {
-        SubscriberEvent<TargetingEntities> listener;
+        public SubscriberEvent subscriber { get; set; }
+
         List<Entity> targeting_entities;
 
         public TargetingEntities()
@@ -43,64 +45,64 @@ namespace HighKings
             return targeting_entities;
         }
 
-        public void SetTargetedEntity(Entity e, bool call_listeners = false)
+        public void SetTargetedEntity(Entity e, bool call_subscribers = false)
         {
-            if(call_listeners)
-                listener.OperateBeforeOnComp();
+            if(call_subscribers)
+                subscriber.OperateBeforeOnComp();
             if (targeting_entities.Contains(e))
             {
             } else
             {
                 targeting_entities.Add(e);
             }
-            if (call_listeners)
-                listener.OperateAfterOnComp();
+            if (call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
-        public void SetTargetedEntities(List<Entity> es, bool call_listeners = false)
+        public void SetTargetedEntities(List<Entity> es, bool call_subscribers = false)
         {
-            if(call_listeners)
-                listener.OperateBeforeOnComp();
+            if(call_subscribers)
+                subscriber.OperateBeforeOnComp();
             foreach(Entity e in es)
             {
                 SetTargetedEntity(e);
             }
-            if (call_listeners)
-                listener.OperateAfterOnComp();
+            if (call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
-        public void RemoveTargetedEntity(Entity e, bool call_listeners = false)
+        public void RemoveTargetedEntity(Entity e, bool call_subscribers = false)
         {
-            if (call_listeners)
-                listener.OperateBeforeOnComp();
+            if (call_subscribers)
+                subscriber.OperateBeforeOnComp();
             if (targeting_entities.Contains(e))
             {
                 targeting_entities.Remove(e);
             }
-            if (call_listeners)
-                listener.OperateAfterOnComp();
+            if (call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
-        public void RemoveTargetedEntities(List<Entity> es, bool call_listeners = false)
+        public void RemoveTargetedEntities(List<Entity> es, bool call_subscribers = false)
         {
-            if (call_listeners)
-                listener.OperateBeforeOnComp();
+            if (call_subscribers)
+                subscriber.OperateBeforeOnComp();
             foreach(Entity e in es)
             {
                 RemoveTargetedEntity(e);
             }
-            if (call_listeners)
-                listener.OperateAfterOnComp();
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<TargetingEntities>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<TargetingEntities>));
+            if (call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
         public bool Trigger(Event e)
         {
             throw new System.NotImplementedException();
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

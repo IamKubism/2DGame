@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Reflection;
 
 namespace HighKings
 {
@@ -10,11 +12,13 @@ namespace HighKings
     {
         public GameController game_controller;
         public List<GameObject> active_stats;
+        public Dictionary<string, GameObject> active_displays;
         public Vector2 stat_bar_size;
         public Vector2 padding;
         public GameObject stat_prefab;
         public List<InspectorData> display_queue;
         public string active_entity;
+        public Dictionary<string, Action<GameObject,InspectorData,object>> display_creators;
 
         void Awake()
         {
@@ -58,7 +62,7 @@ namespace HighKings
                 for (int i = active_stats.Count; i > 0; i -= 1)
                 {
                     GameObject obj = active_stats[i - 1];
-                    MainGame.instance.GetSubscriberSystem<BaseStatistic>(obj.GetComponent<InspectorDisplay>().component_name).UnsubscribeAfterAction(active_entity, "UpdateStatDisplay");
+                    MainGame.instance.GetSubscriberSystem(obj.GetComponent<InspectorDisplay>().component_name).UnsubscribeAfterAction(active_entity, "UpdateStatDisplay");
                     active_stats.Remove(obj);
                     Destroy(obj);
                 }
@@ -90,22 +94,72 @@ namespace HighKings
             obj.SetActive(true);
 
             Debug.Log(stat.stat_name);
-            MainGame.instance.GetSubscriberSystem<BaseStatistic>(stat.stat_name).SubscribeAfterAction(new List<Entity> { e }, ResetCompDisplay, "UpdateStatDisplay" );
+            MainGame.instance.GetSubscriberSystem(stat.stat_name).SubscribeAfterAction(new List<Entity> { e }, ResetCompDisplay, "UpdateStatDisplay" );
 
             Debug.Log($"Made {stat.stat_name} bar");
 
             return obj;
         }
 
-        void ResetCompDisplay(Entity e, BaseStatistic stat)
+        public GameObject MakeDisplay(GameObject prefab, Entity e, object o, InspectorData id)
         {
+            GameObject obj = Instantiate(prefab, transform);
+            obj.AddComponent<InspectorDisplay>().CopyData(id);
+            if(!display_creators.TryGetValue(id.display_type, out Action<GameObject,InspectorData,object> action))
+            {
+                Debug.LogWarning($"Could not find inspector display type: {id.display_type}");
+                Destroy(obj);
+                return null;
+            }
+            action?.Invoke(obj, id, o);
+            //RectTransform rect = obj.GetComponent<RectTransform>();
+            //rect.sizeDelta = stat_bar_size;
+            //rect.position = new Vector2(transform.position.x + padding.x, transform.position.y - active_stats.Count * (rect.sizeDelta.y + padding.y) - padding.y);
+            //obj.GetComponent<Text>().text = $"{id.display_name}: {stat.curr_value} / {stat.base_value}";
+
+            //obj.SetActive(true);
+
+            //Debug.Log(stat.stat_name);
+            //MainGame.instance.GetSubscriberSystem<BaseStatistic>(stat.stat_name).SubscribeAfterAction(new List<Entity> { e }, ResetCompDisplay, "UpdateStatDisplay");
+
+            //Debug.Log($"Made {stat.stat_name} bar");
+            DisplayTypeReset(id.display_type, id.component_name, e, Type.GetType(id.component_type));
+
+            return obj;
+        }
+
+        void ResetCompDisplay(Entity e, IBaseComponent stat)
+        {
+            BaseStatistic b_stat = (BaseStatistic)stat;
             foreach(GameObject obj in active_stats)
             {
-                if(obj.GetComponent<InspectorDisplay>().component_name == stat.stat_name)
+                if(obj.GetComponent<InspectorDisplay>().component_name == b_stat.stat_name)
                 {
-                    obj.GetComponent<Text>().text = $"{obj.GetComponent<InspectorDisplay>().display_name}: {stat.curr_value} / {stat.base_value}";
+                    obj.GetComponent<Text>().text = $"{obj.GetComponent<InspectorDisplay>().display_name}: {b_stat.curr_value} / {b_stat.base_value}";
                 }
             }
+        }
+
+        Action<Entity, IBaseComponent> DisplayTypeReset(string display_type, string comp_name, Entity e_t, Type t)
+        {
+            MethodInfo method = GetType().GetMethod("ResetCompDisplay" + display_type, new Type[2] { typeof(Entity), t });
+            
+            if (method == null)
+            {
+                Debug.LogWarning($"Could not find method ResetCompDisplay{display_type} with type param {t.ToString()}");
+                return null;
+            }
+
+            void action(Entity e, IBaseComponent o) { method.Invoke(this, new object[2] { e, o }); }
+            e_t.GetComponent(comp_name).subscriber.RegisterAfterAction("ResetCompDisplay", (b) => { action(e_t, b); });
+
+            return action;
+        }
+
+        void ResetCompDisplayBar(Entity e, Health h)
+        {
+            GameObject g = active_displays["DisplayHealthBar"];
+            g.GetComponent<Text>().text = $"Health: {h.curr_value} / {h.base_value}";
         }
     }
 }

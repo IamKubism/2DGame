@@ -15,7 +15,8 @@ namespace HighKings
         [JsonProperty]
         public string sprite_name;
 
-        SubscriberEvent<RenderComponent> subscriber;
+        public SubscriberEvent subscriber { get; set; }
+
 
         public RenderComponent()
         {
@@ -45,21 +46,19 @@ namespace HighKings
             layer_name = over.layer_name;
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        public void SetListener(SubscriberEvent subscriber)
         {
-            if (typeof(T) != this.GetType())
-            {
-                Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
-            }
-            else
-            {
-                this.subscriber = (SubscriberEvent<RenderComponent>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<RenderComponent>));
-            }
+            this.subscriber = subscriber;
         }
 
         public bool Trigger(Event e)
         {
             return true;
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -23,7 +23,8 @@ namespace HighKings
         [JsonProperty]
         public Tile tile;
 
-        SubscriberEvent<Position> subscriber;
+        public SubscriberEvent subscriber { get; set; }
+
 
         /// <summary>
         /// Coordinates of this position
@@ -274,20 +275,19 @@ namespace HighKings
 
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        public void SetListener(SubscriberEvent subscriber)
         {
-            if(typeof(T) != GetType())
-            {
-                Debug.LogError("Could not set position subscriber, wrong type");
-            } else
-            {
-                this.subscriber = (SubscriberEvent<Position>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<Position>));
-            }
+            this.subscriber = subscriber;
         }
 
         public bool Trigger(Event e)
         {
             return true;
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

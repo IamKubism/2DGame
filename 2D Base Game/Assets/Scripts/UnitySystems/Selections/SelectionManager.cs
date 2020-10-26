@@ -7,7 +7,7 @@ namespace HighKings
     public class SelectionManager
     {
         public static SelectionManager instance;
-        ComponentSubscriberSystem<SelectionComponent> selects;
+        ComponentSubscriberSystem selects;
         public List<SelectionComponent> active_selectables;
         public Dictionary<Entity, SelectionComponent> selection_data;
         public GameObjectManager go_manager;
@@ -20,7 +20,7 @@ namespace HighKings
             {
                 instance = this;
             }
-            selects = MainGame.instance.GetSubscriberSystem<SelectionComponent>("SelectionComponent");
+            selects = MainGame.instance.GetSubscriberSystem("SelectionComponent");
             selects.RegisterOnAdded(AddEntities);
         }
 
@@ -30,7 +30,7 @@ namespace HighKings
             {
                 if (selection_data.ContainsKey(e) == false)
                 {
-                    selection_data.Add(e, e.GetComponent<SelectionComponent>("SelectionComponent"));
+                    selection_data.Add(e, e.GetComponent<SelectionComponent>());
                 }
             }
             GameObjectManager.instance.AddComponentToObjects<BoxCollider>(entities, SetSelectionComponentValues);

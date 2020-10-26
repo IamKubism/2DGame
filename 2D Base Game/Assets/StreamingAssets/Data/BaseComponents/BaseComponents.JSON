@@ -48,7 +48,7 @@
             "inspector_display": {
                 "default_position": 0,
                 "display_name": "Health",
-                "type": "bar"
+                "type": "Bar"
             },
             "namespace": "Default",
             "type": "Health"
@@ -57,14 +57,6 @@
             "data": {},
             "namespace": "Default",
             "type": "MoveArea"
-        },
-        "PhysicalActive": {
-            "data": {
-                "active": true,
-                "flag_name": "PhysicalActive"
-            },
-            "namespace": "Default",
-            "type": "FlagComponent"
         },
         "Position": {
             "data": {
@@ -101,7 +93,7 @@
             "inspector_display": {
                 "default_position": 2,
                 "display_name": "Strength",
-                "type": "bar"
+                "type": "Bar"
             },
             "namespace": "Default",
             "type": "BaseStatistic"

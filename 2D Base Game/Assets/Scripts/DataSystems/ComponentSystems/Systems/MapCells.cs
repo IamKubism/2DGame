@@ -11,18 +11,18 @@ namespace HighKings
     public class MapCells
     {
         World world;
-        ComponentSubscriberSystem<Position> positions;
+        ComponentSubscriberSystem positions;
         Action<List<Entity>> pos_on_add_action;
 
         public MapCells()
         {
             world = World.instance;
-            positions = MainGame.instance.GetSubscriberSystem<Position>("Position");
+            positions = MainGame.instance.GetSubscriberSystem<Position>();
             pos_on_add_action += (entities) =>
             {
                 AddOccupants(entities);
-                positions.SubscribeAfterAction(entities, AddOccupant, "CellAddOccupants");
-                positions.SubscribeBeforeAction(entities, RemoveOccupant, "CellRemoveOccupants");
+                positions.SubscribeAfterAction<Position>(entities, AddOccupant, "CellAddOccupants");
+                positions.SubscribeBeforeAction<Position>(entities, RemoveOccupant, "CellRemoveOccupants");
             };
             positions.RegisterOnAdded(pos_on_add_action);
         }
@@ -35,7 +35,7 @@ namespace HighKings
         {
             foreach(Entity e in entities)
             {
-                Position p = e.GetComponent<Position>("Position");
+                Position p = e.GetComponent<Position>();
                 List<Entity> cell = world.tile_map.cells[p.x, p.y, p.z];
                 if (cell.Contains(e))
                 {

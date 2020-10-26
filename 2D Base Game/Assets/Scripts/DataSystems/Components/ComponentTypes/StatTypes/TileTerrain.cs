@@ -12,7 +12,8 @@ namespace HighKings
         [JsonProperty]
         public float move_cost;
 
-        SubscriberEvent<TileTerrain> subscriber;
+        public SubscriberEvent subscriber { get; set; }
+
 
         [JsonConstructor]
         public TileTerrain(float move_cost = -1f)
@@ -36,21 +37,14 @@ namespace HighKings
             return s;
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            if (typeof(T) != this.GetType())
-            {
-                Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
-            }
-            else
-            {
-                this.subscriber = (SubscriberEvent<TileTerrain>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<TileTerrain>));
-            }
-        }
-
         public bool Trigger(Event e)
         {
             throw new System.NotImplementedException();
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace HighKings
     public class Conscious : IBaseComponent
     {
         Entity parent;
-        SubscriberEvent<Conscious> listener;
+        public SubscriberEvent subscriber { get; set; }
         List<IGoal> goals;
         Dictionary<IGoal, Entity> goal_targets;
 
@@ -58,10 +58,10 @@ namespace HighKings
             goal_targets = new Dictionary<IGoal, Entity>();
         }
 
-        public void SetGoals(Entity target, bool call_listeners = false)
+        public void SetGoals(Entity target, bool call_subscribers = false)
         {
-            if(call_listeners)
-                listener.OperateBeforeOnComp();
+            if(call_subscribers)
+                subscriber.OperateBeforeOnComp();
             DjkistraGoal decision = new DjkistraGoal(FullGoalMap.instance.graph, goals[goals.Count - 1], parent, target);
             Dictionary<IGoal, Entity> target_map = decision.TargetMap();
             foreach (IGoal goal in decision.GetPath())
@@ -78,14 +78,14 @@ namespace HighKings
                 goal_targets.Add(goal, target_map[goal]);
                 goal.Assign(parent, target_map[goal]);
             }
-            if(call_listeners)
-                listener.OperateAfterOnComp();
+            if(call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
-        public void SetGoal(IGoal goal, Entity target, bool call_listeners = false)
+        public void SetGoal(IGoal goal, Entity target, bool call_subscribers = false)
         {
-            if(call_listeners)
-                listener.OperateBeforeOnComp();
+            if(call_subscribers)
+                subscriber.OperateBeforeOnComp();
             if (goal_targets.ContainsKey(goal))
             {
                 Debug.LogError("Cannot have cyclic goals");
@@ -94,15 +94,15 @@ namespace HighKings
             goals.Add(goal);
             goal_targets.Add(goal, target);
             goal.Assign(parent, target);
-            if(call_listeners)
-                listener.OperateAfterOnComp();
+            if(call_subscribers)
+                subscriber.OperateAfterOnComp();
         }
 
-        public bool CheckGoalsForward(bool call_listeners = false)
+        public bool CheckGoalsForward(bool call_subscribers = false)
         {
             bool eval = false;
-            if(call_listeners)
-                listener.OperateBeforeOnComp();
+            if(call_subscribers)
+                subscriber.OperateBeforeOnComp();
             if (goals.Count > 0)
             {
                 int i = 0;
@@ -125,27 +125,27 @@ namespace HighKings
                     }
                 }
             }
-            if(call_listeners)
-                listener.OperateAfterOnComp();
+            if(call_subscribers)
+                subscriber.OperateAfterOnComp();
             return eval;
         }
 
         public void ReEvaluate()
         {
-            listener.OperateBeforeOnComp();
+            subscriber.OperateBeforeOnComp();
             CheckGoalsForward();
             SetGoals(goal_targets[goals[goals.Count - 1]]);
-            listener.OperateAfterOnComp();
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<Conscious>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<Conscious>));
+            subscriber.OperateAfterOnComp();
         }
 
         public bool Trigger(Event e)
         {
             throw new System.NotImplementedException();
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
     }
 }

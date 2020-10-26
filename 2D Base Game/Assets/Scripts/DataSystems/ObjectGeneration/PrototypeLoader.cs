@@ -136,10 +136,7 @@ namespace HighKings
 
             if (comp_data.Value["inspector_display"] != null)
             {
-                InspectorData disp = parser.ParseString<InspectorData>(comp_data.Value["inspector_display"].ToString());
-                disp.component_name = comp_name;
-                disp.display_type = type_name;
-
+                InspectorData disp = new InspectorData(comp_data);
                 MainGame.instance.display_data.Add(comp_name, disp);
             }
         }
@@ -162,8 +159,7 @@ namespace HighKings
             {
                 Debug.LogError($"Could not find component type {type_name}");
             }
-            ConstructorInfo constructor = typeof(ComponentSubscriberSystem<>).MakeGenericType(type).
-                GetConstructor(new Type[1] { typeof(string) });
+            ConstructorInfo constructor = typeof(ComponentSubscriberSystem).GetConstructor(new Type[1] { typeof(string) });
             if (constructor == null)
             {
                 string s = $"Could not find correct constructor for {comp_name} of type {type_name}";

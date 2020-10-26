@@ -59,11 +59,20 @@ namespace HighKings {
             return (T)bc;
         }
 
+        public IBaseComponent GetComponent(string comp_name)
+        {
+            if (!components.TryGetValue(comp_name, out IBaseComponent bc))
+            {
+                Debug.LogWarning($"Could not find component {comp_name} for entity {entity_string_id}");
+            }
+            return bc;
+        }
+
         public T GetComponent<T>() where T : IBaseComponent
         {
-            if (!components.TryGetValue(nameof(T), out IBaseComponent b))
+            if (!components.TryGetValue(typeof(T).Name, out IBaseComponent b))
             {
-                Debug.LogWarning($"Could not find component {nameof(T)} for entity {entity_string_id}");
+                Debug.LogWarning($"Could not find component {typeof(T).Name} for entity {entity_string_id}");
             }
             return (T)b;
         }
@@ -94,17 +103,17 @@ namespace HighKings {
 
         public void RemoveFromAllSubscribers()
         {
-            Type subscriber_type = typeof(ComponentSubscriberSystem<>);
-            MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem", new Type[1] { typeof(string) });
-            foreach (KeyValuePair<string, IBaseComponent> comps in components)
-            {
-                MethodInfo remove_method = subscriber_type.MakeGenericType(new Type[1] { comps.Value.GetType() }).GetMethod("RemoveEntity");
-                object subs = get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
-                        MainGame.instance,
-                        new object[1] { comps.Key });
-                remove_method.Invoke(subs, new object[1] { this });
-                //Debug.Log($"Removed {entity_string_id} from {comps.Key}");
-            }
+            //Type subscriber_type = typeof(ComponentSubscriberSystem<>);
+            //MethodInfo get_sub_method = MainGame.instance.GetType().GetMethod("GetSubscriberSystem", new Type[1] { typeof(string) });
+            //foreach (KeyValuePair<string, IBaseComponent> comps in components)
+            //{
+            //    MethodInfo remove_method = subscriber_type.MakeGenericType(new Type[1] { comps.Value.GetType() }).GetMethod("RemoveEntity");
+            //    object subs = get_sub_method.MakeGenericMethod(comps.Value.GetType()).Invoke(
+            //            MainGame.instance,
+            //            new object[1] { comps.Key });
+            //    remove_method.Invoke(subs, new object[1] { this });
+            //    //Debug.Log($"Removed {entity_string_id} from {comps.Key}");
+            //}
         }
 
         public static EntityManager Manager()

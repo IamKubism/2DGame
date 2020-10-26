@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour
         {
             PrototypeLoader.instance.ReadFile(System.IO.File.ReadAllText(l.MakePathFromRoot(root_path)));
         }
+        MainGame.instance.RegisterDisplayPositions();
         string system_path = System.IO.Path.Combine(root_path, "InitData", "Systems.JSON");
         game.SystemLoading();
         game.SetInitSystems(JsonParser.instance, System.IO.File.ReadAllText(system_path));

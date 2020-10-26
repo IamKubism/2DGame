@@ -11,7 +11,7 @@ namespace HighKings
     /// </summary>
     public class Initiative : IUpdater
     {
-        Dictionary<Entity, List<ComponentSubscriberSystem<IBaseComponent>>> updates;
+        Dictionary<Entity, List<ComponentSubscriberSystem>> updates;
         Dictionary<Entity, FloatMinMax> entities_to_update;
 
         public void Update(float dt)

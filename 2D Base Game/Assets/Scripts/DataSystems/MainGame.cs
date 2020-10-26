@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using Priority_Queue;
 
 namespace HighKings
 {
@@ -36,6 +37,7 @@ namespace HighKings
         public Dictionary<string, object> component_subscribers;
 
         public Dictionary<string, InspectorData> display_data;
+        public List<InspectorData> display_queue;
 
         public ActionList action_list;
 
@@ -118,11 +120,11 @@ namespace HighKings
             //Debug.Log($"Added {component_name}_subscriber");
         }
 
-        public ComponentSubscriberSystem<T> GetSubscriberSystem<T>(string comp_name) where T: IBaseComponent
+        public ComponentSubscriberSystem GetSubscriberSystem(string comp_name)
         {
             if (component_subscribers.ContainsKey(comp_name+"_subscriber"))
             {
-                return (ComponentSubscriberSystem<T>)component_subscribers[comp_name+"_subscriber"];
+                return (ComponentSubscriberSystem)component_subscribers[comp_name+"_subscriber"];
             } else
             {
                 Debug.LogError($"Could not find correct subscriber system for {comp_name}");
@@ -130,11 +132,11 @@ namespace HighKings
             }
         }
 
-        public ComponentSubscriberSystem<T> GetSubscriberSystem<T>() where T: IBaseComponent
+        public ComponentSubscriberSystem GetSubscriberSystem<T>() where T: IBaseComponent
         {
             if (component_subscribers.ContainsKey(typeof(T).Name+"_subscriber"))
             {
-                return (ComponentSubscriberSystem<T>)component_subscribers[typeof(T).Name+"_subscriber"];
+                return (ComponentSubscriberSystem)component_subscribers[typeof(T).Name+"_subscriber"];
             } else
             {
                 Debug.LogError($"Could not find correct subscriber system for {typeof(T).Name}");
@@ -149,6 +151,26 @@ namespace HighKings
                 Debug.LogWarning($"Could not find system {system_name}");
             }
             return sys;
+        }
+
+        public void AddInspectorDisplayData(InspectorData id)
+        {
+            display_data.Add(id.component_name+id.display_type,id);
+        }
+
+        public void RegisterDisplayPositions()
+        {
+            SimplePriorityQueue<InspectorData> queue = new SimplePriorityQueue<InspectorData>();
+            foreach(InspectorData dat in display_data.Values)
+            {
+                queue.Enqueue(dat, dat.default_position);
+            }
+            int i = queue.Count - 1;
+            display_queue = queue.ToList();
+            while(queue.Count > 0)
+            {
+                queue.Dequeue().position = i - queue.Count;
+            }
         }
 
         //////////////////////////////////////////////////////////////////////////

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System;
 
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class Health : IBaseComponent
     {
-        SubscriberEvent<Health> listener;
+        public SubscriberEvent subscriber { get; set; }
 
         [JsonProperty]
         public int curr_value;
@@ -54,11 +55,6 @@ namespace HighKings
             {
                 curr_value = base_value;
             }
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<Health>)System.Convert.ChangeType(subscriber, typeof(SubscriberEvent<Health>));
         }
 
         public bool Trigger(Event e)

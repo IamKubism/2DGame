@@ -7,11 +7,11 @@ namespace HighKings
 {
     public class GoalMap : IBaseComponent
     {
-        SubscriberEvent<GoalMap> listener;
+        public SubscriberEvent subscriber { get; set; }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
         {
-            listener = (SubscriberEvent<GoalMap>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<GoalMap>));
+            throw new NotImplementedException();
         }
 
         public bool Trigger(Event e)

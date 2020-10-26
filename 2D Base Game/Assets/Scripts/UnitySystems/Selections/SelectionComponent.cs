@@ -12,7 +12,8 @@ namespace HighKings
         [JsonProperty]
         public int priority;
 
-        SubscriberEvent<SelectionComponent> subscriber;
+        public SubscriberEvent subscriber { get; set; }
+
 
         public SelectionComponent()
         {
@@ -23,16 +24,14 @@ namespace HighKings
             priority = s.priority;
         }
 
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
+        public void SetListener(SubscriberEvent subscriber)
         {
-            if (typeof(T) != GetType())
-            {
-                Debug.LogError("Could not set base statistic subscriber, wrong subscriber type");
-            }
-            else
-            {
-                this.subscriber = (SubscriberEvent<SelectionComponent>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<SelectionComponent>));
-            }
+            this.subscriber = subscriber;
+        }
+
+        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        {
+            throw new NotImplementedException();
         }
 
         public bool Trigger(Event e)

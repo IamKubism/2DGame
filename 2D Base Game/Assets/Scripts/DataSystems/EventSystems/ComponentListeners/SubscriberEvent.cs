@@ -5,35 +5,36 @@ using System;
 
 namespace HighKings
 {
-    public class SubscriberEvent<T> where T: IBaseComponent
+    public class SubscriberEvent
     {
-        T comp;
-        Dictionary<string, ComponentListener<T>> before_actions;
-        Dictionary<string, ComponentListener<T>> after_actions;
-        List<ComponentListener<T>> before_action_list;
-        List<ComponentListener<T>> after_action_list;
+        IBaseComponent comp;
+        Dictionary<string, ComponentListener> before_actions;
+        Dictionary<string, ComponentListener> after_actions;
+        List<ComponentListener> before_action_list;
+        List<ComponentListener> after_action_list;
 
-        public SubscriberEvent(T t)
+        public SubscriberEvent(IBaseComponent t)
         {
             comp = t;
-            before_actions = new Dictionary<string, ComponentListener<T>>();
-            after_actions = new Dictionary<string, ComponentListener<T>>();
-            before_action_list = new List<ComponentListener<T>>();
-            after_action_list = new List<ComponentListener<T>>();
-            comp.SetListener(this);
+            before_actions = new Dictionary<string, ComponentListener>();
+            after_actions = new Dictionary<string, ComponentListener>();
+            before_action_list = new List<ComponentListener>();
+            after_action_list = new List<ComponentListener>();
+            comp.subscriber = this;
         }
 
         public SubscriberEvent(Entity e, string comp_name)
         {
-            comp = e.GetComponent<T>(comp_name);
-            before_actions = new Dictionary<string, ComponentListener<T>>();
-            after_actions = new Dictionary<string, ComponentListener<T>>();
-            before_action_list = new List<ComponentListener<T>>();
-            after_action_list = new List<ComponentListener<T>>();
-            comp.SetListener(this);
+            comp = e.GetComponent(comp_name);
+            before_actions = new Dictionary<string, ComponentListener>();
+            after_actions = new Dictionary<string, ComponentListener>();
+            before_action_list = new List<ComponentListener>();
+            after_action_list = new List<ComponentListener>();
+            comp.subscriber = this;
+
         }
 
-        public void RegisterBeforeAction(string action_name, ComponentListener<T> action)
+        public void RegisterBeforeAction(string action_name, ComponentListener action)
         {
             if (before_actions.ContainsKey(action_name))
             {
@@ -45,7 +46,7 @@ namespace HighKings
             }
         }
 
-        public void RegisterBeforeAction(string action_name, Action<T> action)
+        public void RegisterBeforeAction(string action_name, Action<IBaseComponent> action)
         {
             if (before_actions.ContainsKey(action_name))
             {
@@ -53,7 +54,7 @@ namespace HighKings
             }
             else
             {
-                ComponentListener<T> listener = new ComponentListener<T>(action_name, action);
+                ComponentListener listener = new ComponentListener(action_name, action);
                 before_actions.Add(action_name, listener);
                 before_action_list.Add(listener);
             }
@@ -68,7 +69,7 @@ namespace HighKings
             }
         }
 
-        public void RegisterAfterAction(string action_name, ComponentListener<T> action)
+        public void RegisterAfterAction(string action_name, ComponentListener action)
         {
             if (after_actions.ContainsKey(action_name))
             {
@@ -81,7 +82,7 @@ namespace HighKings
             }
         }
 
-        public void RegisterAfterAction(string action_name, Action<T> action)
+        public void RegisterAfterAction(string action_name, Action<IBaseComponent> action)
         {
             if (after_actions.ContainsKey(action_name))
             {
@@ -89,7 +90,7 @@ namespace HighKings
             }
             else
             {
-                ComponentListener<T> listener = new ComponentListener<T>(action_name, action);
+                ComponentListener listener = new ComponentListener(action_name, action);
                 after_actions.Add(action_name, listener);
                 after_action_list.Add(listener);
             }
@@ -112,7 +113,7 @@ namespace HighKings
             }
         }
 
-        public void OperateBeforeOnComp(T t)
+        public void OperateBeforeOnComp(IBaseComponent t)
         {
             for (int i = before_action_list.Count; i > 0; i -= 1)
             {
@@ -120,7 +121,7 @@ namespace HighKings
             }
         }
 
-        public void OperateBeforeOnComp(T t, object[] args)
+        public void OperateBeforeOnComp(IBaseComponent t, object[] args)
         {
             for (int i = before_action_list.Count; i > 0; i -= 1)
             {
@@ -136,7 +137,7 @@ namespace HighKings
             }
         }
 
-        public void OperateAfterOnComp(T t)
+        public void OperateAfterOnComp(IBaseComponent t)
         {
             for (int i = after_action_list.Count; i > 0; i -= 1)
             {
@@ -144,7 +145,7 @@ namespace HighKings
             }
         }
 
-        public void OperateAfterOnComp(T t, object[] args)
+        public void OperateAfterOnComp(IBaseComponent t, object[] args)
         {
             for (int i = after_action_list.Count; i > 0; i -= 1)
             {
@@ -164,7 +165,7 @@ namespace HighKings
             }
         }
 
-        public void OperateAllOnComp(T t)
+        public void OperateAllOnComp(IBaseComponent t)
         {
             for (int i = before_action_list.Count; i > 0; i -= 1)
             {
@@ -176,7 +177,7 @@ namespace HighKings
             }
         }
 
-        public void OperateAllOnComp(T t, object[] args)
+        public void OperateAllOnComp(IBaseComponent t, object[] args)
         {
             for (int i = before_action_list.Count; i > 0; i -= 1)
             {

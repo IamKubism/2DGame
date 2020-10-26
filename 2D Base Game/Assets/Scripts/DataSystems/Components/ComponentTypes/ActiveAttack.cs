@@ -7,17 +7,12 @@ namespace HighKings
 {
     public class ActiveAttack : IBaseComponent
     {
-        public SubscriberEvent<ActiveAttack> listener;
+        public SubscriberEvent subscriber { get; set; }
         public Entity attack;
 
         public ActiveAttack()
         {
 
-        }
-
-        public void SetListener<T>(SubscriberEvent<T> subscriber) where T : IBaseComponent
-        {
-            listener = (SubscriberEvent<ActiveAttack>)Convert.ChangeType(subscriber, typeof(SubscriberEvent<ActiveAttack>));
         }
 
         public bool Trigger(Event e)

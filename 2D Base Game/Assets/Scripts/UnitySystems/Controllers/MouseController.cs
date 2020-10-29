@@ -46,6 +46,8 @@ namespace HighKings
 
         ITileBasedEffect effectTocall;
 
+        public static int curr_z;
+
         // Start is called before the first frame update
         void Start()
         {
@@ -59,6 +61,7 @@ namespace HighKings
 
             SimplePool.Preload(tile_cursor_prefab, 100);
             preview_tile = tile_cursor_prefab;
+            curr_z = 0;
         }
 
         // Update is called once per frame
@@ -123,10 +126,12 @@ namespace HighKings
 
         public void InvokeClickAction()
         {
+            Debug.Log("Invoking click");
             Entity target = curr_retrieval_action?.Invoke();
             if (main_selected != null && target != null)
             {
-                selectable_action.Invoke(main_selected, target);
+                selectable_action?.Invoke(main_selected, target);
+                Debug.Log("Invoked click");
             }
         }
 
@@ -193,7 +198,7 @@ namespace HighKings
 
             main_selected = GetNextSelectable();
 
-            selection_info.MakeStatDisplays(main_selected);
+            selection_info.MakeDisplays(main_selected);
         }
 
         void AddActiveSelectable(Entity selectable)
@@ -202,10 +207,10 @@ namespace HighKings
             {
                 return;
             }
-            SelectionComponent select_comp = selectable.GetComponent<SelectionComponent>("selection_component");
+            SelectionComponent select_comp = selectable.GetComponent<SelectionComponent>();
             for (int i = 0; i < selected_entities.Count; i += 1)
             {
-                if (selected_entities[i].GetComponent<SelectionComponent>("selection_component").priority >= select_comp.priority)
+                if (selected_entities[i].GetComponent<SelectionComponent>().priority >= select_comp.priority)
                 {
                     selected_entities.Insert(i, selectable);
                     return;
@@ -241,7 +246,7 @@ namespace HighKings
         public static Entity GetSelectableUnderMouse()
         {
             List<RaycastHit> raycasts = new List<RaycastHit>(Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition)));
-            //Debug.Log("Raycast num: " + raycasts.Count);
+            Debug.Log("Raycast num: " + raycasts.Count);
             List<GameObject> sels = new List<GameObject>();
 
             foreach (RaycastHit r in raycasts)

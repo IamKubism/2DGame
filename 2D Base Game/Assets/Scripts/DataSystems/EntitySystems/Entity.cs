@@ -101,6 +101,11 @@ namespace HighKings {
             return base.GetHashCode();
         }
 
+        public void AssignEvent(Event e, int turns_forward = 0)
+        {
+            Event_Manager().AddEvent(this, e, turns_forward);
+        }
+
         public void RemoveFromAllSubscribers()
         {
             //Type subscriber_type = typeof(ComponentSubscriberSystem<>);
@@ -121,6 +126,11 @@ namespace HighKings {
             return EntityManager.instance;
         }
 
+        public static EventManager Event_Manager()
+        {
+            return EventManager.instance;
+        }
+
         public static void Destroy(Entity e)
         {
             e.RemoveFromAllSubscribers();
@@ -130,6 +140,22 @@ namespace HighKings {
         public static bool Exists(Entity e)
         {
             return Manager().CheckExistance(e);
+        }
+
+        public static implicit operator Entity(string id)
+        {
+            if (Manager().CheckExistance(id))
+            {
+                return Manager()[id];
+            } else
+            {
+                return null;
+            }
+        }
+
+        public static implicit operator string(Entity e)
+        {
+            return e.entity_string_id;
         }
     }
 }

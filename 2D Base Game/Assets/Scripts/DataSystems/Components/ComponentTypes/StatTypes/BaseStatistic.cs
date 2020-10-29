@@ -7,7 +7,7 @@ using System;
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class BaseStatistic : IBaseComponent
+    public class BaseStatistic : IBaseComponent, IInspectorDisplay
     { 
         [JsonProperty]
         public string stat_name { get; protected set; }
@@ -19,7 +19,15 @@ namespace HighKings
         public int base_value;
 
         public SubscriberEvent subscriber { get; set; }
-
+        public InspectorData inspector_data
+        {
+            get {
+                //Debug.Log("Got Inspector data for Base Statistic");
+                return MainGame.instance.display_data[stat_name];
+                }
+            set {
+            }
+        }
 
         public BaseStatistic(string stat_name, int curr_value, int base_value, BaseStatistic s)
         {
@@ -76,6 +84,11 @@ namespace HighKings
         public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
         {
             throw new NotImplementedException();
+        }
+
+        public string DisplayText()
+        {
+            return $"{stat_name}: {curr_value} / {base_value}";
         }
     }
 }

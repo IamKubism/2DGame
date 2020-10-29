@@ -16,6 +16,19 @@
                 }
             }
         },
+		"melee_attack":{
+			"extends":"attack"
+		},
+		"punch":{
+			"extends":"melee_attack",
+			"components":{
+				"BluntDamage":{
+					"data":{
+						"d":"0+2d4"
+					}
+				}
+			}
+		},
         "character": {
             "components": {
                 "BluntResistance": {},
@@ -45,8 +58,7 @@
             "components": {
                 "BluntResistance": {
                     "data": {
-                        "base_value": 10,
-                        "curr_value": 10
+                        "res_val": 2
                     }
                 },
                 "Health": {
@@ -68,8 +80,7 @@
             "components": {
                 "BluntResistance": {
                     "data": {
-                        "base_value": 5,
-                        "curr_value": 5
+                        "res_val": 2
                     }
                 },
                 "Health": {

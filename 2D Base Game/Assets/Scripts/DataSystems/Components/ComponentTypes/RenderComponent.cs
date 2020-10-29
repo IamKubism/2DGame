@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace HighKings
 {
@@ -32,6 +33,19 @@ namespace HighKings
         {
             this.layer_name = layer_name;
             this.sprite_name = sprite_name;
+        }
+
+        public RenderComponent(JObject obj)
+        {
+            layer_name = sprite_name = "NULL";
+            if (obj["layer_name"] != null)
+            {
+                layer_name = obj.Value<string>("layer_name");
+            }
+            if(obj["sprite_name"] != null)
+            {
+                sprite_name = obj.Value<string>("sprite_name");
+            }
         }
 
         public override string ToString()

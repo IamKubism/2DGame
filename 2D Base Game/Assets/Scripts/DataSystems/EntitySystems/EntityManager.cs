@@ -112,6 +112,16 @@ namespace HighKings
             return to_return;
         }
 
+        public Entity GetEntity(int id)
+        {
+            if(entity_array.Count <= id)
+            {
+                Debug.LogWarning($"Could not find entity {id}");
+                return null;
+            }
+            return entity_array[id];
+        }
+
         List<Entity> AddSaverList(string type)
         {
             List<Entity> es = new List<Entity>();
@@ -141,6 +151,11 @@ namespace HighKings
         public Entity this[string s]
         {
             get => GetEntityFromId(s);
+        }
+
+        public Entity this[int k]
+        {
+            get => GetEntity(k);
         }
 
         /// <summary>

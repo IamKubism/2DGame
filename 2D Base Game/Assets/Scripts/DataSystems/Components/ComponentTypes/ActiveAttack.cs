@@ -12,12 +12,16 @@ namespace HighKings
 
         public ActiveAttack()
         {
-
         }
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            bool eval = true;
+            if(e.type == "DoDamage")
+            {
+                e.AddUpdates(attack);
+            }
+            return eval;
         }
     }
 }

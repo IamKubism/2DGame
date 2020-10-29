@@ -13,6 +13,7 @@ namespace HighKings
         public SubscriberEvent subscriber { get; set; }
 
         Dice d;
+
         public BluntDamage()
         {
             d = new Dice();
@@ -20,15 +21,15 @@ namespace HighKings
 
         public BluntDamage(BluntDamage prot)
         {
-            prot.d = new Dice(d);
+            d = new Dice(prot.d);
         }
 
-        public BluntDamage(JProperty p)
+        public BluntDamage(JObject p)
         {
             d = new Dice();
-            if(p.Value["dice"] != null)
+            if(p["d"] != null)
             {
-                d = new Dice(p.Value.Value<string>("dice"));
+                d = new Dice(p.Value<string>("d"));
             }
         }
 

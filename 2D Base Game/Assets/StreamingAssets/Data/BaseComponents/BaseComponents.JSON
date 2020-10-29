@@ -1,109 +1,116 @@
 {
-    "components": {
-        "ActivationDistance": {
-            "data": {
-                "base_value": 1,
-                "curr_value": 1,
-                "stat_name": "ActivationDistance"
-            },
-            "namespace": "Default",
-            "type": "BaseStatistic"
-        },
-        "BaseDamage": {
-            "data": {
-                "base_value": 10,
-                "curr_value": 10,
-                "stat_name": "BaseDamage"
-            },
-            "namespace": "Default",
-            "type": "BaseStatistic"
-        },
-        "BluntResistance": {
-            "data": {
-                "base_value": 0,
-                "curr_value": 0,
-                "stat_name": "BluntResistance"
-            },
-            "namespace": "Default",
-            "type": "BaseStatistic"
-        },
-        "Conscious": {
-            "data": {},
-            "namespace": "Default",
-            "type": "Conscious"
-        },
-        "EntityType": {
-            "data": {
-                "type_name": "NULL"
-            },
-            "namespace": "Default",
-            "type": "EntityType"
-        },
-        "Health": {
-            "data": {
-                "base_value": 100,
-                "curr_value": 100,
-                "stat_name": "Health"
-            },
-            "inspector_display": {
-                "default_position": 0,
-                "display_name": "Health",
-                "type": "Bar"
-            },
-            "namespace": "Default",
-            "type": "Health"
-        },
-        "MoveArea": {
-            "data": {},
-            "namespace": "Default",
-            "type": "MoveArea"
-        },
-        "Position": {
-            "data": {
-                "tile": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                }
-            },
-            "namespace": "Default",
-            "type": "Position"
-        },
-        "RenderComponent": {
-            "data": {
-                "layer_name": "NULL",
-                "sprite_name": "NULL"
-            },
-            "namespace": "Default",
-            "type": "RenderComponent"
-        },
-        "SelectionComponent": {
-            "data": {
-                "priority": 100
-            },
-            "namespace": "Default",
-            "type": "SelectionComponent"
-        },
-        "Strength": {
-            "data": {
-                "base_value": 10,
-                "curr_value": 10,
-                "stat_name": "Strength"
-            },
-            "inspector_display": {
-                "default_position": 2,
-                "display_name": "Strength",
-                "type": "Bar"
-            },
-            "namespace": "Default",
-            "type": "BaseStatistic"
-        },
-        "TileTerrain": {
-            "data": {
-                "move_cost": -1
-            },
-            "namespace": "Default",
-            "type": "TileTerrain"
-        }
-    }
+	"components": {
+		"ActivationDistance": {
+			"data": {
+				"base_value": 1,
+				"curr_value": 1,
+				"stat_name": "ActivationDistance"
+			},
+			"namespace": "Default",
+			"type": "BaseStatistic"
+		},
+		"BaseDamage": {
+			"data": {
+				"base_value": 10,
+				"curr_value": 10,
+				"stat_name": "BaseDamage"
+			},
+			"namespace": "Default",
+			"type": "BaseStatistic"
+		},
+		"BluntDamage": {
+			"data": {
+				"d": "0+1d1"
+			},
+			"namespace": "Default",
+			"type": "BluntDamage"
+		},
+		"BluntResistance": {
+			"data": {
+				"res_val": 0,
+				"stat_name": "BluntResistance"
+			},
+			"namespace": "Default",
+			"type": "BluntResistance"
+		},
+		"Conscious": {
+			"data": {},
+			"namespace": "Default",
+			"type": "Conscious"
+		},
+		"EntityType": {
+			"data": {
+				"type_name": "NULL"
+			},
+			"namespace": "Default",
+			"type": "EntityType"
+		},
+		"Health": {
+			"data": {
+				"base_value": 100,
+				"curr_value": 100,
+				"stat_name": "Health"
+			},
+			"inspector_display": {
+				"default_position": 0,
+				"display_name": "Health",
+				"type": "Bar"
+			},
+			"namespace": "Default",
+			"type": "Health"
+		},
+		"MoveArea": {
+			"data": {},
+			"namespace": "Default",
+			"type": "MoveArea"
+		},
+		"Position": {
+			"data": {
+				"tile": {
+					"x": 0,
+					"y": 0,
+					"z": 0
+				}
+			},
+			"namespace": "Default",
+			"type": "Position"
+		},
+		"RenderComponent": {
+			"data": {
+				"layer_name": "NULL",
+				"sprite_name": "NULL"
+			},
+			"namespace": "Default",
+			"type": "RenderComponent"
+		},
+		"SelectionComponent": {
+			"data": {
+				"priority": 100
+			},
+			"namespace": "Default",
+			"type": "SelectionComponent"
+		},
+		"Strength": {
+			"data": {
+				"base_value": 10,
+				"curr_value": 10,
+				"stat_name": "Strength"
+			},
+			"inspector_display": {
+				"default_position": 2,
+				"display_name": "Strength",
+				"type": "Bar",
+				"text": "Health: [curr_value] / [base_value]"
+			},
+			"namespace": "Default",
+			"type": "BaseStatistic"
+		},
+		"TileTerrain": {
+			"data": {
+				"move_cost": -1
+			},
+			"namespace": "Default",
+			"type": "TileTerrain"
+		}
+	}
 }

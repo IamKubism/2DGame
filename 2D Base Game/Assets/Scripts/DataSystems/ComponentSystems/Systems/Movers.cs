@@ -1,4 +1,10 @@
-﻿using System;
+﻿//////////////////////////////////////////////
+////// Mover Class
+////// Last Updated: Version 0.0.0 10/29/2020
+//////////////////////////////////////////////
+
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,11 +43,6 @@ namespace HighKings
             }
             PrototypeLoader.instance.AddSystemLoc("movers", this);
             ComponentSubscriberSystem dest_tiles = MainGame.instance.GetSubscriberSystem<MoveArea>();
-            dest_tiles.RegisterOnAdded((es) =>
-            {
-                dest_tiles.SubscribeAfterAction<MoveArea>(es, MoverPathMaker, "MoverPathMaker");
-                dest_tiles.SubscribeBeforeAction<MoveArea>(es, CancelMove, "CancelMove");
-            });
         }
 
         public void Update(float dt)
@@ -181,9 +182,7 @@ namespace HighKings
                 Debug.Log("Set to default behavior");
                 temp = MovementCalculator.test_calculator;
             }
-
             Path_Astar path = new Path_Astar(Path_TileGraph.movement_graph, entity, end_area, temp);
-
             if (path.Length() == 0)
             {
                 return;
@@ -270,6 +269,7 @@ namespace HighKings
 
         public static void MoverPathMaker(Entity source, Entity target)
         {
+            Debug.Log("Making path");
             IBehavior temp = MovementCalculator.test_calculator;
 
             Position end_p = target.GetComponent<Position>("Position");

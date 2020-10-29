@@ -43,14 +43,18 @@
 			]
 		}
 	},
-	"events":{
-		"DoDamage":{
-			"type":"DoDamage",
-			"priority": 10,
+	"events": {
+		"DoDamage": {
+			"type": "DoDamage",
+			"priority": 10
 		},
-		"TakeDamage":{
-			"type":"TakeDamage",
+		"TakeDamage": {
+			"type": "TakeDamage",
 			"priority": 0
+		},
+		"TryAction": {
+			"type": "Assign",
+			"priority": 3
 		}
 	},
 	"goals": {

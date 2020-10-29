@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿/////////////////////////////////////////
+/// Prototype loading for objects and components
+/// Last Updated: Version 0.0.0 10/27/2020
+/// Uses code from: https://rogerjohansson.blog/2008/02/28/linq-expressions-creating-objects/ for faster constructor calls
+/////////////////////////////////////////
+
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Newtonsoft.Json.Linq;
@@ -6,6 +12,7 @@ using System.Linq;
 using Priority_Queue;
 using System.Reflection;
 using HighKings;
+using System.Linq.Expressions;
 
 namespace HighKings
 {
@@ -23,8 +30,10 @@ namespace HighKings
 
         Dictionary<string, Type> comp_types;
         Dictionary<string, object> base_component_generators;
+        Dictionary<string, ConstructorInfo> jobject_constructors;
         Dictionary<string, object> base_component_defaults;
         JsonParser parser;
+        Dictionary<Tuple<string, ConstructorInfo>, ObjectActivator> object_activators;
 
         public static BindingFlags field_flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Default;
 
@@ -40,6 +49,8 @@ namespace HighKings
             base_component_generators = new Dictionary<string, object>();
             base_component_defaults = new Dictionary<string, object>();
             prototypes = new Dictionary<string, EntityPrototype>();
+            jobject_constructors = new Dictionary<string, ConstructorInfo>();
+            object_activators = new Dictionary<Tuple<string, ConstructorInfo>, ObjectActivator>();
         }
 
         public void ReadFile(string file_text)
@@ -65,7 +76,7 @@ namespace HighKings
             //Parse and iterate through the file
             JObject root = JObject.Parse(file_text);
 
-            if(root["components"] != null)
+            if (root["components"] != null)
             {
                 List<JToken> comp_list = root["components"].ToList();
                 foreach (JProperty comp in comp_list)
@@ -73,8 +84,8 @@ namespace HighKings
                     CreateComponentType(comp);
                 }
             }
-            
-            if(root["prototypes"] != null)
+
+            if (root["prototypes"] != null)
             {
                 List<JToken> prot_types = root["prototypes"].ToList();
                 foreach (JProperty prot in prot_types)
@@ -83,25 +94,25 @@ namespace HighKings
                 }
             }
 
-            if(root["actions"] != null)
+            if (root["actions"] != null)
             {
                 List<JToken> action_types = root["actions"].ToList();
-                foreach(JProperty act in action_types)
+                foreach (JProperty act in action_types)
                 {
                     CreateActionPrototype(act);
                 }
             }
 
-            if(root["retrieval_actions"] != null)
+            if (root["retrieval_actions"] != null)
             {
                 List<JToken> action_types = root["retrieval_actions"].ToList();
-                foreach(JProperty prop in action_types)
+                foreach (JProperty prop in action_types)
                 {
                     CreateRetrievalAction(prop);
                 }
             }
 
-            if(root["goals"] != null)
+            if (root["goals"] != null)
             {
                 CreateGoalSet(root["goals"].ToList());
             }
@@ -131,8 +142,18 @@ namespace HighKings
 
             object comp_gen = base_component_generators[comp_name];
 
-            base_component_defaults.Add(comp_name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
-                new object[2] { comp_data.Value["data"].ToString(), parser }));
+            ConstructorInfo constructor = c_type.GetConstructor(new Type[1] { typeof(JObject) });
+
+            if (constructor != null)
+            {
+                jobject_constructors.Add(comp_name, constructor);
+                base_component_defaults.Add(comp_name, constructor.Invoke(new object[1] { comp_data.Value["data"] }));
+            }
+            else
+            {
+                base_component_defaults.Add(comp_name, comp_gen.GetType().GetMethod("GenThing").Invoke(comp_gen,
+                    new object[2] { comp_data.Value["data"].ToString(), parser }));
+            }
 
             if (comp_data.Value["inspector_display"] != null)
             {
@@ -147,9 +168,28 @@ namespace HighKings
             if (comp_type == null)
             {
                 Debug.LogError($"Could not find component type {type_name}");
+                return;
             }
             Type gen_type = generator_type.MakeGenericType(comp_type);
             base_component_generators.Add(comp_name, Activator.CreateInstance(gen_type));
+
+            ConstructorInfo[] constructors = comp_type.GetConstructors();
+            foreach(ConstructorInfo c in constructors)
+            {
+                object_activators.Add(new Tuple<string, ConstructorInfo>(comp_name, c), GetActivator(c));
+            }
+            //foreach(ConstructorInfo constructor in constructors)
+            //{
+            //    ParameterInfo[] pars = constructor.GetParameters();
+            //    object[] key_args = new object[pars.Length+1];
+            //    key_args[0] = comp_name;
+            //    for(int i = 0; i < pars.Length; i += 1)
+            //    {
+            //        key_args[i + 1] = pars[i].ParameterType;
+            //        key_args[i + 1] = pars[i].ParameterType;
+            //    }
+            //    object_activators.Add(key_args, GetActivator(constructor));
+            //}
         }
 
         void AddComponentSubscriber(string type_name, string comp_name)
@@ -165,7 +205,7 @@ namespace HighKings
                 string s = $"Could not find correct constructor for {comp_name} of type {type_name}";
                 Debug.LogError(s);
             }
-            MainGame.instance.AddComponentSubscribers(comp_name, constructor.Invoke(new object[1]{ comp_name }));
+            MainGame.instance.AddComponentSubscribers(comp_name, constructor.Invoke(new object[1] { comp_name }));
         }
 
         public void AddSystemLoc(string sys_name, ISystemAdder sys)
@@ -181,7 +221,7 @@ namespace HighKings
         void CreateEntityPrototype(JProperty prot)
         {
             string prot_name = prot.Name;
-            
+
             //Generate a fresh prototype
             EntityPrototype p = new EntityPrototype(prot_name);
             List<JToken> prot_sub = prot.Values().ToList();
@@ -212,13 +252,15 @@ namespace HighKings
                     {
                         comp_type = p.components[comp_name].data.GetType();
                         generated_comp = p.components[comp_name].data;
-                    } else
+                    }
+                    else
                     {
-                        if(base_component_defaults.ContainsKey(comp_name) == false)
+                        if (base_component_defaults.ContainsKey(comp_name) == false)
                         {
                             Debug.LogError($"Could not find component: {comp_name} for prototype: {prot_name}");
                             continue;
-                        } else
+                        }
+                        else
                         {
                             comp_type = base_component_defaults[comp_name].GetType();
                             generated_comp = GetBaseComponent(comp_name);
@@ -226,10 +268,17 @@ namespace HighKings
                         }
                     }
 
-                    if(comp.Value["data"] != null)
+                    if (comp.Value["data"] != null)
                     {
-                        generated_comp = base_component_generators[comp_name].GetType().GetMethod("GenThing").Invoke(base_component_generators[comp_name],
-                                        new object[2] { comp.Value["data"].ToString(), parser });
+                        if (jobject_constructors.ContainsKey(comp.Name))
+                        {
+                            generated_comp = jobject_constructors[comp.Name].Invoke(new object[1] { comp.Value["data"] });
+                        }
+                        else
+                        {
+                            generated_comp = base_component_generators[comp_name].GetType().GetMethod("GenThing").Invoke(base_component_generators[comp_name],
+                                            new object[2] { comp.Value["data"].ToString(), parser });
+                        }
                     }
 
                     p.SetComponent(comp, generated_comp);
@@ -242,13 +291,14 @@ namespace HighKings
         {
             EntityAction action = new EntityAction(act);
             ActionList.instance.RegisterAction(act.Name, action);
-            if(act.Value["tags"] == null)
+            if (act.Value["tags"] == null)
             {
                 Debug.LogError($"Action: {act.Name} has no tags");
-            } else
+            }
+            else
             {
                 List<JToken> tags = act.Value["tags"].ToList();
-                if(tags.Count < 1)
+                if (tags.Count < 1)
                 {
                     Debug.LogError($"Action: {act.Name} has no tags");
                 }
@@ -267,13 +317,13 @@ namespace HighKings
         public void CreateGoalPrototype(JProperty prop)
         {
             Type t = Type.GetType(GenerateTypeName(prop.Value["type"].ToString(), prop.Value["namespace"].ToString()));
-            if(t == null)
+            if (t == null)
             {
                 Debug.LogError($"Could not find type: {GenerateTypeName(prop.Value["type"].ToString(), prop.Value["namespace"].ToString())}");
                 return;
             }
             ConstructorInfo constructor = t.GetConstructor(new Type[1] { typeof(JProperty) });
-            if(constructor == null)
+            if (constructor == null)
             {
                 Debug.LogError($"Could not find Json Constructor for {t.ToString()}");
                 return;
@@ -284,24 +334,24 @@ namespace HighKings
 
         public void CreateGoalSet(List<JToken> goals)
         {
-            foreach(JProperty p in goals)
+            foreach (JProperty p in goals)
             {
                 CreateGoalPrototype(p);
             }
 
             List<Tuple<string, string>> edges = new List<Tuple<string, string>>();
-            foreach(JProperty p in goals)
+            foreach (JProperty p in goals)
             {
-                if(p.Value["child_nodes"] != null)
+                if (p.Value["child_nodes"] != null)
                 {
-                    foreach(JToken j in p.Value["child_nodes"].ToList())
+                    foreach (JToken j in p.Value["child_nodes"].ToList())
                     {
                         edges.Add(new Tuple<string, string>(p.Name, j.Value<string>()));
                     }
                 }
                 if (p.Value["parent_nodes"] != null)
                 {
-                    foreach(JToken j in p.Value["parent_nodes"].ToList())
+                    foreach (JToken j in p.Value["parent_nodes"].ToList())
                     {
                         edges.Add(new Tuple<string, string>(j.Value<string>(), p.Name));
                     }
@@ -326,15 +376,26 @@ namespace HighKings
                     {
                         object[] dict_args = ekv.Value.ContainsKey(info.component_name) ? ekv.Value[info.component_name] : new object[0];
                         object[] args = new object[dict_args.Length + 1];
-                        Array.Copy(dict_args, args, dict_args.Length);
+                        for(int i = 0; i < dict_args.Length; i += 1)
+                        {
+                            args[i] = dict_args[i];
+                        }
                         args[dict_args.Length] = info.data;
+                        //args[dict_args.Length] = info.data;
+                        //object[] key_args = new object[args.Length + 1];
+                        //key_args[0] = info.component_name;
+                        //for(int i = 0; i < args.Length; i += 1)
+                        //{
+                        //    key_args[i + 1] = args[i].GetType();
+                        //}
 
-                        //I'm thinking its possible this will get slow but idk it seems not that bad, and might be more dynamic and would clean up the prototyping
+                        ////I'm thinking its possible this will get slow but idk it seems not that bad, and might be more dynamic and would clean up the prototyping
+                        ////LambdaExpression lambda = Expression.Lambda(typeof(PrototypeUtils.ObjectActivator<>), newExp, param);
                         ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
-                        if(c == null)
+                        if (c == null)
                         {
                             string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
-                            foreach(object o in args)
+                            foreach (object o in args)
                             {
                                 s += $" {o.ToString()}";
                             }
@@ -342,6 +403,20 @@ namespace HighKings
                             continue;
                         }
                         ekv.Key.AddComponent(info.component_name, (IBaseComponent)c.Invoke(args));
+                        
+                        //TODO: Get this working
+                        //ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
+                        //if (c == null || !object_activators.TryGetValue(new Tuple<string, ConstructorInfo>(info.component_name,c), out ObjectActivator activator))
+                        //{
+                        //    string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
+                        //    foreach (object o in args)
+                        //    {
+                        //        s += $" {o.ToString()}";
+                        //    }
+                        //    Debug.LogError(s);
+                        //    continue;
+                        //}
+                        //ekv.Key.AddComponent(info.component_name, (IBaseComponent)activator.Invoke(args));
                     }
                     if (system_adders.ContainsKey(info.component_name + "_subscriber"))
                         adders.Add(system_adders[info.component_name + "_subscriber"]);
@@ -359,7 +434,7 @@ namespace HighKings
             watch.Stop();
             Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
         }
-        
+
         public ISystemAdder GetSystemById(string system_id)
         {
             return system_adders[system_id];
@@ -370,7 +445,8 @@ namespace HighKings
             if (base_component_defaults.ContainsKey(comp_name))
             {
                 return base_component_defaults[comp_name].GetType().GetConstructor(new Type[1] { base_component_defaults[comp_name].GetType() }).Invoke(new object[1] { base_component_defaults[comp_name] });
-            } else
+            }
+            else
             {
                 Debug.LogError($"Could not find default for component {comp_name}");
                 return default;
@@ -379,16 +455,92 @@ namespace HighKings
 
         public static string GenerateTypeName(string comp_name, string namespace_name)
         {
-            switch (namespace_name){
+            switch (namespace_name)
+            {
                 case "Default":
                     return typeof(PrototypeLoader).Namespace + "." + comp_name;
                 default:
                     return namespace_name + "." + comp_name;
             }
         }
+
+        public delegate object ObjectActivator(params object[] args);
+
+        public static ObjectActivator GetActivator(ConstructorInfo ctor)
+        {
+            Type type = ctor.DeclaringType;
+            ParameterInfo[] paramsInfo = ctor.GetParameters();
+
+            //create a single param of type object[]
+            ParameterExpression param =
+                Expression.Parameter(typeof(object[]), "args");
+
+            Expression[] argsExp =
+                new Expression[paramsInfo.Length];
+
+            //pick each arg from the params array 
+            //and create a typed expression of them
+            for (int i = 0; i < paramsInfo.Length; i++)
+            {
+                Expression index = Expression.Constant(i);
+                Type paramType = paramsInfo[i].ParameterType;
+
+                Expression paramAccessorExp =
+                    Expression.ArrayIndex(param, index);
+
+                Expression paramCastExp =
+                    Expression.Convert(paramAccessorExp, paramType);
+
+                argsExp[i] = paramCastExp;
+            }
+
+            //make a NewExpression that calls the
+            //ctor with the args we just created
+            NewExpression newExp = Expression.New(ctor, argsExp);
+
+            //create a lambda with the New
+            //Expression as body and our param object[] as arg
+            LambdaExpression lambda =
+                Expression.Lambda(typeof(ObjectActivator), newExp, param);
+
+            //compile it
+            ObjectActivator compiled = (ObjectActivator)lambda.Compile();
+            return compiled;
+        }
+
+        public class TypeArrayComparer : IEqualityComparer<object[]>
+        {
+            public bool Equals(object[] x, object[] y)
+            {
+                if (x.Length != y.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < x.Length; i++)
+                {
+                    if (x[i] != y[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public int GetHashCode(object[] obj)
+            {
+                int result = 17;
+                for (int i = 0; i < obj.Length; i++)
+                {
+                    unchecked
+                    {
+                        result = result * 23 + obj[i].GetHashCode();
+                    }
+                }
+                return result;
+            }
+        }
     }
 }
-
 
 /*
 [JsonObject(MemberSerialization.OptIn)]

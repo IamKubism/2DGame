@@ -8,10 +8,11 @@ using System;
 namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class Health : IBaseComponent
+    public class Health : IBaseComponent, IInspectorDisplay
     {
         public SubscriberEvent subscriber { get; set; }
-
+        public InspectorData inspector_data { get => MainGame.instance.display_data["Health"]; set { } }
+        
         [JsonProperty]
         public int curr_value;
 
@@ -42,19 +43,19 @@ namespace HighKings
             base_value = h.curr_value;
         }
 
-        public Health(JProperty p)
+        public Health(JObject p)
         {
-            if(p.Value["base_value"] != null)
+            base_value = curr_value = 1;
+
+            if(p["base_value"] != null)
             {
-               base_value = p.Value.Value<int>("base_value");
+               base_value = curr_value = p.Value<int>("base_value");
             }
-            if(p.Value["curr_value"] != null)
+            if(p["curr_value"] != null)
             {
-                curr_value = p.Value.Value<int>("curr_value");
-            } else
-            {
-                curr_value = base_value;
+                curr_value = p.Value<int>("curr_value");
             }
+
         }
 
         public bool Trigger(Event e)
@@ -80,6 +81,11 @@ namespace HighKings
                     break;
             }
             return eval;
+        }
+
+        public string DisplayText()
+        {
+            return $"Health: {curr_value} / {base_value}";
         }
     }
 }

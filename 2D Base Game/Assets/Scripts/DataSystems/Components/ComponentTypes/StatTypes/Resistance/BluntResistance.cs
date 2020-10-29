@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace HighKings
@@ -11,9 +12,26 @@ namespace HighKings
     {
         public SubscriberEvent subscriber { get; set; }
 
-
         [JsonProperty]
         public int res_val;
+
+        public BluntResistance()
+        {
+            res_val = 0;
+        }
+
+        public BluntResistance(JObject obj)
+        {
+            if(obj["res_val"] != null)
+            {
+                obj.Value<int>("res_val");
+            }
+        }
+
+        public BluntResistance(BluntResistance prot)
+        {
+            res_val = prot.res_val;
+        }
 
         public bool Trigger(Event e)
         {
@@ -30,11 +48,6 @@ namespace HighKings
                     break;
             }
             return eval;
-        }
-
-        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
-        {
-            throw new NotImplementedException();
         }
     }
 

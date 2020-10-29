@@ -54,7 +54,12 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            bool eval = true;
+            if (e.tags.Contains("SetMoveTarget"))
+            {
+                //Some way to get the target it needs to get set to
+            }
+            return eval;
         }
 
         public static implicit operator MoveArea(Entity e)

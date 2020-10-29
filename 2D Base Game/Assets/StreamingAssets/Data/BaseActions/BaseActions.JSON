@@ -55,6 +55,23 @@
 		"TryAction": {
 			"type": "Assign",
 			"priority": 3
+		},
+		"DecideMove": {
+			"type": "Assign",
+			"tags": [
+				"Positional",
+				"Movement",
+				"SetMoveTarget"
+			],
+			"priority": 10
+		},
+		"TileCost":{
+			"type": "Preference",
+			"tags":[
+				"Positional",
+				"Movement",
+				"Computation"
+			}
 		}
 	},
 	"goals": {

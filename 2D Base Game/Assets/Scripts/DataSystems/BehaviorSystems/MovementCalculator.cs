@@ -86,7 +86,7 @@ namespace HighKings
             (t) =>
             {
                 return t.move_cost;
-            }, "Terrain", "TerrainCost");
+            }, "TileTerrain", "TerrainCost");
         }
     }
 }

@@ -87,6 +87,7 @@ namespace HighKings
 
         public static EventManager instance;
         public Dictionary<string, TurnQueue> turn_pairs;
+        Dictionary<string, Event> event_prototypes;
 
         public EventManager()
         {
@@ -98,6 +99,7 @@ namespace HighKings
                 instance = this;
             }
             turn_pairs = new Dictionary<string, TurnQueue>();
+            event_prototypes = new Dictionary<string, Event>();
         }
 
         public void Update()
@@ -194,6 +196,36 @@ namespace HighKings
                 t.Push(q, turns_forward);
                 return t;
             }
+        }
+
+        public Event GetEvent(string id)
+        {
+            if (!event_prototypes.TryGetValue(id, out Event e))
+            {
+                Debug.LogWarning($"Could not find event {id}");
+            }
+            return e;
+        }
+
+        public Event PassEvent(Entity e, Event prot)
+        {
+            Event el = new Event(prot);
+            el.AddUpdates(e);
+            el.Invoke(e);
+            return el;
+        }
+
+        public Event PassEvent(Entity e, string prot)
+        {
+            Event ev = GetEvent(prot);
+            if(ev == null)
+            {
+                return null;
+            }
+            Event el = new Event(ev);
+            el.AddUpdates(e);
+            el.Invoke(e);
+            return el;
         }
     }
 }

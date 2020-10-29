@@ -43,9 +43,6 @@ namespace HighKings
         public EntityAction selectable_action;
 
         Func<Entity> curr_retrieval_action;
-
-        ITileBasedEffect effectTocall;
-
         public static int curr_z;
 
         // Start is called before the first frame update
@@ -80,12 +77,24 @@ namespace HighKings
                 {
                     last_click_pos = curr_frame_pos;
                 }
+                switch (GetWhichMouseButtonDown())
+                {
+                    case 2:
+                        break;
+                    case 1:
+                        Debug.Log("Click 1 Down");
+                        break;
+                    case 0:
+                        Debug.Log("Click 0 Down");
+                        break;
+                }
                 switch (GetWhichMouseButtonDrag())
                 {
                     case 2:
                         UpdateCameraPosition();
                         break;
                     case 1:
+                        Debug.Log("Click 1 Down");
                         break;
                     case 0:
                         break;
@@ -95,9 +104,11 @@ namespace HighKings
                     case 2:
                         break;
                     case 1:
+                        Debug.Log("Calling Click 1");
                         InvokeClickAction();
                         break;
                     case 0:
+                        Debug.Log("Calling Click 0");
                         SelectionProcedure();
                         break;
                 }
@@ -139,7 +150,7 @@ namespace HighKings
         {
             instance.selectable_action = action;
             instance.curr_retrieval_action = ActionList.instance.GetRetrievalAction(action.retrieval_action);
-            Debug.Log($"Set action to: {action.action_id}, retrieval action: {action.retrieval_action}");
+            Debug.Log($"Set action to: {instance.selectable_action.action_id}, retrieval action: {instance.curr_retrieval_action.ToString()}");
         }
 
         public static void SetClickAction(string action_id)
@@ -348,6 +359,7 @@ namespace HighKings
 
         int GetWhichMouseButtonUp()
         {
+            //Debug.Log("Getting mouse button");
             if (Input.GetMouseButtonUp(0))
             {
                 return 0;

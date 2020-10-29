@@ -64,16 +64,30 @@ namespace HighKings
 
         void MoveToNextTile(Event e)
         {
-            if (progress.IsOverMax())
+            while (progress.IsOverMax())
             {
                 if (path.Length() > 0)
                 {
-                    curr_tile = path.DeQueue();
-                    progress.Reset();
-                    e.SetParamValue("curr_tile", curr_tile, (p, n) => { return n; });
+                    Entity next = path.DeQueue();
+                    Entity parent = (Entity)e.GetParamValue("invoker");
+                    Event cost = Entity.Event_Manager().PassEvent(parent, "TileCost");
+                    float f = cost.GetParamValue<float>("tile_cost");
+                    if(f > 0)
+                    {
+                        curr_tile = next;
+                        progress += (-f);
+                        e.SetParamValue("curr_tile", curr_tile, (p, n) => { return n; });
+                    } else
+                    {
+                        //TODO: Get it to try to reset the thing
+                        progress.Reset();
+                        path = null;
+                        e.Cancel();
+                    }
                 }
                 if (path.Length() == 0)
                 {
+                    progress.Reset();
                     path = null;
                 }
             }

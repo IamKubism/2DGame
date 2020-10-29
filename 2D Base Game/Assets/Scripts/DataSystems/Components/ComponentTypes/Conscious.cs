@@ -140,7 +140,13 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            bool eval = true;
+            if (e.tags.Contains("Assign"))
+            {
+
+            }
+
+            return eval;
         }
 
         public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)

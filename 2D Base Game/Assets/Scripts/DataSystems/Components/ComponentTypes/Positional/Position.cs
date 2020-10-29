@@ -36,7 +36,6 @@ namespace HighKings
                 return tile.x;
             }
         }
-
         /// <summary>
         /// Coordinates of this position
         /// </summary>
@@ -47,8 +46,6 @@ namespace HighKings
                 return tile.y;
             }
         }
-
-
         /// <summary>
         /// Coordinates of this position
         /// </summary>
@@ -89,7 +86,6 @@ namespace HighKings
         /// </summary>
         public Position()
         {
-
         }
 
         /// <summary>
@@ -125,17 +121,6 @@ namespace HighKings
         {
             tile = pos.tile;
             disp_pos = pos.disp_pos;
-        }
-
-        /// <summary>
-        /// Gets the vector of p and scales it by f
-        /// </summary>
-        /// <param name="f"></param>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        public static Vector3 operator *(float f, Position p)
-        {
-            return f * (Vector3)p.disp_pos;
         }
 
         /// <summary>
@@ -192,8 +177,10 @@ namespace HighKings
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
-        public void UpdateToNewPoint(int x, int y, int z)
+        public void UpdateToNewPoint(int x, int y, int z, bool call_subscriber = false)
         {
+            if (call_subscriber)
+                subscriber.OperateBeforeOnComp();
             int[] px = new int[3] { x, y, z };
             UpdateState((ref Tile s, ref int[] r) =>
             {
@@ -207,14 +194,18 @@ namespace HighKings
             dp.y = y;
             dp.z = z;
             disp_pos = dp;
+            if (call_subscriber)
+                subscriber.OperateAfterOnComp();
         }
 
         /// <summary>
         /// Shifts something to the position p
         /// </summary>
         /// <param name="p"></param>
-        public void UpdateToNewPoint(Position p)
+        public void UpdateToNewPoint(Position p, bool call_subscriber = false)
         {
+            if (call_subscriber)
+                subscriber.OperateBeforeOnComp();
             UpdateState((ref Tile s, ref Position np) =>
             {
                 s.x = p.x;
@@ -227,6 +218,8 @@ namespace HighKings
             dp.y = y;
             dp.z = z;
             disp_pos = dp;
+            if (call_subscriber)
+                subscriber.OperateAfterOnComp();
         }
 
         /// <summary>
@@ -235,8 +228,10 @@ namespace HighKings
         /// <param name="dx"></param>
         /// <param name="dy"></param>
         /// <param name="dz"></param>
-        public void ShiftPos(int dx, int dy, int dz)
+        public void ShiftPos(int dx, int dy, int dz, bool call_subscriber = false)
         {
+            if (call_subscriber)
+                subscriber.OperateBeforeOnComp();
             int[] dp = new int[3] { dx, dy, dz };
             UpdateState((ref Tile s, ref int[] r) =>
             {
@@ -249,45 +244,53 @@ namespace HighKings
             dpn.y = y;
             dpn.z = z;
             disp_pos = dpn;
+            if (call_subscriber)
+                subscriber.OperateAfterOnComp();
         }
 
-        public void SetDispPos(SerializableVector3 vec)
+        public void SetDispPos(SerializableVector3 vec, bool call_subscriber = false)
         {
+            if (call_subscriber)
+                subscriber.OperateBeforeOnComp();
             disp_pos = vec;
-        }
-
-        public bool computable()
-        {
-            return true;
-        }
-
-        public string ComponentType()
-        {
-            return "Position";
+            if (call_subscriber)
+                subscriber.OperateAfterOnComp();
         }
 
         public void OnUpdateState()
         {
         }
 
-        public void RegisterUpdateAction(Action<IBaseComponent> update)
+        public static Entity ToCell(Position pos)
         {
-
+            return World.instance.GetTileFromCoords(pos.p);
         }
 
-        public void SetListener(SubscriberEvent subscriber)
-        {
-            this.subscriber = subscriber;
-        }
 
         public bool Trigger(Event e)
         {
-            return true;
+            bool eval = true;
+            if (e.tags.Contains("Positional"))
+            {
+                e.AddUpdate(SetCurrTileParam, 0);
+                e.AddUpdate(GetCurrTileParam, 1000);
+            }
+            return eval;
         }
 
-        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
+        public void SetCurrTileParam(Event e)
         {
-            throw new NotImplementedException();
+            e.SetParamValue("curr_tile", ToCell(this), (p1, p2) => { return p2; });
+        }
+
+        public void GetCurrTileParam(Event e)
+        {
+            UpdateToNewPoint((Entity)e.GetParamValue("curr_tile"), true);
+        }
+
+        public static implicit operator Position(Entity e)
+        {
+            return e.GetComponent<Position>();
         }
     }
 }

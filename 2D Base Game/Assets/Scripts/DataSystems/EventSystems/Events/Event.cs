@@ -16,13 +16,12 @@ namespace HighKings
         public List<string> tags;
         public Dictionary<string, object> parameters;
         SimplePriorityQueue<Action<Event>> updates;
-        Action<Entity> to_call;
 
         public Event()
         {
             id = "NONE";
             type = "NONE";
-            priority = 100;
+            priority = (1 << 30);
             parameters = new Dictionary<string, object>();
             tags = new List<string>();
         }
@@ -32,7 +31,6 @@ namespace HighKings
             this.id = id;
             this.type = type;
             this.priority = priority;
-            this.to_call = to_call;
             parameters = new Dictionary<string, object>();
             updates = new SimplePriorityQueue<Action<Event>>();
             tags = new List<string> { type };
@@ -42,8 +40,8 @@ namespace HighKings
         {
             parameters = new Dictionary<string, object>();
             id = p.Name;
-            type = p.Value.Value<string>("type");
-            priority = p.Value.Value<int>("priority");
+            type = p.Value["type"] != null ? p.Value.Value<string>("type") : "NULL";
+            priority = p.Value["priority"] != null ? p.Value.Value<int>("priority") : (1 << 30);
             if(p.Value["tags"] != null)
             {
                 tags = new List<string> { type };
@@ -60,7 +58,6 @@ namespace HighKings
             id = el.id;
             type = el.type;
             priority = el.priority;
-            to_call = el.to_call;
             tags = new List<string>(el.tags);
         }
 
@@ -74,22 +71,21 @@ namespace HighKings
 
         public void Invoke(Entity e)
         {
-            foreach(IBaseComponent b in e.components.Values)
-            {
-                b.Trigger(this);
-            }
+            AddUpdates(e);
             while(updates.Count > 0)
             {
                 updates.Dequeue()?.Invoke(this);
             }
-            to_call?.Invoke(e);
         }
 
         public void AddUpdates(Entity e)
         {
             foreach (IBaseComponent b in e.components.Values)
             {
-                b.Trigger(this);
+                if(b.Trigger(this) == false)
+                {
+                    return;
+                }
             }
         }
 
@@ -115,6 +111,15 @@ namespace HighKings
             return to_return;
         }
 
+        public T GetParamValue<T>(string key)
+        {
+            if(!parameters.TryGetValue(key, out object to_return))
+            {
+                Debug.LogWarning($"Could not find Key {key} for parameters with event {id}");
+            }
+            return (T)to_return;
+        }
+
         public bool HasParamValue(string key)
         {
             return parameters.ContainsKey(key);
@@ -137,6 +142,30 @@ namespace HighKings
             {
                 parameters.Add(key, o);
             }
+        }
+
+        public override string ToString()
+        {
+            string s = $"id: {id},\ntags: [";
+            for(int i = 0; i < tags.Count - 1; i+= 1)
+            {
+                s += $" {tags[i]},";
+            }
+            s += $" {tags.Last()}]\nParams: [";
+            int j = 0;
+            KeyValuePair<string, object> last;
+            foreach(KeyValuePair<string, object> ko in parameters)
+            {
+                j += 1;
+                if(j > parameters.Count)
+                {
+                    last = ko;
+                    break;
+                }
+                s += $" {{ {ko.Key} : {ko.Value.ToString()} }},";
+            }
+            s += $" {{ {last.Key} : {last.Value.ToString()} }}]";
+            return s;
         }
     }
 }

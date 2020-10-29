@@ -368,8 +368,11 @@ namespace HighKings
             List<ISystemAdder> adders = new List<ISystemAdder>();
             List<ComponentInfo> comps = p.components.Values.ToList();
 
+            //System.Diagnostics.Stopwatch w2 = System.Diagnostics.Stopwatch.StartNew();
+
             foreach (ComponentInfo info in comps)
             {
+                //w2.Restart();
                 if (!info.errored)
                 {
                     foreach (KeyValuePair<Entity, Dictionary<string, object[]>> ekv in entities)
@@ -421,6 +424,8 @@ namespace HighKings
                     if (system_adders.ContainsKey(info.component_name + "_subscriber"))
                         adders.Add(system_adders[info.component_name + "_subscriber"]);
                 }
+                //w2.Stop();
+                //Debug.Log($"Added: {info.component_name} in {w2.Elapsed}");
             }
 
             //System.Diagnostics.Stopwatch w2 = System.Diagnostics.Stopwatch.StartNew();

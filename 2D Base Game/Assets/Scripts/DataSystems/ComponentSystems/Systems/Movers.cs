@@ -23,6 +23,7 @@ namespace HighKings
         /// </summary>
         public Dictionary<Entity, ItemVector<Position, FloatMinMax>> mover_progress;
 
+
         /// <summary>
         /// The paths that the movers will make to get to their destinations
         /// </summary>
@@ -42,7 +43,7 @@ namespace HighKings
                 instance = this;
             }
             PrototypeLoader.instance.AddSystemLoc("movers", this);
-            ComponentSubscriberSystem dest_tiles = MainGame.instance.GetSubscriberSystem<MoveArea>();
+
         }
 
         public void Update(float dt)
@@ -135,6 +136,8 @@ namespace HighKings
 
         public void MoverPathMaker(Position[] end_area, Entity entity, IBehavior move_behavior)
         {
+            Debug.Log("Making path");
+
             //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = move_behavior;
             if(temp == null)
@@ -175,6 +178,8 @@ namespace HighKings
 
         public void MoverPathMaker(List<Entity> end_area, Entity entity, IBehavior move_behavior = default)
         {
+            Debug.Log("Making path");
+
             //This in general should not happen but I am just going to do this for testing purposes
             IBehavior temp = move_behavior;
             if(temp == null)
@@ -217,6 +222,8 @@ namespace HighKings
             //    Debug.LogError($"{entity.entity_string_id} does not have a PhysicalActive flag");
             //    return;
             //}
+            Debug.Log("Making path");
+
 
             IBehavior temp = move_behavior;
             if(temp == default)
@@ -260,6 +267,7 @@ namespace HighKings
 
         public void MoverPathMaker(Entity e, MoveArea m)
         {
+            Debug.Log("Making path");
             if (m.tile_entities == null)
                 return;
             if (m.tile_entities.Count == 0)
@@ -309,6 +317,8 @@ namespace HighKings
 
         public static void CancelMove(Entity source, Entity target)
         {
+            Debug.Log("Cancelling move path");
+
             MoverPathMaker(source, World.instance.GetTileFromCoords(source.GetComponent<Position>("Position").p));
         }
 

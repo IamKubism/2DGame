@@ -13,7 +13,6 @@ namespace HighKings
     {
         Dictionary<Entity, List<ComponentSubscriberSystem>> updates;
         Dictionary<Entity, FloatMinMax> entities_to_update;
-
         public void Update(float dt)
         {
             throw new NotImplementedException();

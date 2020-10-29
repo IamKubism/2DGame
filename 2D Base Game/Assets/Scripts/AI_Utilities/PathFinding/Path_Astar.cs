@@ -114,6 +114,98 @@ namespace HighKings
             }
         }
 
+        public Path_Astar(Path_TileGraph graph, Entity mover, Entity start, List<Entity> end)
+        {
+            this.graph = graph;
+            Func<Entity, Entity, float> computer = (e1, e2) =>
+            {
+                Event cost = EventManager.instance.PassEvent(e2, "SetTileData");
+                cost = new Event(cost, "TileCost");
+                cost.AddUpdates(e1);
+                cost.Invoke(e1);
+                return cost.GetParamValue<float>("move_cost") + Heuristic(e2, end[0]);
+            };
+            if (graph.tile_map.ContainsKey(start) == false)
+            {
+                Debug.LogError("Path_Astar -- Start Tile has no node");
+                return;
+            }
+            if (graph.tile_map.ContainsKey(end[0]) == false)
+            {
+                Debug.LogError("Path_Astar -- End Tile Has no node");
+                return;
+            }
+
+            end_pos = end[0];
+
+            Dictionary<Entity, Path_Node<Entity>> node_map = graph.tile_map;
+
+            List<Path_Node<Entity>> closed_set = new List<Path_Node<Entity>>();
+
+            SimplePriorityQueue<Path_Node<Entity>> open_set = new SimplePriorityQueue<Path_Node<Entity>>();
+
+            Dictionary<Path_Node<Entity>, float> g_score = new Dictionary<Path_Node<Entity>, float>();
+
+            Dictionary<Path_Node<Entity>, Path_Node<Entity>> came_from = new Dictionary<Path_Node<Entity>, Path_Node<Entity>>();
+
+            foreach (Path_Node<Entity> n in node_map.Values)
+            {
+                g_score[n] = Mathf.Infinity;
+            }
+            g_score[node_map[start]] = 0;
+
+            Dictionary<Path_Node<Entity>, float> f_score = new Dictionary<Path_Node<Entity>, float>();
+
+            foreach (Path_Node<Entity> n in node_map.Values)
+            {
+                f_score[n] = Mathf.Infinity;
+            }
+            f_score[node_map[start]] = Heuristic(node_map[start].data, end[0]);
+
+            open_set.Enqueue(node_map[start], f_score[node_map[start]]);
+
+            while (open_set.Count > 0)
+            {
+                Path_Node<Entity> current = open_set.Dequeue();
+
+                if (end.Contains(current.data))
+                {
+                    ReconstructPath(came_from, current);
+                    return;
+                }
+                closed_set.Add(current);
+                foreach (Path_Edge<Entity> e in current.edges)
+                {
+                    if (closed_set.Contains(e.node))
+                    {
+                        continue;
+                    }
+                    if (e.modifier * computer(mover, current.data) <= 0)
+                    {
+                        closed_set.Add(e.node);
+                        continue;
+                    }
+
+                    //TODO: Change e.cost to Behavior(e)
+                    float tentative_g = g_score[current] + e.modifier * cost_function.CalculateOnEntity(e.node.data);
+
+                    if (open_set.Contains(e.node) == false)
+                    {
+                        open_set.Enqueue(e.node, tentative_g + Heuristic(e.node.data, end[0]));
+                    }
+                    else if (tentative_g >= g_score[e.node])
+                    {
+                        continue;
+                    }
+
+                    came_from[e.node] = current;
+                    g_score[e.node] = tentative_g;
+                    f_score[e.node] = tentative_g + Heuristic(e.node.data, end[0]);
+                    //Debug.Log(f_score[e.node]);
+                }
+            }
+        }
+
         float FullCostFunction(Entity curr)
         {
             return cost_function.CalculateOnEntity(curr) + Heuristic(curr, end_pos);

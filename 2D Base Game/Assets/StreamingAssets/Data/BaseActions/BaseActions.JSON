@@ -65,13 +65,23 @@
 			],
 			"priority": 10
 		},
-		"TileCost":{
+		"TileCost": {
 			"type": "Preference",
-			"tags":[
+			"tags": [
 				"Positional",
 				"Movement",
 				"Computation"
-			}
+			],
+			"priority": 3
+		},
+		"SetTileData": {
+			"type": "DataSet",
+			"tags": [
+				"Positional",
+				"Movement",
+				"Tile"
+			],
+			"priority": 4
 		}
 	},
 	"goals": {

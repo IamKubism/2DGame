@@ -28,6 +28,7 @@ namespace HighKings
         Dictionary<string, EntityPrototype> prototypes;
         Dictionary<string, ISystemAdder> system_adders;
 
+        EventManager event_manager;
         Dictionary<string, Type> comp_types;
         Dictionary<string, object> base_component_generators;
         Dictionary<string, ConstructorInfo> jobject_constructors;
@@ -51,6 +52,7 @@ namespace HighKings
             prototypes = new Dictionary<string, EntityPrototype>();
             jobject_constructors = new Dictionary<string, ConstructorInfo>();
             object_activators = new Dictionary<Tuple<string, ConstructorInfo>, ObjectActivator>();
+            event_manager = EventManager.instance ?? new EventManager();
         }
 
         public void ReadFile(string file_text)
@@ -115,6 +117,15 @@ namespace HighKings
             if (root["goals"] != null)
             {
                 CreateGoalSet(root["goals"].ToList());
+            }
+
+            if(root["events"] != null)
+            {
+                List<JToken> toks = root["events"].ToList();
+                foreach(JProperty prop in toks)
+                {
+                    CreateEventType(prop);
+                }
             }
 
             watch.Stop();
@@ -312,6 +323,11 @@ namespace HighKings
         public void CreateRetrievalAction(JProperty prop)
         {
             ActionList.instance.RegisterRetrievalAction(prop);
+        }
+
+        public void CreateEventType(JProperty p)
+        {
+            EventManager.instance.AddEventPrototype(p);
         }
 
         public void CreateGoalPrototype(JProperty prop)

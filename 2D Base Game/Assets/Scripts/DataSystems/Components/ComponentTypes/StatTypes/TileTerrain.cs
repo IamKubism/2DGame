@@ -39,12 +39,27 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            bool eval = true;
+            if(e.tags.Contains("DataSet") && e.tags.Contains("Tile"))
+            {
+                e.AddUpdate(SetTerrainCost, 3);
+            }
+            return eval;
         }
 
         public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
         {
             throw new NotImplementedException();
+        }
+
+        public void SetTerrainCost(Event e)
+        {
+            e.SetParamValue("terrain_cost", move_cost, (o1,o2) => { return AddCosts((float)o1, (float)o2); });
+        }
+
+        public float AddCosts(float f1, float f2)
+        {
+            return Mathf.Min(Mathf.Sign(f1),Mathf.Sign(f2))*Mathf.Abs(f1 + f2);
         }
     }
 }

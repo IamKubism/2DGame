@@ -64,9 +64,10 @@ namespace HighKings
         public Event(Event el, string forward_type)
         {
             parameters = new Dictionary<string, object>(el.parameters);
+            Event forward = EventManager.instance.GetEvent(forward_type);
             id = forward_type;
-            type = forward_type;
-            tags = new List<string>(el.tags);
+            type = forward.type;
+            tags = new List<string>(forward.tags);
         }
 
         public void Invoke(Entity e)

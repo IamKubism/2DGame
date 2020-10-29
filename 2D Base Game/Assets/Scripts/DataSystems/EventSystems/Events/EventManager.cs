@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace HighKings
 {
@@ -205,6 +206,11 @@ namespace HighKings
                 Debug.LogWarning($"Could not find event {id}");
             }
             return e;
+        }
+
+        public void AddEventPrototype(JProperty p)
+        {
+            event_prototypes.Add(p.Name, new Event(p));
         }
 
         public Event PassEvent(Entity e, Event prot)

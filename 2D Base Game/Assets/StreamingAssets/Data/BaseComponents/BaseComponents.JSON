@@ -111,6 +111,13 @@
 			},
 			"namespace": "Default",
 			"type": "TileTerrain"
+		},
+		"Walker": {
+			"data": {
+				"speed": 1
+			},
+			"namespace": "Default",
+			"type": "Walker"
 		}
 	}
 }

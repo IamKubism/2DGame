@@ -49,7 +49,8 @@
                     "data": {
                         "priority": 0
                     }
-                }
+                },
+				"Walker":{}
             }
         },
         "test_char_1": {

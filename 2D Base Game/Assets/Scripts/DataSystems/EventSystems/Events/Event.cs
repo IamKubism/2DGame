@@ -1,4 +1,10 @@
-﻿using Newtonsoft.Json.Linq;
+﻿//////////////////////////////////////////////////
+/// The Main mediator type for entities interacting, components can subscribe actions to individual events to effect what it does
+/// Last Updated: Version 0.0.0 10/30/2020
+/// Updater: _Kubism
+//////////////////////////////////////////////////
+
+using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +20,9 @@ namespace HighKings
         public string type;
         public int priority;
         public List<string> tags;
+
         public Dictionary<string, object> parameters;
+        //TODO: Make the elements of this a data structure to make code easier to debug/read
         SimplePriorityQueue<Action<Event>> updates;
 
         public Event()

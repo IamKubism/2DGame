@@ -16,16 +16,19 @@ namespace HighKings
         public SubscriberEvent subscriber { get; set; }
         List<IGoal> goals;
         Dictionary<IGoal, Entity> goal_targets;
+        List<Entity> goal_actions;
 
         public Conscious()
         {
             goals = new List<IGoal>();
             goal_targets = new Dictionary<IGoal, Entity>();
+            goal_actions = new List<Entity>();
         }
 
         public Conscious(Entity parent)
         {
             goals = new List<IGoal>();
+            goal_actions = new List<Entity>();
             goal_targets = new Dictionary<IGoal, Entity>();
             this.parent = parent;
             goals.Add(FullGoalMap.instance["NoGoal"]);
@@ -35,6 +38,7 @@ namespace HighKings
         public Conscious(Conscious conscious)
         {
             parent = conscious.parent;
+            goal_actions = new List<Entity>();
             goals = new List<IGoal>(conscious.goals);
             goal_targets = new Dictionary<IGoal, Entity>(conscious.goal_targets);
         }
@@ -141,14 +145,28 @@ namespace HighKings
         public bool Trigger(Event e)
         {
             bool eval = true;
-            if (e.tags.Contains("Assign"))
+            if (e.tags.Contains("AssignGoal"))
             {
-
             }
             if (e.tags.Contains("EvaluateGoals"))
             {
 
             }
+            return eval;
+        }
+
+        public bool AddAssignmentProtocol(Event e)
+        {
+            bool eval = true;
+            Entity target = e.GetParamValue<Entity>("target_entity");
+
+            return eval;
+        }
+
+        public bool SetAGoal(Event e)
+        {
+            bool eval = false;
+
             return eval;
         }
     }

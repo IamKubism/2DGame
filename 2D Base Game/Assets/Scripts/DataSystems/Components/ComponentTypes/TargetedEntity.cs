@@ -62,6 +62,7 @@ namespace HighKings
                 case "DoDamage":
                     e.AddUpdate((v) =>
                     {
+                        v.SetParamValue("target_entity", targeted_entity, (e1, e2) => { return e2; });
                         EventManager.instance.AddEvent(targeted_entity, new Event(v, "TakeDamage"));
                     }, 100);
                     break;

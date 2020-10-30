@@ -56,6 +56,8 @@ namespace HighKings
                                 v.SetParamValue("total_damage", new DiceGroup());
                             v.SetParamValue("damage_type", v.GetParamValue("damage_type") + ",blunt");
                         }, 1);
+                    e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("blunt_damage", e.GetParamValue<DiceGroup>("blunt_damage")); },1);
+                    e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("total_damage", ev.GetParamValue<float>("blunt_damage"), (d1, d2) => { return d1 + d2; }); },50);
                     break;
             }
             return eval;

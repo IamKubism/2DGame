@@ -413,10 +413,10 @@ namespace HighKings
                         ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
                         if (c == null)
                         {
-                            string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
+                            string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} component {info.component_name} with args:";
                             foreach (object o in args)
                             {
-                                s += $" {o.ToString()}";
+                                s += $" {o.GetType().ToString()}";
                             }
                             Debug.LogError(s);
                             continue;

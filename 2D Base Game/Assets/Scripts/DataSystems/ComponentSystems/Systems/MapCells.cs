@@ -36,41 +36,21 @@ namespace HighKings
             foreach(Entity e in entities)
             {
                 Position p = e.GetComponent<Position>();
-                List<Entity> cell = world.tile_map.cells[p.x, p.y, p.z];
-                if (cell.Contains(e))
-                {
-                    continue;
-                } else
-                {
-                    cell.Add(e);
-                }
+                Cell cell = world.GetTileFromCoords(p.p).GetComponent<Cell>();
+                cell.AddOccupant(e);
             }
         }
 
         public void AddOccupant(Entity e, Position p)
         {
-            List<Entity> cell = world.tile_map.cells[p.x, p.y, p.z];
-            if (cell.Contains(e))
-            {
-                Debug.LogError("Tried to add an entity to a cell more than once");
-            }
-            else
-            {
-                cell.Add(e);
-            }
+            Cell cell = world.GetTileFromCoords(p.p).GetComponent<Cell>();
+            cell.AddOccupant(e);
         }
 
         public void RemoveOccupant(Entity entity, Position p)
         {
-            List<Entity> cell = world.tile_map.cells[p.x, p.y, p.z];
-            if (cell.Contains(entity) == false)
-            {
-                Debug.LogError("Tried to remove an entity from a cell it is not part of");
-            }
-            else
-            {
-                cell.Remove(entity);
-            }
+            Cell cell = world.GetTileFromCoords(p.p).GetComponent<Cell>();
+            cell.RemoveOccupant(entity);
         }
     }
 }

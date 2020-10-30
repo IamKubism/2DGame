@@ -64,7 +64,7 @@ namespace HighKings
                 {
                     for (int z = 0; z < len_z; z += 1)
                     {
-                        args.Add(entities[$"tile_{x}_{y}_{z}"], new Dictionary<string, object[]> { { "Position", new object[3] { x, y, z } }, { "Cell", new object[1] { entities[$"tile_{x}_{y}_{z}"] } } });
+                        args.Add(entities[$"tile_{x}_{y}_{z}"], new Dictionary<string, object[]> { { "Position", new object[3] { x, y, z } } });
                         tiles[x, y, z] = entities[$"tile_{x}_{y}_{z}"];
                     }
                 }

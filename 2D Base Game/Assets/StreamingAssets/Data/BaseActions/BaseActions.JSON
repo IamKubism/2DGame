@@ -50,7 +50,7 @@
 		},
 		"TakeDamage": {
 			"type": "TakeDamage",
-			"priority": 0
+			"priority": 1
 		},
 		"TryAction": {
 			"type": "Assign",

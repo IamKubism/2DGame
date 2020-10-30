@@ -74,7 +74,7 @@ public class World
     public Entity GetTileFromCoords(int[] p)
     {
         return (p[0] >= 0) && (p[1] >= 0) && (p[2] >= 0) && (p[1] < len_x) && (p[1] < len_y) && (p[2] < len_z)
-               ? tile_map.tiles[p[1], p[2], p[3]] 
+               ? tile_map.tiles[p[0], p[1], p[2]] 
                : default;
     }
 

@@ -120,6 +120,7 @@ namespace HighKings
             //e.GetComponent<FlagComponent>("PhysicalActive").SetActive();
             Entity next_cell = paths[e].DeQueue();
             mover_progress[e].a = next_cell.GetComponent<Position>("Position");
+
             if(movement_behavior.CalculateOnEntity(next_cell) <= 0)
             {
                 mover_progress.Remove(e);

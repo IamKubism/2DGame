@@ -123,7 +123,7 @@ namespace HighKings
                 cost = new Event(cost, "TileCost");
                 cost.AddUpdates(e1);
                 cost.Invoke(e1);
-                return cost.GetParamValue<float>("move_cost") + Heuristic(e2, end[0]);
+                return cost.GetParamValue<float>("move_cost");
             };
             if (graph.tile_map.ContainsKey(start) == false)
             {
@@ -180,14 +180,13 @@ namespace HighKings
                     {
                         continue;
                     }
-                    if (e.modifier * computer(mover, current.data) <= 0)
+                    if (e.modifier * computer(mover, e.node.data) <= 0)
                     {
                         closed_set.Add(e.node);
                         continue;
                     }
 
-                    //TODO: Change e.cost to Behavior(e)
-                    float tentative_g = g_score[current] + e.modifier * cost_function.CalculateOnEntity(e.node.data);
+                    float tentative_g = g_score[current] + e.modifier * computer(mover, e.node.data);
 
                     if (open_set.Contains(e.node) == false)
                     {

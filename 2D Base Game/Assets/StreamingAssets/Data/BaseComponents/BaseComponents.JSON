@@ -118,6 +118,16 @@
 			},
 			"namespace": "Default",
 			"type": "Walker"
+		},
+		"Cell": {
+			"data": {},
+			"namespace": "Default",
+			"type": "Cell"
+		},
+		"MoverPath": {
+			"data": {},
+			"namespace": "Default",
+			"type": "MoverPath"
 		}
 	}
 }

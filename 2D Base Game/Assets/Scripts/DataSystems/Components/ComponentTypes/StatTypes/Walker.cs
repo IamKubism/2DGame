@@ -42,7 +42,7 @@ namespace HighKings
         public void SetMoveCost(Event e)
         {
             float terrain = e.GetParamValue<float>("terrain_cost");
-            e.SetParamValue("move_cost", terrain/speed, MathFunctions.NegativeRespectingSum);
+            e.SetParamValue("move_cost", speed != 0 ? terrain/speed : Mathf.Infinity, MathFunctions.NegativeRespectingSum);
         }
     }
 

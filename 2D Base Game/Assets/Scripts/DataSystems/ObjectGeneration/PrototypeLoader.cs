@@ -34,7 +34,7 @@ namespace HighKings
         Dictionary<string, ConstructorInfo> jobject_constructors;
         Dictionary<string, object> base_component_defaults;
         JsonParser parser;
-        Dictionary<Tuple<string, ConstructorInfo>, ObjectActivator> object_activators;
+        Dictionary<string, ObjectActivator> object_activators;
 
         public static BindingFlags field_flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Default;
 
@@ -51,7 +51,7 @@ namespace HighKings
             base_component_defaults = new Dictionary<string, object>();
             prototypes = new Dictionary<string, EntityPrototype>();
             jobject_constructors = new Dictionary<string, ConstructorInfo>();
-            object_activators = new Dictionary<Tuple<string, ConstructorInfo>, ObjectActivator>();
+            object_activators = new Dictionary<string, ObjectActivator>();
             event_manager = EventManager.instance ?? new EventManager();
         }
 
@@ -187,19 +187,23 @@ namespace HighKings
             ConstructorInfo[] constructors = comp_type.GetConstructors();
             foreach(ConstructorInfo c in constructors)
             {
-                object_activators.Add(new Tuple<string, ConstructorInfo>(comp_name, c), GetActivator(c));
+                string s = comp_name;
+                foreach (ParameterInfo t in c.GetParameters())
+                    s += $",{t.ParameterType}";
+                if(object_activators.ContainsKey(s)==false)
+                    object_activators.Add(s, GetActivator(c));
             }
-            //foreach(ConstructorInfo constructor in constructors)
+            //foreach (ConstructorInfo constructor in constructors)
             //{
             //    ParameterInfo[] pars = constructor.GetParameters();
-            //    object[] key_args = new object[pars.Length+1];
+            //    object[] key_args = new object[pars.Length + 1];
             //    key_args[0] = comp_name;
-            //    for(int i = 0; i < pars.Length; i += 1)
+            //    for (int i = 0; i < pars.Length; i += 1)
             //    {
             //        key_args[i + 1] = pars[i].ParameterType;
             //        key_args[i + 1] = pars[i].ParameterType;
             //    }
-            //    object_activators.Add(key_args, GetActivator(constructor));
+            //    object_activators.Add(constructor, GetActivator(constructor));
             //}
         }
 
@@ -393,49 +397,22 @@ namespace HighKings
                 {
                     foreach (KeyValuePair<Entity, Dictionary<string, object[]>> ekv in entities)
                     {
+                        string key = info.component_name;
                         object[] dict_args = ekv.Value.ContainsKey(info.component_name) ? ekv.Value[info.component_name] : new object[0];
                         object[] args = new object[dict_args.Length + 1];
                         for(int i = 0; i < dict_args.Length; i += 1)
                         {
+                            key += $",{dict_args[i].GetType().ToString()}";
                             args[i] = dict_args[i];
                         }
                         args[dict_args.Length] = info.data;
-                        //args[dict_args.Length] = info.data;
-                        //object[] key_args = new object[args.Length + 1];
-                        //key_args[0] = info.component_name;
-                        //for(int i = 0; i < args.Length; i += 1)
-                        //{
-                        //    key_args[i + 1] = args[i].GetType();
-                        //}
-
-                        ////I'm thinking its possible this will get slow but idk it seems not that bad, and might be more dynamic and would clean up the prototyping
-                        ////LambdaExpression lambda = Expression.Lambda(typeof(PrototypeUtils.ObjectActivator<>), newExp, param);
-                        ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
-                        if (c == null)
+                        key += $",{info.data.GetType().ToString()}";
+                        if(!object_activators.TryGetValue(key, out ObjectActivator obact))
                         {
-                            string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} component {info.component_name} with args:";
-                            foreach (object o in args)
-                            {
-                                s += $" {o.GetType().ToString()}";
-                            }
-                            Debug.LogError(s);
+                            Debug.LogError($"Could not find constructor: {key}");
                             continue;
                         }
-                        ekv.Key.AddComponent(info.component_name, (IBaseComponent)c.Invoke(args));
-                        
-                        //TODO: Get this working
-                        //ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
-                        //if (c == null || !object_activators.TryGetValue(new Tuple<string, ConstructorInfo>(info.component_name,c), out ObjectActivator activator))
-                        //{
-                        //    string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
-                        //    foreach (object o in args)
-                        //    {
-                        //        s += $" {o.ToString()}";
-                        //    }
-                        //    Debug.LogError(s);
-                        //    continue;
-                        //}
-                        //ekv.Key.AddComponent(info.component_name, (IBaseComponent)activator.Invoke(args));
+                        ekv.Key.AddComponent(info.component_name, (IBaseComponent)obact.Invoke(args));
                     }
                     if (system_adders.ContainsKey(info.component_name + "_subscriber"))
                         adders.Add(system_adders[info.component_name + "_subscriber"]);
@@ -527,38 +504,6 @@ namespace HighKings
             //compile it
             ObjectActivator compiled = (ObjectActivator)lambda.Compile();
             return compiled;
-        }
-
-        public class TypeArrayComparer : IEqualityComparer<object[]>
-        {
-            public bool Equals(object[] x, object[] y)
-            {
-                if (x.Length != y.Length)
-                {
-                    return false;
-                }
-                for (int i = 0; i < x.Length; i++)
-                {
-                    if (x[i] != y[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            public int GetHashCode(object[] obj)
-            {
-                int result = 17;
-                for (int i = 0; i < obj.Length; i++)
-                {
-                    unchecked
-                    {
-                        result = result * 23 + obj[i].GetHashCode();
-                    }
-                }
-                return result;
-            }
         }
     }
 }
@@ -940,3 +885,37 @@ public class TestDataStruct : GetsPut, ICloneable
 //}
 
 //p.SetComponent(info, info_fields, over_fields);
+//args[dict_args.Length] = info.data;
+//object[] key_args = new object[args.Length + 1];
+//key_args[0] = info.component_name;
+//for(int i = 0; i < args.Length; i += 1)
+//{
+//    key_args[i + 1] = args[i].GetType();
+//}
+
+////I'm thinking its possible this will get slow but idk it seems not that bad, and might be more dynamic and would clean up the prototyping
+////LambdaExpression lambda = Expression.Lambda(typeof(PrototypeUtils.ObjectActivator<>), newExp, param);
+//ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
+//if (c == null)
+//{
+//    string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} component {info.component_name} with args:";
+//    foreach (object o in args)
+//    {
+//        s += $" {o.GetType().ToString()}";
+//    }
+//    Debug.LogError(s);
+//    continue;
+//}
+//TODO: Get this working
+//ConstructorInfo c = info.data.GetType().GetConstructor(Array.ConvertAll(args, item => item.GetType()));
+//if (c == null || !object_activators.TryGetValue(new Tuple<string, ConstructorInfo>(info.component_name,c), out ObjectActivator activator))
+//{
+//    string s = $"Could not find correct constructor for: {ekv.Key.entity_string_id} with args:";
+//    foreach (object o in args)
+//    {
+//        s += $" {o.ToString()}";
+//    }
+//    Debug.LogError(s);
+//    continue;
+//}
+//ekv.Key.AddComponent(info.component_name, (IBaseComponent)activator.Invoke(args));

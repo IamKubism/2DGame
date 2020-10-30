@@ -82,10 +82,8 @@ namespace HighKings
                     case 2:
                         break;
                     case 1:
-                        //Debug.Log("Click 1 Down");
                         break;
                     case 0:
-                        //Debug.Log("Click 0 Down");
                         break;
                 }
                 switch (GetWhichMouseButtonDrag())
@@ -94,7 +92,6 @@ namespace HighKings
                         UpdateCameraPosition();
                         break;
                     case 1:
-                        //Debug.Log("Click 1 Down");
                         break;
                     case 0:
                         break;
@@ -104,11 +101,9 @@ namespace HighKings
                     case 2:
                         break;
                     case 1:
-                        //Debug.Log("Calling Click 1");
                         InvokeClickAction();
                         break;
                     case 0:
-                        //Debug.Log("Calling Click 0");
                         SelectionProcedure();
                         break;
                 }

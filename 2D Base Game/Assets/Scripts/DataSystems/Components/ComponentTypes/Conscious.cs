@@ -145,7 +145,7 @@ namespace HighKings
             {
 
             }
-            if (e.tags.Contains(""))
+            if (e.tags.Contains("EvaluateGoals"))
             {
 
             }

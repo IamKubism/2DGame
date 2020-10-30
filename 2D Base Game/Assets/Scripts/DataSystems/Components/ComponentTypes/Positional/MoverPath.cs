@@ -48,6 +48,7 @@ namespace HighKings
         void ProgressMovement(Event e)
         {
             //progress += (float)e.GetParamValue("move_speed"); //TODO
+            e.SetParamValue("move_progress", 0.0001f, (f1, f2) => { return f1; });
             progress += e.GetParamValue<float>("move_progress");
         }
 

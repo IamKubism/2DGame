@@ -145,6 +145,25 @@ namespace HighKings
             }
         }
 
+        public void SetParamValue<T>(string key, T o, Func<T, T, T> combine_func = null)
+        {
+            if (parameters.ContainsKey(key))
+            {
+                if(combine_func == null)
+                {
+                    Debug.LogWarning("An event component was called to change without a combiner function");
+                    parameters[key] = o;
+                } else
+                {
+                    parameters[key] = combine_func.Invoke((T)parameters[key], o);
+                }
+            }
+            else
+            {
+                parameters.Add(key, o);
+            }
+        }
+
         public override string ToString()
         {
             string s = $"id: {id},\ntags: [";

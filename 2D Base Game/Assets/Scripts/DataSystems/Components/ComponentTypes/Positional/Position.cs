@@ -292,5 +292,10 @@ namespace HighKings
         {
             return e.GetComponent<Position>();
         }
+
+        public static implicit operator int[](Position p)
+        {
+            return p.p;
+        }
     }
 }

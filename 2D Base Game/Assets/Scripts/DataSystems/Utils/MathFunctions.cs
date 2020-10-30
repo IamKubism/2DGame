@@ -86,5 +86,10 @@ namespace HighKings
         {
             return Pow(p1.x - p2.x,2)+Pow(p1.y-p2.y,2) + Pow(p1.z-p2.z,2);
         }
+
+        public static float NegativeRespectingSum(float f1, float f2)
+        {
+            return Mathf.Min(Mathf.Sign(f1), Mathf.Sign(f2))*(Mathf.Abs(f1)+Mathf.Abs(f2));
+        }
     }
 }

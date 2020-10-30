@@ -145,13 +145,11 @@ namespace HighKings
             {
 
             }
+            if (e.tags.Contains(""))
+            {
 
+            }
             return eval;
-        }
-
-        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
-        {
-            throw new NotImplementedException();
         }
     }
 }

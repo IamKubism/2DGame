@@ -78,6 +78,11 @@ public class World
                : default;
     }
 
+    public Entity GetTileFromPosition(Position p)
+    {
+        return GetTileFromCoords(p.p);
+    }
+
     public List<Entity> GetTilesAroundEntity(Entity center, int min_sqr_dist, int max_sqr_dist)
     {
         List<Entity> tiles = tile_map.GetNeighborTiles(center, max_sqr_dist);

@@ -31,7 +31,7 @@ namespace HighKings
             bool eval = true;
             if(attack == null)
             {
-                eval &= false;
+                eval = false;
             } else
             {
                 if (e.type == "DoDamage")

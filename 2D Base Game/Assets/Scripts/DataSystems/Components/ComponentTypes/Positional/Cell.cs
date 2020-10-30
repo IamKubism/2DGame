@@ -1,4 +1,10 @@
-﻿using System.Collections;
+﻿/////////////////////////////////////////////
+/// Cell Component for keeping track of entities in a cell
+/// Last Updated: Version 0.0.0 10/30/2020
+/////////////////////////////////////////////
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
@@ -43,7 +49,12 @@ namespace HighKings
             return eval;
         }
 
-        public void AddOccupant(Entity e, bool call_subscriber = false)
+        /// <summary>
+        /// Add an occupant to a cell on the map
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="call_subscriber"></param>
+        public void AddOccupant(string e, bool call_subscriber = false)
         {
             if (call_subscriber)
                 subscriber.OperateBeforeOnComp();
@@ -53,10 +64,15 @@ namespace HighKings
             }
             occupants.Add(e);
             if (call_subscriber)
-                subscriber.OperateBeforeOnComp();
+                subscriber.OperateAfterOnComp();
         }
 
-        public void RemoveOccupant(Entity e, bool call_subscriber = false)
+        /// <summary>
+        /// Remove an occupant from a cell on the map
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="call_subscriber"></param>
+        public void RemoveOccupant(string e, bool call_subscriber = false)
         {
             if (call_subscriber)
                 subscriber.OperateBeforeOnComp();
@@ -65,7 +81,24 @@ namespace HighKings
                 occupants.Remove(e);
             }
             if (call_subscriber)
+                subscriber.OperateAfterOnComp();
+        }
+
+        /// <summary>
+        /// Really more of a debugging thing. 
+        /// </summary>
+        /// <param name="call_subscriber"></param>
+        public void CheckOccupants(bool call_subscriber = false)
+        {
+            if (call_subscriber)
                 subscriber.OperateBeforeOnComp();
+            foreach (string occupant in occupants)
+            {
+                if (!Entity.Manager().CheckExistance(occupant))
+                    RemoveOccupant(occupant);
+            }
+            if (call_subscriber)
+                subscriber.OperateAfterOnComp();
         }
 
         public bool Contains(Entity e)

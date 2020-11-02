@@ -114,10 +114,10 @@ namespace HighKings
                 }
             }
 
-            if (root["goals"] != null)
-            {
-                CreateGoalSet(root["goals"].ToList());
-            }
+            //if (root["goals"] != null)
+            //{
+            //    CreateGoalSet(root["goals"].ToList());
+            //}
 
             if(root["events"] != null)
             {
@@ -193,18 +193,6 @@ namespace HighKings
                 if(object_activators.ContainsKey(s)==false)
                     object_activators.Add(s, GetActivator(c));
             }
-            //foreach (ConstructorInfo constructor in constructors)
-            //{
-            //    ParameterInfo[] pars = constructor.GetParameters();
-            //    object[] key_args = new object[pars.Length + 1];
-            //    key_args[0] = comp_name;
-            //    for (int i = 0; i < pars.Length; i += 1)
-            //    {
-            //        key_args[i + 1] = pars[i].ParameterType;
-            //        key_args[i + 1] = pars[i].ParameterType;
-            //    }
-            //    object_activators.Add(constructor, GetActivator(constructor));
-            //}
         }
 
         void AddComponentSubscriber(string type_name, string comp_name)

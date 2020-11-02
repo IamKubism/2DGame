@@ -119,7 +119,7 @@ namespace HighKings
             this.graph = graph;
             Func<Entity, Entity, float> computer = (e1, e2) =>
             {
-                Event cost = EventManager.instance.PassEvent(e2, "SetTileData");
+                Event cost = EventManager.instance.DoEvent(e2, "SetTileData");
                 cost = new Event(cost, "TileCost");
                 cost.AddUpdates(e1);
                 cost.Invoke(e1);

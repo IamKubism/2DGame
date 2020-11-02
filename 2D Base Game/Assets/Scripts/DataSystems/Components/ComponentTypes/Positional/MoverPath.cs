@@ -10,6 +10,7 @@ namespace HighKings
     {
         public Path_Astar path;
         public Entity curr_tile;
+        public Entity next_tile;
         public SubscriberEvent subscriber { get; set; }
         public FloatMinMax progress;
 
@@ -47,10 +48,18 @@ namespace HighKings
 
         void ProgressMovement(Event e)
         {
+            float dt = 0f;
             //progress += (float)e.GetParamValue("move_speed"); //TODO
-            e.SetParamValue("move_progress", 0.0001f, (f1, f2) => { return f1; });
-            progress += e.GetParamValue<float>("move_progress");
+            if (e.HasParamValue("move_progress"))
+            {
+                dt = e.GetParamValue<float>("move_progress");
+            }
+            progress += dt;
+            float norm_prog = progress.NormalizedByMax();
+            Vector3 vec = (norm_prog)*next_tile.GetComponent<Position>().t_r - (1-norm_prog)*curr_tile.GetComponent<Position>().t_r;
+            e.SetParamValue("displaced_position", vec, (v1, v2) => { return v2; });
         }
+
 
         void SetPath(Event e)
         {
@@ -70,20 +79,20 @@ namespace HighKings
                 if (path.Length() > 0)
                 {
                     Entity next = path.DeQueue();
-                    Entity parent = (Entity)e.GetParamValue("invoker");
-                    Event cost = Entity.Event_Manager().PassEvent(parent, "TileCost");
+                    Entity parent = (Entity)e.GetParamValue("parent_entity");
+                    Event cost = Entity.Event_Manager().DoEvent(parent, "TileCost");
                     float f = cost.GetParamValue<float>("tile_cost");
                     if(f > 0)
                     {
                         curr_tile = next;
-                        progress += (-f);
+                        progress.Reset(f);
                         e.SetParamValue("curr_tile", curr_tile, (p, n) => { return n; });
                     } else
                     {
                         //TODO: Get it to try to reset the thing
                         progress.Reset();
                         path = null;
-                        e.Cancel();
+                        e.SetParamValue("goal_failed", false, (b1, b2) => { return b2; });
                     }
                 }
                 if (path.Length() == 0)
@@ -93,6 +102,7 @@ namespace HighKings
                 }
             }
         }
+
     }
 
 }

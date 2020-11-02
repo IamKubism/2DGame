@@ -80,7 +80,7 @@ namespace HighKings
             {
                 goals.Add(goal);
                 goal_targets.Add(goal, target_map[goal]);
-                goal.Assign(parent, target_map[goal]);
+                //goal.Assign(parent, target_map[goal]);
             }
             if(call_subscribers)
                 subscriber.OperateAfterOnComp();
@@ -97,7 +97,7 @@ namespace HighKings
             }
             goals.Add(goal);
             goal_targets.Add(goal, target);
-            goal.Assign(parent, target);
+            //goal.Assign(parent, target);
             if(call_subscribers)
                 subscriber.OperateAfterOnComp();
         }
@@ -115,13 +115,9 @@ namespace HighKings
                     if (goals[i].Achieved(parent, goal_targets[goals[i]]))
                     {
                         eval = true;
-                        goal_targets.Remove(goals[i]);
-                        goals.RemoveAt(i);
-                        while (i < goals.Count)
+                        for (int j = goals.Count; j > i; j -= 1)
                         {
-                            goals[i].Cancel(parent, goal_targets[goals[i]]);
-                            goal_targets.Remove(goals[i]);
-                            goals.RemoveAt(i);
+                            Cancel(goals[j-1]);
                         }
                     } else
                     {
@@ -145,14 +141,25 @@ namespace HighKings
         public bool Trigger(Event e)
         {
             bool eval = true;
+            e.AddUpdate((ev) => { ev.SetParamValue("curr_goal", goals[goals.Count - 1], 
+                (g1, g2) => 
+                { return g2;
+                });
+            }, 0);
             if (e.tags.Contains("AssignGoal"))
-            {
-            }
-            if (e.tags.Contains("EvaluateGoals"))
             {
 
             }
+            e.AddUpdate(CheckDone, 1000);
             return eval;
+        }
+
+        void CheckDone(Event e)
+        {
+            if (e.GetParamValue<IGoal>("curr_goal").Achieved(parent, goal_targets[e.GetParamValue<IGoal>("curr_goal")]))
+            {
+                ReEvaluate();
+            }
         }
 
         public bool AddAssignmentProtocol(Event e)
@@ -163,12 +170,42 @@ namespace HighKings
             return eval;
         }
 
+        /// <summary>
+        /// TODO:
+        /// </summary>
+        /// <param name="g"></param>
+        public void Cancel(IGoal g)
+        {
+            goals.Remove(g);
+            goal_targets.Remove(g);
+        }
+
         public bool SetAGoal(Event e)
         {
             bool eval = false;
 
             return eval;
         }
+
+        void SetGoals(Event e)
+        {
+            
+        }
     }
 }
 
+/* Attack Selection Pseudocode:
+ * 
+ * SelectTargetEntity:
+ *      TargetEntity = MaxInterest(entities loaded)
+ *      
+ * DesiredAction:
+ *      Type = SetActionType(Target) // Is this expandable?
+ *      Actions = GetAllActionsForActionType(Parent, Type)
+ *      SelectedAction = GetPreferedAction(Actions)
+ * 
+ * AddInvokeSelectedActionToTurnQueue
+ *      
+ * 
+ * 
+ */

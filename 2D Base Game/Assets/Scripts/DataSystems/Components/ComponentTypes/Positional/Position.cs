@@ -273,7 +273,9 @@ namespace HighKings
             if (e.tags.Contains("Positional"))
             {
                 e.AddUpdate(SetCurrTileParam, 0);
+                e.AddUpdate(SetCurrDispParam, 0);
                 e.AddUpdate(GetCurrTileParam, 1000);
+                e.AddUpdate(GetCurrDispParam, 1001);
             }
             return eval;
         }
@@ -286,6 +288,16 @@ namespace HighKings
         public void GetCurrTileParam(Event e)
         {
             UpdateToNewPoint((Entity)e.GetParamValue("curr_tile"), true);
+        }
+
+        void GetCurrDispParam(Event e)
+        {
+            SetDispPos(e.GetParamValue<Vector3>("displaced_position"), true);
+        }
+        
+        void SetCurrDispParam(Event e)
+        {
+            e.SetParamValue("displaced_position", t_r, (v1, v2) => { return v2; });
         }
 
         public static implicit operator Position(Entity e)

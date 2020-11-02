@@ -91,5 +91,10 @@ namespace HighKings
         {
             return Mathf.Min(Mathf.Sign(f1), Mathf.Sign(f2))*(Mathf.Abs(f1)+Mathf.Abs(f2));
         }
+
+        public static int NegativeRespectingSum(int f1, int f2)
+        {
+            return (int)(Mathf.Min(Mathf.Sign(f1), Mathf.Sign(f2)))*(Mathf.Abs(f1)+Mathf.Abs(f2));
+        }
     }
 }

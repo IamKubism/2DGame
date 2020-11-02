@@ -31,11 +31,11 @@ namespace HighKings
         {
             if (graph.ContainsKey(goal))
             {
-                Debug.LogError($"Tried to add goal: {goal.id()} twice");
+                //Debug.LogError($"Tried to add goal: {goal.id()} twice");
                 return;
             }
             graph.Add(goal, new Path_Node<IGoal>(goal));
-            goals_by_id.Add(goal.id(), goal);
+            goals_by_id.Add(goal.id, goal);
         }
 
         public void AddEdgesToGraph(List<Tuple<string,string>> edges)
@@ -55,11 +55,11 @@ namespace HighKings
             {
                 if (graph.ContainsKey(g))
                 {
-                    Debug.LogWarning($"Tried to add goal {g.id()} twice, there is likely a problem in the load files");
+                    Debug.LogWarning($"Tried to add goal {g.id} twice, there is likely a problem in the load files");
                 } else
                 {
                     graph.Add(g, new Path_Node<IGoal>(g));
-                    goals_by_id.Add(g.id(), g);
+                    goals_by_id.Add(g.id, g);
                 }
             }
         }

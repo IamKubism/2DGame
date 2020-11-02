@@ -1,6 +1,6 @@
 ﻿//////////////////////////////////////////////////
 /// The Main mediator type for entities interacting, components can subscribe actions to individual events to effect what it does
-/// Last Updated: Version 0.0.0 10/30/2020
+/// Last Updated: Version 0.0.0 11/01/2020
 /// Updater: _Kubism
 //////////////////////////////////////////////////
 

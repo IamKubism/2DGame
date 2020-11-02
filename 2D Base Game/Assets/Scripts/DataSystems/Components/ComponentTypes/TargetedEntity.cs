@@ -45,7 +45,7 @@ namespace HighKings
             return targeted_entity;
         }
 
-        public void SetTargetedEntity(Entity e, bool call_listeners)
+        public void SetTargetedEntity(Entity e, bool call_listeners = false)
         {
             if (call_listeners)
                 subscriber.OperateBeforeOnComp();
@@ -57,30 +57,38 @@ namespace HighKings
 
         public bool Trigger(Event e)
         {
+            e.AddUpdate(SetTargetEntityParam, 0);
             switch (e.type)
             {
                 case "DoDamage":
                     e.AddUpdate((v) =>
                     {
-                        v.SetParamValue("target_entity", targeted_entity, (e1, e2) => { return e2; });
                         EventManager.instance.AddEvent(targeted_entity, new Event(v, "TakeDamage"));
                     }, 100);
                     break;
                 default:
                     break;
             }
+            e.AddUpdate(SetTargetedEntity, 100);
             return true;
-        }
-
-        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
-        {
-            throw new NotImplementedException();
         }
 
         public static implicit operator Entity(TargetedEntity e)
         {
             return e.targeted_entity;
         }
+
+        void SetTargetEntityParam(Event e)
+        {
+            if(targeted_entity != null)
+                e.SetParamValue("target_entity", GetTargetedEntity(), (e1, e2) => { return e2; });
+        }
+
+        void SetTargetedEntity(Event e)
+        {
+            SetTargetedEntity(e.GetParamValue<Entity>("target_entity"), true);
+        }
+
     }
 }
 

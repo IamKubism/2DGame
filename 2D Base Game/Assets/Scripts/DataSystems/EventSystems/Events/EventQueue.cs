@@ -64,21 +64,5 @@ namespace HighKings
             }
         }
 
-        /// <summary>
-        /// Creates a unioned action (calls a unioned set of the listeners of a and b)
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public static EventQueue operator +(EventQueue a, EventQueue b)
-        {
-            EventQueue c = new EventQueue(a);
-            foreach(Event l in c.queue)
-            {
-                c.RegisterEvent(l);
-            }
-            return c;
-        }
-
     }
 }

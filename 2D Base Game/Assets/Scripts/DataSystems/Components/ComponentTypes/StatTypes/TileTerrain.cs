@@ -54,7 +54,7 @@ namespace HighKings
 
         public void SetTerrainCost(Event e)
         {
-            e.SetParamValue("terrain_cost", move_cost, (o1,o2) => { return AddCosts((float)o1, (float)o2); });
+            e.SetParamValue("terrain_cost", move_cost, (o1,o2) => { return AddCosts(o1, o2); });
         }
 
         public float AddCosts(float f1, float f2)

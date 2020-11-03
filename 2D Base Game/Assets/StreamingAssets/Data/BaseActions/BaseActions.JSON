@@ -52,25 +52,11 @@
 			"type": "TakeDamage",
 			"priority": 1
 		},
-		"TryAction": {
-			"type": "Assign",
-			"priority": 3
-		},
-		"DecideMove": {
-			"type": "Assign",
-			"tags": [
-				"Positional",
-				"Movement",
-				"SetMoveTarget"
-			],
-			"priority": 10
-		},
 		"TileCost": {
 			"type": "Preference",
 			"tags": [
 				"Positional",
-				"Movement",
-				"Computation"
+				"Movement"
 			],
 			"priority": 3
 		},
@@ -82,6 +68,11 @@
 				"Tile"
 			],
 			"priority": 4
+		},
+		"PassTime": {
+			"type": "GameTime",
+			"tags": [],
+			"priority": 0
 		}
 	},
 	"goals": {

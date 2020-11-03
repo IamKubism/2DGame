@@ -287,7 +287,7 @@ namespace HighKings
 
         public void GetCurrTileParam(Event e)
         {
-            UpdateToNewPoint((Entity)e.GetParamValue("curr_tile"), true);
+            UpdateToNewPoint(e.GetParamValue<Entity>("curr_tile"), true);
         }
 
         void GetCurrDispParam(Event e)

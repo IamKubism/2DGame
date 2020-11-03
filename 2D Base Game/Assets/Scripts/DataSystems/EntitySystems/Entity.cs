@@ -103,7 +103,7 @@ namespace HighKings {
 
         public void AssignEvent(Event e, int turns_forward = 0)
         {
-            Event_Manager().AddEvent(this, e, turns_forward);
+            eventManager().AddEvent(this, e, turns_forward);
         }
 
         public void RemoveFromAllSubscribers()
@@ -126,7 +126,7 @@ namespace HighKings {
             return EntityManager.instance;
         }
 
-        public static EventManager Event_Manager()
+        public static EventManager eventManager()
         {
             return EventManager.instance;
         }

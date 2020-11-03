@@ -66,11 +66,11 @@ namespace HighKings
                 case "TakeDamage":
                     e.AddUpdate((t) => {
                         DiceGroup dg = new DiceGroup();
-                        foreach(string s in ((string)e.GetParamValue("damage_type")).Split(','))
+                        foreach(string s in e.GetParamValue<string>("damage_type").Split(','))
                         {
                             if(s != "")
                             {
-                                dg += (DiceGroup)e.GetParamValue(s + "_damage");
+                                dg += e.GetParamValue<DiceGroup>(s + "_damage");
                             }
                         }
                         curr_value -= (int)dg;

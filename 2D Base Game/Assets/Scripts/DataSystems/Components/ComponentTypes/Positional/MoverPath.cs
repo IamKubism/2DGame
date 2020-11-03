@@ -16,6 +16,7 @@ namespace HighKings
 
         public MoverPath()
         {
+            progress = new FloatMinMax();
         }
 
         public MoverPath(JObject obj)
@@ -38,10 +39,10 @@ namespace HighKings
             {
                 e.AddUpdate(SetPath, 100);
             }
-            if (e.tags.Contains("ProgressMovement"))
+            if (e.tags.Contains("GameTime") && (curr_tile != next_tile))
             {
-                e.AddUpdate(ProgressMovement, 98);
-                e.AddUpdate(MoveToNextTile, 99);
+                e.AddUpdate(ProgressMovement, 101);
+                e.AddUpdate(MoveToNextTile, 98);
             }
             return eval;
         }
@@ -52,7 +53,7 @@ namespace HighKings
             //progress += (float)e.GetParamValue("move_speed"); //TODO
             if (e.HasParamValue("move_progress"))
             {
-                dt = e.GetParamValue<float>("move_progress");
+                dt = e.GetParamValue<float>("time");
             }
             progress += dt;
             float norm_prog = progress.NormalizedByMax();
@@ -68,31 +69,33 @@ namespace HighKings
                 Debug.LogWarning("Tried to set path without enough information");
                 return;
             }
-            path = new Path_Astar(MainGame.instance.world.graph, (Entity)e.GetParamValue("curr_tile"), (List<Entity>)e.GetParamValue("dest_tiles"), MovementCalculator.test_calculator);
+            path = new Path_Astar(MainGame.instance.world.graph, e.GetParamValue<Entity>("curr_tile"), e.GetParamValue<List<Entity>>("dest_tiles"), MovementCalculator.test_calculator);
             progress = new FloatMinMax(); //TODO
+            next_tile = path.DeQueue();
         }
 
         void MoveToNextTile(Event e)
         {
             while (progress.IsOverMax())
             {
+                curr_tile = next_tile;
                 if (path.Length() > 0)
                 {
                     Entity next = path.DeQueue();
-                    Entity parent = (Entity)e.GetParamValue("parent_entity");
-                    Event cost = Entity.Event_Manager().DoEvent(parent, "TileCost");
+                    next_tile = next;
+                    Entity parent = e.GetParamValue<Entity>("parent_entity");
+                    Event cost = Entity.eventManager().DoEvent(parent, "TileCost");
                     float f = cost.GetParamValue<float>("tile_cost");
                     if(f > 0)
                     {
-                        curr_tile = next;
-                        progress.Reset(f);
+                        progress += -f;
                         e.SetParamValue("curr_tile", curr_tile, (p, n) => { return n; });
                     } else
                     {
                         //TODO: Get it to try to reset the thing
                         progress.Reset();
                         path = null;
-                        e.SetParamValue("goal_failed", false, (b1, b2) => { return b2; });
+                        //e.SetParamValue("goal_failed", false, (b1, b2) => { return b2; });
                     }
                 }
                 if (path.Length() == 0)
@@ -101,6 +104,11 @@ namespace HighKings
                     path = null;
                 }
             }
+        }
+
+        void SetCurrTile(Event e)
+        {
+            e.GetParamValue<Entity>("curr_tile");
         }
 
     }

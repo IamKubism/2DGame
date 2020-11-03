@@ -8,20 +8,20 @@ namespace HighKings
 {
     public class EventManager : ITriggeredUpdater
     {
-        public class Turn
+        public class Turns
         {
             public Entity target;
             List<EventQueue> turns;
 
-            public Turn() { turns = new List<EventQueue>();  }
+            public Turns() { turns = new List<EventQueue>();  }
 
-            public Turn(Entity target)
+            public Turns(Entity target)
             {
                 this.target = target;
                 turns = new List<EventQueue>();
             }
 
-            public Turn(Entity target, Event e)
+            public Turns(Entity target, Event e)
             {
                 this.target = target;
                 turns = new List<EventQueue>();
@@ -86,7 +86,7 @@ namespace HighKings
         }
 
         public static EventManager instance;
-        public Dictionary<string, Turn> turn_pairs;
+        public Dictionary<string, Turns> turn_pairs;
         Dictionary<string, Event> event_prototypes;
         Event next_turn_event;
 
@@ -99,13 +99,13 @@ namespace HighKings
             {
                 instance = this;
             }
-            turn_pairs = new Dictionary<string, Turn>();
+            turn_pairs = new Dictionary<string, Turns>();
             event_prototypes = new Dictionary<string, Event>();
         }
 
         public void Update()
         {
-            List<Turn> turns = (List<Turn>)turn_pairs.Values.AsEnumerable();
+            List<Turns> turns = (List<Turns>)turn_pairs.Values.AsEnumerable();
             for(int i = turns.Count; i > 0; i -= 1)
             {
                 turns[i - 1].PopAndCall();
@@ -122,78 +122,78 @@ namespace HighKings
             RemoveEntity(e.entity_string_id);
         }
 
-        Turn AddEntity(Entity e)
+        Turns AddEntity(Entity e)
         {
-            Turn q = new Turn(e);
+            Turns q = new Turns(e);
             turn_pairs.Add(e.entity_string_id, q);
             return q;
         }
 
-        Turn AddEntity(string id)
+        Turns AddEntity(string id)
         {
-            Turn q = new Turn(EntityManager.instance.GetEntityFromId(id));
+            Turns q = new Turns(EntityManager.instance.GetEntityFromId(id));
             turn_pairs.Add(id, q);
             return q;
         }
 
-        public Turn AddEvent(Entity target, EventQueue q, int turns_forward = 0)
+        public Turns AddEvent(Entity target, EventQueue q, int turns_forward = 0)
         {
             if (turn_pairs.ContainsKey(target.entity_string_id))
             {
-                Turn t = turn_pairs[target.entity_string_id];
+                Turns t = turn_pairs[target.entity_string_id];
                 t.Push(q, turns_forward);
                 return t;
             } else
             {
-                Turn t = AddEntity(target);
+                Turns t = AddEntity(target);
                 t.Push(q, turns_forward);
                 return t;
             }
         }
 
-        public Turn AddEvent(string target, EventQueue q, int turns_forward = 0)
+        public Turns AddEvent(string target, EventQueue q, int turns_forward = 0)
         {
             if (turn_pairs.ContainsKey(target))
             {
-                Turn t = turn_pairs[target];
+                Turns t = turn_pairs[target];
                 t.Push(q, turns_forward);
                 return t;
             }
             else
             {
-                Turn t = AddEntity(target);
+                Turns t = AddEntity(target);
                 t.Push(q, turns_forward);
                 return t;
             }
         }
 
-        public Turn AddEvent(Entity target, Event q, int turns_forward = 0)
+        public Turns AddEvent(Entity target, Event q, int turns_forward = 0)
         {
             if (turn_pairs.ContainsKey(target.entity_string_id))
             {
-                Turn t = turn_pairs[target.entity_string_id];
+                Turns t = turn_pairs[target.entity_string_id];
                 t.Push(q, turns_forward);
                 return t;
             }
             else
             {
-                Turn t = AddEntity(target);
+                Turns t = AddEntity(target);
                 t.Push(q, turns_forward);
                 return t;
             }
         }
 
-        public Turn AddEvent(string target, Event q, int turns_forward = 0)
+        public Turns AddEvent(string target, Event q, int turns_forward = 0)
         {
             if (turn_pairs.ContainsKey(target))
             {
-                Turn t = turn_pairs[target];
+                Turns t = turn_pairs[target];
                 t.Push(q, turns_forward);
                 return t;
             }
             else
             {
-                Turn t = AddEntity(target);
+                Turns t = AddEntity(target);
                 t.Push(q, turns_forward);
                 return t;
             }
@@ -218,7 +218,7 @@ namespace HighKings
             Event el = new Event(e);
             if (!turn_pairs.ContainsKey(entity))
             {
-                turn_pairs.Add(entity, new Turn(entity, el));
+                turn_pairs.Add(entity, new Turns(entity, el));
             } else
             {
                 turn_pairs[entity].Push(el, turn);
@@ -235,7 +235,7 @@ namespace HighKings
             Event el = new Event(GetEvent(prot));
             if (!turn_pairs.ContainsKey(entity))
             {
-                turn_pairs.Add(entity, new Turn(entity, el));
+                turn_pairs.Add(entity, new Turns(entity, el));
             } else
             {
                 turn_pairs[entity].Push(el, turn);

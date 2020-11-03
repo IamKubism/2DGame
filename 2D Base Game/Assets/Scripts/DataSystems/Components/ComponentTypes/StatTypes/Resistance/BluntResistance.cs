@@ -41,7 +41,7 @@ namespace HighKings
                 case "TakeDamage":
                     e.AddUpdate((v) =>
                     {
-                        v.SetParamValue("blunt_damage", ((DiceGroup)v.GetParamValue("blunt_damage"))+(-res_val));
+                        v.SetParamValue("blunt_damage", v.GetParamValue<DiceGroup>("blunt_damage")+(-res_val));
                     }, 10);
                     break;
                 default:

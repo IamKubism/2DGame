@@ -46,21 +46,37 @@ namespace HighKings
         public bool Trigger(Event e)
         {
             bool eval = true;
-            switch (e.type)
+            if (e.tags.Contains("DoDamage"))
             {
-                case "DoDamage":
-                    e.AddUpdate(
-                        (v) => {
-                            v.SetParamValue("blunt_damage", new DiceGroup(d));
-                            if(!v.HasParamValue("total_damage"))
-                                v.SetParamValue("total_damage", new DiceGroup());
-                            v.SetParamValue("damage_type", v.GetParamValue("damage_type") + ",blunt");
-                        }, 1);
-                    e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("blunt_damage", e.GetParamValue<DiceGroup>("blunt_damage")); },1);
-                    e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("total_damage", ev.GetParamValue<float>("blunt_damage"), (d1, d2) => { return d1 + d2; }); },50);
-                    break;
+                e.AddUpdate(AddDamageType, 10, "BaseDamage", "TakeDamage");
+                e.AddUpdate(AddToTotalDamage, 99, "BaseDamage", "TakeDamage");
             }
+            //switch (e.type)
+            //{
+            //    case "DoDamage":
+            //        e.AddUpdate(
+            //            (v) => {
+            //                v.SetParamValue("blunt_damage", new DiceGroup(d));
+            //                if(!v.HasParamValue("total_damage"))
+            //                    v.SetParamValue("total_damage", new DiceGroup());
+            //                    v.SetParamValue("total_damage", new DiceGroup());
+            //                v.SetParamValue("damage_type", v.GetParamValue<string>("damage_type") + ",blunt");
+            //            }, 1);
+            //        e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("blunt_damage", e.GetParamValue<DiceGroup>("blunt_damage")); },1);
+            //        e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("total_damage", ev.GetParamValue<float>("blunt_damage"), (d1, d2) => { return d1 + d2; }); },50);
+            //        break;
+            //}
             return eval;
+        }
+
+        void AddDamageType(Event e)
+        {
+            e.SetParamValue("blunt_damage", new DiceGroup(d), (d1, d2) => { return d1 + d2; }, "TotalDamage", "TakeDamage");
+        }
+
+        void AddToTotalDamage(Event e)
+        {
+            e.SetParamValue<int>("total_damage", e.GetParamValue<DiceGroup>("blunt_damage"), (i1, i2) => { return i1 + i2; });
         }
     }
 }

@@ -148,7 +148,6 @@ namespace HighKings
             }, 0);
             if (e.tags.Contains("AssignGoal"))
             {
-
             }
             e.AddUpdate(CheckDone, 1000);
             return eval;

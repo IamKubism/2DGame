@@ -11,16 +11,19 @@ namespace HighKings
 {
     public class EventQueue
     {
+        Dictionary<string, Event> events;
         SimplePriorityQueue<Event> queue;
 
         public EventQueue()
         {
             queue = new SimplePriorityQueue<Event>();
+            events = new Dictionary<string, Event>();
         }
 
         public EventQueue(JProperty prop)
         {
             queue = new SimplePriorityQueue<Event>();
+            events = new Dictionary<string, Event>();
             List<JToken> toks = prop.Value["listeners"].ToList();
             foreach (JProperty p in toks)
             {
@@ -31,16 +34,16 @@ namespace HighKings
         public EventQueue(Event listener)
         {
             queue = new SimplePriorityQueue<Event>();
+            events = new Dictionary<string, Event>();
+            events.Add(listener.id, listener);
             queue.Enqueue(listener, listener.priority);
         }
 
         public EventQueue(EventQueue event_queue)
         {
             queue = new SimplePriorityQueue<Event>();
-            foreach(Event l in event_queue.queue)
-            {
-                queue.Enqueue(l, l.priority);
-            }
+            events = new Dictionary<string, Event>();
+            RegisterQueue(event_queue);
         }
 
         public void Invoke(Entity target)
@@ -49,18 +52,23 @@ namespace HighKings
             {
                 queue.Dequeue().Invoke(target);
             }
+            events = new Dictionary<string, Event>();
         }
 
-        public void RegisterEvent(Event listener)
+        public void RegisterEvent(Event listener, string id = "")
         {
-            queue.Enqueue(listener, listener.priority);
+            if (events.ContainsKey(id == "" ? listener.id : id) == false)
+            {
+                queue.Enqueue(listener, listener.priority);
+                events.Add(id != "" ? id : listener.id, listener);
+            }
         }
 
         public void RegisterQueue(EventQueue source_queue)
         {
-            foreach(Event e in source_queue.queue)
+            foreach(KeyValuePair<string,Event> es in source_queue.events)
             {
-                queue.Enqueue(e, e.priority);
+                RegisterEvent(es.Value, es.Key);
             }
         }
 

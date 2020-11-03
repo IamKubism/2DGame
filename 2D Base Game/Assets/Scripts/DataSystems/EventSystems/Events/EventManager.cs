@@ -88,7 +88,7 @@ namespace HighKings
         public static EventManager instance;
         public Dictionary<string, Turns> turn_pairs;
         Dictionary<string, Event> event_prototypes;
-        Event next_turn_event;
+        List<Entity> continuous_updaters;
 
         public EventManager()
         {
@@ -101,6 +101,7 @@ namespace HighKings
             }
             turn_pairs = new Dictionary<string, Turns>();
             event_prototypes = new Dictionary<string, Event>();
+            continuous_updaters = new List<Entity>();
         }
 
         public void Update()

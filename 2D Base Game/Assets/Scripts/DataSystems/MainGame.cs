@@ -31,10 +31,14 @@ namespace HighKings
         PrototypeLoader prototype_loader;
         SystemLoader system_loader;
         FullGoalMap goals;
+        EventManager event_manager;
+
         public Dictionary<string, ITriggeredUpdater> triggered_updaters;
+
 
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
+
 
         public Dictionary<string, InspectorData> display_data;
         public List<InspectorData> display_queue;
@@ -67,17 +71,17 @@ namespace HighKings
             action_list = ActionList.instance ?? new ActionList();
             goals = FullGoalMap.instance ?? new FullGoalMap();
             triggered_updaters = new Dictionary<string, ITriggeredUpdater>();
+            event_manager = EventManager.instance ?? new EventManager();
 
             //Load All systems
             systems = new Dictionary<string, object>();
             display_data = new Dictionary<string, InspectorData>();
-            
-
             MovementCalculator.SetTestCalculator();
         }
 
         public void SystemLoading()
         {
+            event_manager.Start();
             system_loader = SystemLoader.instance ?? new SystemLoader(systems);
         }
 
@@ -99,6 +103,7 @@ namespace HighKings
         {
             turn_time -= dt;
             Movers.instance.Update(dt);
+            event_manager.Update(dt);
             if(turn_time <= 0)
             {
                 foreach(ITriggeredUpdater updates in triggered_updaters.Values)

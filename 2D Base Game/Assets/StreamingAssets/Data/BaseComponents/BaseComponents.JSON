@@ -1,14 +1,5 @@
 {
 	"components": {
-		"ActivationDistance": {
-			"data": {
-				"base_value": 1,
-				"curr_value": 1,
-				"stat_name": "ActivationDistance"
-			},
-			"namespace": "Default",
-			"type": "BaseStatistic"
-		},
 		"BaseDamage": {
 			"data": {
 				"base_value": 10,
@@ -58,11 +49,6 @@
 			},
 			"namespace": "Default",
 			"type": "Health"
-		},
-		"MoveArea": {
-			"data": {},
-			"namespace": "Default",
-			"type": "MoveArea"
 		},
 		"Position": {
 			"data": {
@@ -123,11 +109,6 @@
 			"data": {},
 			"namespace": "Default",
 			"type": "Cell"
-		},
-		"MoverPath": {
-			"data": {},
-			"namespace": "Default",
-			"type": "MoverPath"
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿//////////////////////////////////////////////////
-/// The Main mediator type for entities interacting, components can subscribe actions to individual events to effect what it does
+/// The Main mediator type for entities interacting, components (or really anything) can subscribe actions to individual events to effect what it does
+/// Essentially its dynamically generated functions
 /// Last Updated: Version 0.0.0 11/01/2020
 /// Updater: _Kubism
 //////////////////////////////////////////////////
@@ -19,12 +20,13 @@ namespace HighKings
         public string id;
         public string type;
         public int priority;
-        public List<string> tags;
+        public HashSet<string> tags;
 
         Dictionary<string, object> parameters;
         Dictionary<string, Event> child_events;
         //TODO: Make the elements of this a data structure to make code easier to debug/read
         SimplePriorityQueue<Action<Event>> updates;
+        List<(Action<Event>, int)> priorities;
 
         public Event()
         {
@@ -32,30 +34,35 @@ namespace HighKings
             type = "NONE";
             priority = (1 << 30);
             parameters = new Dictionary<string, object>();
-            tags = new List<string>();
+            tags = new HashSet<string>();
             child_events = new Dictionary<string, Event>();
+            priorities = new List<(Action<Event>, int)>();
         }
 
-        public Event(string id, string type, int priority, Action<Entity> to_call)
+        public Event(string id, string type, int priority)
         {
             this.id = id;
             this.type = type;
             this.priority = priority;
             parameters = new Dictionary<string, object>();
             updates = new SimplePriorityQueue<Action<Event>>();
-            tags = new List<string> { type };
+            tags = new HashSet<string> { type };
             child_events = new Dictionary<string, Event>();
+            priorities = new List<(Action<Event>, int)>();
+
         }
 
         public Event(JProperty p)
         {
             parameters = new Dictionary<string, object>();
+            priorities = new List<(Action<Event>, int)>();
+
             id = p.Name;
             type = p.Value["type"] != null ? p.Value.Value<string>("type") : "NULL";
             priority = p.Value["priority"] != null ? p.Value.Value<int>("priority") : (1 << 30);
             if(p.Value["tags"] != null)
             {
-                tags = new List<string> { type };
+                tags = new HashSet<string> { type };
                 foreach(JToken tok in p.Value["tags"].ToList())
                 {
                     tags.Add(tok.Value<string>());
@@ -75,7 +82,7 @@ namespace HighKings
             id = el.id;
             type = el.type;
             priority = el.priority;
-            tags = new List<string>(el.tags);
+            tags = new HashSet<string>(el.tags);
         }
 
         public Event(Event el, string forward_type)
@@ -84,12 +91,17 @@ namespace HighKings
             Event forward = EventManager.instance.GetEvent(forward_type);
             id = forward_type;
             type = forward.type;
-            tags = new List<string>(forward.tags);
+            tags = new HashSet<string>(forward.tags);
         }
 
-        public void Invoke(Entity e, List<(Entity,string)> targets = null)
+        public bool Invoke(Entity e, List<(Entity,string)> targets = null)
         {
+            SetParamValue("invoking_entity", e, (e1, e2) => { return e2; });
             AddUpdates(e);
+            if(updates.Count == 0)
+            {
+                return false;
+            } 
             while(updates.Count > 0)
             {
                 updates.Dequeue()?.Invoke(this);
@@ -98,14 +110,15 @@ namespace HighKings
             {
                 foreach((Entity,string) target in targets)
                 {
-                    if (child_events.ContainsKey(target.Item2))
+                    if (!child_events.TryGetValue(target.Item2, out Event v))
                     {
-                        new Event(child_events[target.Item2]).Invoke(target.Item1);
+                        new Event(v).Invoke(target.Item1);
                         continue;
                     }
                     Debug.LogWarning($"Could not find event: {target.Item2}");
                 }
             }
+            return true;
         }
 
         public void AddUpdates(Entity e, string child_id = "", string child_type = "")
@@ -148,6 +161,7 @@ namespace HighKings
             if(child_id == "")
             {
                 updates.Enqueue(a_e, priority);
+                priorities.Add((a_e, priority));
             }
             else
             {
@@ -209,16 +223,41 @@ namespace HighKings
             return child_events[child_id];
         }
 
+        public void AppendEvent(Event e)
+        {
+            Event appender = new Event(e);
+            tags.UnionWith(e.tags);
+            foreach((Action<Event>, int) cup in e.priorities)
+            {
+                AddUpdate(cup.Item1, cup.Item2);
+            }
+            foreach(KeyValuePair<string, Event> cev in e.child_events)
+            {
+                if(child_events.TryGetValue(cev.Key, out Event o))
+                {
+                    o.AppendEvent(e);
+                } else
+                {
+                    child_events.Add(cev.Key, new Event(cev.Value));
+                }
+            }
+        }
 
         public override string ToString()
         {
             string s = $"id: {id},\ntags: [";
-            for(int i = 0; i < tags.Count - 1; i+= 1)
-            {
-                s += $" {tags[i]},";
-            }
-            s += $" {tags.Last()}]\nParams: [";
             int j = 0;
+            foreach (string tag in tags)
+            {
+                s += $"{tag}";
+                j += 1;
+                if (j < tags.Count - 1)
+                {
+                    s += ", ";
+                }
+            }
+            s += $"]\nParams: [";
+            j = 0;
             KeyValuePair<string, object> last;
             foreach(KeyValuePair<string, object> ko in parameters)
             {

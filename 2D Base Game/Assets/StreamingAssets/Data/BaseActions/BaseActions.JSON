@@ -70,9 +70,16 @@
 			"priority": 4
 		},
 		"PassTime": {
-			"type": "GameTime",
+			"type": "PassTime",
 			"tags": [],
 			"priority": 0
+		},
+		"SetMoveDestination": {
+			"type": "SetMovement",
+			"tags": [
+				"AddToTimeQueue"
+			],
+			"priority": 5
 		}
 	},
 	"goals": {

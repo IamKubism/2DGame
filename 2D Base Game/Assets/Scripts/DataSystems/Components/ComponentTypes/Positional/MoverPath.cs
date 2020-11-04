@@ -59,6 +59,7 @@ namespace HighKings
             float norm_prog = progress.NormalizedByMax();
             Vector3 vec = (norm_prog)*next_tile.GetComponent<Position>().t_r - (1-norm_prog)*curr_tile.GetComponent<Position>().t_r;
             e.SetParamValue("displaced_position", vec, (v1, v2) => { return v2; });
+            e.SetParamValue("continue_update", true, (b1, b2) => { return b2; });
         }
 
 
@@ -95,6 +96,7 @@ namespace HighKings
                         //TODO: Get it to try to reset the thing
                         progress.Reset();
                         path = null;
+                        e.SetParamValue("continue_update", false, (b1, b2) => { return b2; });
                         //e.SetParamValue("goal_failed", false, (b1, b2) => { return b2; });
                     }
                 }
@@ -102,6 +104,7 @@ namespace HighKings
                 {
                     progress.Reset();
                     path = null;
+                    e.SetParamValue("continue_update", false, (b1, b2) => { return b2; });
                 }
             }
         }

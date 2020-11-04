@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace HighKings
 {
-    public class EventManager : ITriggeredUpdater
+    public class EventManager : ITriggeredUpdater, IUpdater
     {
         public class Turns
         {
@@ -88,7 +88,8 @@ namespace HighKings
         public static EventManager instance;
         public Dictionary<string, Turns> turn_pairs;
         Dictionary<string, Event> event_prototypes;
-        List<Entity> continuous_updaters;
+        HashSet<Entity> continuous_updaters;
+        Event pass_time;
 
         public EventManager()
         {
@@ -101,7 +102,12 @@ namespace HighKings
             }
             turn_pairs = new Dictionary<string, Turns>();
             event_prototypes = new Dictionary<string, Event>();
-            continuous_updaters = new List<Entity>();
+            continuous_updaters = new HashSet<Entity>();
+        }
+
+        public void Start()
+        {
+            pass_time = event_prototypes["PassTime"];
         }
 
         public void Update()
@@ -111,6 +117,36 @@ namespace HighKings
             {
                 turns[i - 1].PopAndCall();
             }
+        }
+
+        public void Update(float dt)
+        {
+            HashSet<Entity> to_remove = new HashSet<Entity>();
+            foreach(Entity e in continuous_updaters)
+            {
+                Event pass = new Event(pass_time);
+                pass.SetParamValue("dt", dt, (f1,f2) => { return f2; });
+                pass.SetParamValue("continue_update", false, (f1, f2) => { return f1; });
+
+                //Need to find a good way to tell it that the thing isn't updating anymore so that we don't basically have a memory leak
+                pass.Invoke(e);
+                if(!pass.GetParamValue<bool>("continue_update"))
+                    to_remove.Add(e);
+            }
+            foreach(Entity e in to_remove)
+            {
+                RemoveFromContinuousUpdate(e);
+            }
+        }
+
+        public void AddToContinuousUpdate(Entity e)
+        {
+            continuous_updaters.Add(e);
+        }
+
+        public void RemoveFromContinuousUpdate(Entity e)
+        {
+            continuous_updaters.Remove(e);
         }
 
         public void RemoveEntity(string id)
@@ -264,6 +300,8 @@ namespace HighKings
             el.Invoke(e);
             return el;
         }
+
+
     }
 }
 

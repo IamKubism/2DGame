@@ -1,101 +1,95 @@
 {
-    "prototypes": {
-        "attack": {
-            "components": {
-                "ActivationDistance": {
-                    "data": {
-                        "base_value": 2,
-                        "curr_value": 2
-                    }
-                },
-                "BaseDamage": {
-                    "data": {
-                        "base_value": 1,
-                        "curr_value": 1
-                    }
-                }
-            }
-        },
-		"melee_attack":{
-			"extends":"attack"
-		},
-		"punch":{
-			"extends":"melee_attack",
-			"components":{
-				"BluntDamage":{
-					"data":{
-						"d":"0+2d4"
+	"prototypes": {
+		"attack": {
+			"components": {
+				"BaseDamage": {
+					"data": {
+						"base_value": 1,
+						"curr_value": 1
 					}
 				}
 			}
 		},
-        "character": {
-            "components": {
-                "BluntResistance": {},
-                "EntityType": {
-                    "data": {
-                        "type_name": "character"
-                    }
-                },
-                "Health": {},
-                "Position": {},
-                "RenderComponent": {
-                    "data": {
-                        "layer_name": "Characters",
-                        "sprite_name": "charSprite"
-                    }
-                },
-                "SelectionComponent": {
-                    "data": {
-                        "priority": 0
-                    }
-                },
-				"Walker":{}
-            }
-        },
-        "test_char_1": {
-            "components": {
-                "BluntResistance": {
-                    "data": {
-                        "res_val": 2
-                    }
-                },
-                "Health": {
-                    "data": {
-                        "base_value": 200,
-                        "curr_value": 200
-                    }
-                },
-                "Strength": {
-                    "data": {
-                        "base_value": 20,
-                        "curr_value": 20
-                    }
-                }
-            },
-            "extends": "character"
-        },
-        "test_char_2": {
-            "components": {
-                "BluntResistance": {
-                    "data": {
-                        "res_val": 2
-                    }
-                },
-                "Health": {
-                    "data": {
-                        "base_value": 150,
-                        "curr_value": 150
-                    }
-                },
-                "Strength": {
-                    "data": {
-                        "base_value": 15,
-                        "curr_value": 15
-                    }
-                }
-            },
-            "extends": "character"
-        }
-    }
+		"melee_attack": {
+			"extends": "attack"
+		},
+		"punch": {
+			"extends": "melee_attack",
+			"components": {
+				"BluntDamage": {
+					"data": {
+						"d": "0+2d4"
+					}
+				}
+			}
+		},
+		"character": {
+			"components": {
+				"BluntResistance": {},
+				"EntityType": {
+					"data": {
+						"type_name": "character"
+					}
+				},
+				"Health": {},
+				"Position": {},
+				"RenderComponent": {
+					"data": {
+						"layer_name": "Characters",
+						"sprite_name": "charSprite"
+					}
+				},
+				"SelectionComponent": {
+					"data": {
+						"priority": 0
+					}
+				},
+				"Walker": {}
+			}
+		},
+		"test_char_1": {
+			"components": {
+				"BluntResistance": {
+					"data": {
+						"res_val": 2
+					}
+				},
+				"Health": {
+					"data": {
+						"base_value": 200,
+						"curr_value": 200
+					}
+				},
+				"Strength": {
+					"data": {
+						"base_value": 20,
+						"curr_value": 20
+					}
+				}
+			},
+			"extends": "character"
+		},
+		"test_char_2": {
+			"components": {
+				"BluntResistance": {
+					"data": {
+						"res_val": 2
+					}
+				},
+				"Health": {
+					"data": {
+						"base_value": 150,
+						"curr_value": 150
+					}
+				},
+				"Strength": {
+					"data": {
+						"base_value": 15,
+						"curr_value": 15
+					}
+				}
+			},
+			"extends": "character"
+		}
+	}
 }

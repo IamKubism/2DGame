@@ -23,12 +23,10 @@ namespace HighKings
         /// </summary>
         public Dictionary<Entity, ItemVector<Position, FloatMinMax>> mover_progress;
 
-
         /// <summary>
         /// The paths that the movers will make to get to their destinations
         /// </summary>
         public Dictionary<Entity, Path_Astar> paths;
-
         public List<Entity> to_remove;
 
         public Movers()
@@ -50,7 +48,6 @@ namespace HighKings
         {
             Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
             Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
-
             List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
 
             foreach(KeyValuePair<Entity, ItemVector<Position,FloatMinMax>> epf in mover_progress)
@@ -263,17 +260,6 @@ namespace HighKings
             {
                 paths[entity] = path;
             }
-
-        }
-
-        public void MoverPathMaker(Entity e, MoveArea m)
-        {
-            Debug.Log("Making path");
-            if (m.tile_entities == null)
-                return;
-            if (m.tile_entities.Count == 0)
-                return;
-            MoverPathMaker(m.tile_entities, e);
         }
 
         public static void MoverPathMaker(Entity source, Entity target)
@@ -321,14 +307,6 @@ namespace HighKings
             Debug.Log("Cancelling move path");
 
             MoverPathMaker(source, World.instance.GetTileFromCoords(source.GetComponent<Position>("Position").p));
-        }
-
-        public void CancelMove(Entity e, MoveArea m)
-        {
-            if (paths.ContainsKey(e))
-            {
-                paths.Remove(e);
-            }
         }
 
         void AddToMoverProgress(Entity e, ItemVector<Position, FloatMinMax> pf)

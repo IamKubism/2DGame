@@ -76,6 +76,13 @@ namespace HighKings
             return new Event(EventManager.instance.GetEvent(event_type));
         }
 
+        public static Event NewEvent(Event e, string event_type)
+        {
+            Event n_e = new Event(EventManager.instance.GetEvent(event_type));
+            n_e.AppendEvent(e);
+            return n_e;
+        }
+
         public Event(Event el)
         {
             parameters = new Dictionary<string, object>(el.parameters);
@@ -227,7 +234,11 @@ namespace HighKings
         {
             Event appender = new Event(e);
             tags.UnionWith(e.tags);
-            foreach((Action<Event>, int) cup in e.priorities)
+            foreach(KeyValuePair<string,object> pars in appender.parameters)
+            {
+                SetParamValue(pars.Key, pars.Value, (o1,o2) => { return o2; });
+            }
+            foreach ((Action<Event>, int) cup in e.priorities)
             {
                 AddUpdate(cup.Item1, cup.Item2);
             }

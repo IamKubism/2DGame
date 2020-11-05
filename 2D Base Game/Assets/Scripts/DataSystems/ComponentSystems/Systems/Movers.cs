@@ -78,6 +78,58 @@ namespace HighKings
             }
         }
 
+        public void Update(float dt, bool ft)
+        {
+            Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
+            Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
+            List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
+
+            foreach (KeyValuePair<Entity, ItemVector<Position, FloatMinMax>> epf in mover_progress)
+            {
+                Event prog_mov = Event.NewEvent("ProgressMovement");
+                prog_mov.SetParamValue("dt", dt, (a1, a2) => { return a1 + a2; });
+                prog_mov.Invoke(epf.Key);
+                epf.Value.b += prog_mov.GetParamValue<float>("move_progress");
+
+                if (epf.Value.b.IsOverMax())
+                {
+                    Event set_next_tile = Event.NewEvent("SetTile");
+                    set_next_tile.SetParamValue("next_tile", epf.Value.a, (p1, p2) => { return p2; });
+
+                    if (paths.ContainsKey(epf.Key))
+                    {
+                        Event calc_move = Event.NewEvent("SetMovementData");
+                        Entity t = World.instance.GetTileFromPosition(paths[epf.Key].DeQueue());
+                        calc_move.Invoke(t);
+                        calc_move = new Event(calc_move, "CalculateMovementCost");
+                        calc_move.Invoke(epf.Key);
+                        float next_cost = calc_move.GetParamValue<float>("movement_cost");
+                        if(next_cost <= 0)
+                        {
+                            to_remove.Add(epf.Key);
+                        }
+                    }
+                    
+                    //TODO: Make sure that the entity has some movement calculator if its assigned movement
+                    MoveHander(epf.Key, MovementCalculator.test_calculator);
+                }
+                else
+                {
+                    to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>(), epf.Value.a, epf.Value.b.curr));
+                    disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
+                }
+            }
+
+            positions.UpdateComponents<Position>(disp_vals, DisplaceVector);
+            positions.UpdateComponents<Position>(tile_change, SetTilePosition);
+
+            for (int i = to_remove.Count; i > 0; i -= 1)
+            {
+                RemoveFromMoverProgress(to_remove[i - 1]);
+                to_remove.RemoveAt(i - 1);
+            }
+        }
+
         public void DisplaceVector(Position p1, params object[] updaters)
         {
             Position p2 = (Position)updaters[0];

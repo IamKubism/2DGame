@@ -106,6 +106,9 @@ namespace HighKings {
             eventManager().AddEvent(this, e, turns_forward);
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
         public void RemoveFromAllSubscribers()
         {
             //Type subscriber_type = typeof(ComponentSubscriberSystem<>);

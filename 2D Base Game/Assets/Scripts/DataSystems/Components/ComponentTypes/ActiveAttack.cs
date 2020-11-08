@@ -35,7 +35,7 @@ namespace HighKings
             {
                 if (e.type == "DoDamage")
                 {
-                    e.AddUpdates(attack);
+                    e.Alter(attack);
                     e.SetParamValue("take_damage_event", EventManager.instance.GetEvent("TakeDamage"), (e1, e2) => { return e1; });
                     e.AddUpdate((e1) => { EventManager.instance.DoEvent(e1.GetParamValue<Entity>("target_entity"),e1.GetParamValue<Event>("take_damage_event")); }, 1000);
                 }

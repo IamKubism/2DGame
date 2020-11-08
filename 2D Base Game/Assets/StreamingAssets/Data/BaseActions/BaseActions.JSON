@@ -44,42 +44,41 @@
 		}
 	},
 	"events": {
-		"DoDamage": {
-			"type": "DoDamage",
-			"priority": 10
-		},
-		"TakeDamage": {
-			"type": "TakeDamage",
-			"priority": 1
-		},
-		"TileCost": {
-			"type": "Preference",
-			"tags": [
-				"Positional",
-				"Movement"
-			],
-			"priority": 3
-		},
-		"SetTileData": {
-			"type": "DataSet",
-			"tags": [
-				"Positional",
-				"Movement",
-				"Tile"
-			],
-			"priority": 4
-		},
-		"PassTime": {
-			"type": "PassTime",
-			"tags": [],
+		"CalculateMovementCost": {
 			"priority": 0
 		},
+		"ComputeMovementProgress": {
+			"priority": 0
+		},
+		"DoDamage": {
+			"priority": 40,
+			"external_tags": [
+				"click_event"
+			]
+		},
+		"PassTime": {
+			"priority": 0
+		},
+		"SetDisplacedPosition": {
+			"priority": 10
+		},
 		"SetMoveDestination": {
-			"type": "SetMovement",
-			"tags": [
-				"AddToTimeQueue"
-			],
-			"priority": 5
+			"priority": 30,
+			"external_tags": [
+				"click_event"
+			]
+		},
+		"SetMovementData": {
+			"priority": 0
+		},
+		"SetTile": {
+			"priority": 20
+		},
+		"SetTileData": {
+			"priority": 0
+		},
+		"TakeDamage": {
+			"priority": 0
 		}
 	},
 	"goals": {

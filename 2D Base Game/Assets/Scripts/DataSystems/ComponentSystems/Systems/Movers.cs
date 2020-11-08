@@ -1,6 +1,6 @@
 ﻿//////////////////////////////////////////////
 ////// Mover Class
-////// Last Updated: Version 0.0.0 10/29/2020
+////// Last Updated: Version 0.0.0 11/06/2020
 //////////////////////////////////////////////
 
 
@@ -41,92 +41,181 @@ namespace HighKings
                 instance = this;
             }
             PrototypeLoader.instance.AddSystemLoc("movers", this);
-
+            EventManager.instance.GetPrototype("SetMoveDestination").AddUpdate(MakePath, 100);
         }
 
+        //public void Update(float dt)
+        //{
+        //    Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
+        //    Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
+        //    List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
+
+        //    foreach(KeyValuePair<Entity, ItemVector<Position,FloatMinMax>> epf in mover_progress)
+        //    {
+        //        epf.Value.b += dt;
+
+        //        if (epf.Value.b.IsOverMax())
+        //        {
+        //            tile_change.Add(epf.Key, new object[1] { epf.Value.a });
+
+        //            //TODO: Make sure that the entity has some movement calculator if its assigned movement
+        //            MoveHander(epf.Key, MovementCalculator.test_calculator);
+
+        //        } else
+        //        {
+        //            to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>(), epf.Value.a, epf.Value.b.curr));
+        //            disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
+        //        }
+        //    }
+
+        //    positions.UpdateComponents<Position>(disp_vals, DisplaceVector);
+        //    positions.UpdateComponents<Position>(tile_change, SetTilePosition);
+
+        //    for (int i = to_remove.Count; i > 0; i -= 1)
+        //    {
+        //        RemoveFromMoverProgress(to_remove[i - 1]);
+        //        to_remove.RemoveAt(i - 1);
+        //    }
+        //}
+
+        /// <summary>
+        /// TODO: Trying to make this event based
+        /// </summary>
+        /// <param name="dt"></param>
         public void Update(float dt)
         {
-            Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
-            Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
-            List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
-
-            foreach(KeyValuePair<Entity, ItemVector<Position,FloatMinMax>> epf in mover_progress)
-            {
-                epf.Value.b += dt;
-
-                if (epf.Value.b.IsOverMax())
-                {
-                    tile_change.Add(epf.Key, new object[1] { epf.Value.a });
-
-                    //TODO: Make sure that the entity has some movement calculator if its assigned movement
-                    MoveHander(epf.Key, MovementCalculator.test_calculator);
-
-                } else
-                {
-                    to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>(), epf.Value.a, epf.Value.b.curr));
-                    disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
-                }
-            }
-
-            positions.UpdateComponents<Position>(disp_vals, DisplaceVector);
-            positions.UpdateComponents<Position>(tile_change, SetTilePosition);
-
-            for (int i = to_remove.Count; i > 0; i -= 1)
-            {
-                RemoveFromMoverProgress(to_remove[i - 1]);
-                to_remove.RemoveAt(i - 1);
-            }
-        }
-
-        public void Update(float dt, bool ft)
-        {
-            Dictionary<Entity, object[]> disp_vals = new Dictionary<Entity, object[]>();
-            Dictionary<Entity, object[]> tile_change = new Dictionary<Entity, object[]>();
             List<ItemVector<Position, Position, float>> to_update = new List<ItemVector<Position, Position, float>>();
 
             foreach (KeyValuePair<Entity, ItemVector<Position, FloatMinMax>> epf in mover_progress)
             {
-                Event prog_mov = Event.NewEvent("ProgressMovement");
+                Event prog_mov = Event.NewEvent("ComputeMovementProgress");
                 prog_mov.SetParamValue("dt", dt, (a1, a2) => { return a1 + a2; });
-                prog_mov.Invoke(epf.Key);
-                epf.Value.b += prog_mov.GetParamValue<float>("move_progress");
+                
+                //If no progress gets set by the entity then it just adds dt (kinda a bug check thing
+                prog_mov.AddUpdate((e) => 
+                {
+                    if (!e.HasParamValue("move_progress"))
+                    {
+                        Debug.LogWarning("Move progress was never set");
+                        e.SetParamValue("move_progress", 0, (d1, d2) => { return d2; });
+                        to_remove.Add(epf.Key);
+                    }
+                });
+
+                epf.Value.b += prog_mov.Invoke<float>(epf.Key, "move_progress");
 
                 if (epf.Value.b.IsOverMax())
                 {
                     Event set_next_tile = Event.NewEvent("SetTile");
                     set_next_tile.SetParamValue("next_tile", epf.Value.a, (p1, p2) => { return p2; });
+                    set_next_tile.Invoke(epf.Key);
 
                     if (paths.ContainsKey(epf.Key))
                     {
+                        //Basically the new move hander
                         Event calc_move = Event.NewEvent("SetMovementData");
-                        Entity t = World.instance.GetTileFromPosition(paths[epf.Key].DeQueue());
+                        Entity t = paths[epf.Key].DeQueue();
                         calc_move.Invoke(t);
-                        calc_move = new Event(calc_move, "CalculateMovementCost");
-                        calc_move.Invoke(epf.Key);
-                        float next_cost = calc_move.GetParamValue<float>("movement_cost");
-                        if(next_cost <= 0)
+                        calc_move = Event.NewEvent(calc_move, "CalculateMovementCost");
+
+                        float next_cost = calc_move.Invoke<float>(epf.Key, "movement_cost");
+                        if (next_cost <= 0)
                         {
-                            to_remove.Add(epf.Key);
+                            Path_Astar new_path = new Path_Astar(World.instance.graph, epf.Key, epf.Value.a, paths[epf.Key].end_cells);
+                            if (new_path.Length() == 0)
+                                to_remove.Add(epf.Key);
+                            else
+                            {
+                                paths[epf.Key] = new_path;
+                                t = new_path.DeQueue();
+                                calc_move = Event.NewEvent("SetMovementData");
+                                calc_move.Invoke(t);
+                                calc_move = Event.NewEvent(calc_move, "CalculateMovementCost");
+                                epf.Value.a = t;
+                                epf.Value.b.Reset(calc_move.Invoke<float>(epf.Key, "movement_cost"));
+                            }
+                        }
+                        else
+                        {
+                            epf.Value.a = t;
+                            epf.Value.b.Reset(next_cost);
+                        }
+                        if (paths[epf.Key].Length() == 0)
+                        {
+                            paths.Remove(epf.Key);
                         }
                     }
-                    
-                    //TODO: Make sure that the entity has some movement calculator if its assigned movement
-                    MoveHander(epf.Key, MovementCalculator.test_calculator);
+                    else
+                    {
+                        to_remove.Add(epf.Key);
+                    }
                 }
                 else
                 {
-                    to_update.Add(new ItemVector<Position, Position, float>(epf.Key.GetComponent<Position>(), epf.Value.a, epf.Value.b.curr));
-                    disp_vals.Add(epf.Key, new object[2] { epf.Value.a, epf.Value.b.curr });
+                    Event ev = Event.NewEvent(prog_mov, "SetDisplacedPosition");
+                    ev.SetParamValue("next_tile", epf.Value.a, (a, b) => { return b; });
+                    ev.SetParamValue("total_move_progress", epf.Value.b.NormalizedByMax(), (f1, f2) => { return f2; });
+                    ev.AddUpdate(EventDisplaceVector, 10);
+                    ev.Invoke(epf.Key);
                 }
             }
-
-            positions.UpdateComponents<Position>(disp_vals, DisplaceVector);
-            positions.UpdateComponents<Position>(tile_change, SetTilePosition);
 
             for (int i = to_remove.Count; i > 0; i -= 1)
             {
                 RemoveFromMoverProgress(to_remove[i - 1]);
                 to_remove.RemoveAt(i - 1);
+            }
+        }
+
+        public void EventDisplaceVector(Event e)
+        {
+            e.SetParamValue("displaced_position", DisplacedVector(e.GetParamValue<Position>("curr_tile"), e.GetParamValue<float>("total_move_progress"), e.GetParamValue<Position>("next_tile")));
+        }
+
+        public Vector3 DisplacedVector(Position p1, float dr, Position direction)
+        {
+            return (1 - dr) * p1.t_r + dr * direction.t_r;
+        }
+
+        public void MakePath(Event e)
+        {
+            Entity mover = e.GetParamValue<Entity>("invoking_entity");
+            List<Entity> dest = e.GetParamValue<List<Entity>>("targets");
+
+            Path_Astar path = new Path_Astar(World.instance.graph, mover, mover.GetComponent<Position>(), dest);
+            if(path.Length() == 0)
+            {
+                if (mover_progress.ContainsKey(mover))
+                {
+                    mover_progress.Remove(mover);
+                }
+            } else
+            {
+                if (mover_progress.TryGetValue(mover, out ItemVector<Position, FloatMinMax> val))
+                {
+                    val.a = path.DeQueue();
+                    val.b.Reset();
+                } else
+                {
+                    mover_progress.Add(mover, new ItemVector<Position, FloatMinMax>(path.DeQueue(), new FloatMinMax()));
+                }
+            }
+            if(path.Length() == 0)
+            {
+                if (paths.ContainsKey(mover))
+                {
+                    paths.Remove(mover);
+                }
+            } else
+            {
+                if (paths.ContainsKey(mover))
+                {
+                    paths[mover] = path;
+                }
+                else
+                {
+                    paths.Add(mover, path);
+                }
             }
         }
 
@@ -182,6 +271,47 @@ namespace HighKings
             {
                 paths.Remove(e);
             }
+        }
+
+        public void InvokeMovement(Entity mover, List<Entity> destination)
+        {
+            Path_Astar path = new Path_Astar(World.instance.graph, mover, mover.GetComponent<Position>(), destination);
+
+            if(path.Length() > 0)
+            {
+                Position next = path.DeQueue();
+                if (mover_progress.TryGetValue(mover, out ItemVector<Position, FloatMinMax> pf))
+                {
+                    pf.a = next;
+                    pf.b.Reset();
+                } else
+                {
+                    mover_progress.Add(mover, new ItemVector<Position, FloatMinMax>(next, new FloatMinMax()));
+                }
+            }
+
+            if(path.Length() > 0)
+            {
+                if (paths.ContainsKey(mover))
+                {
+                    paths[mover] = path;
+                } else
+                {
+                    paths.Add(mover, path);
+                }
+            } else
+            {
+                if (paths.ContainsKey(mover))
+                {
+                    paths.Remove(mover);
+                }
+            }
+
+        }
+
+        public void InvokeMovement(Entity mover, Entity destination)
+        {
+            InvokeMovement(mover, new List<Entity> { destination });
         }
 
         public void MoverPathMaker(Position[] end_area, Entity entity, IBehavior move_behavior)
@@ -368,6 +498,10 @@ namespace HighKings
 
         void RemoveFromMoverProgress(Entity e)
         {
+            if (paths.ContainsKey(e))
+            {
+                paths.Remove(e);
+            }
             mover_progress.Remove(e);
         }
 

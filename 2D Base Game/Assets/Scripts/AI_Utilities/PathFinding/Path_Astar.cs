@@ -12,6 +12,7 @@ namespace HighKings
     {
         Entity curr_pos;
         Entity end_pos;
+        public List<Entity> end_cells { get; protected set; }
         Queue<Entity> path;
         Queue<Position> position_path;
         Queue<Path_Edge<Entity>> edge_path;
@@ -32,6 +33,7 @@ namespace HighKings
         {
             this.graph = graph;
             cost_function = behavior;
+            end_cells = end;
             full_func = (ent) => { return cost_function.CalculateOnEntity(ent); };
             if (graph.tile_map.ContainsKey(start) == false)
             {
@@ -117,11 +119,12 @@ namespace HighKings
         public Path_Astar(Path_TileGraph graph, Entity mover, Entity start, List<Entity> end)
         {
             this.graph = graph;
+            end_cells = end;
             Func<Entity, Entity, float> computer = (e1, e2) =>
             {
                 Event cost = EventManager.instance.DoEvent(e2, "SetTileData");
                 cost = new Event(cost, "TileCost");
-                cost.AddUpdates(e1);
+                cost.Alter(e1);
                 cost.Invoke(e1);
                 return cost.GetParamValue<float>("move_cost");
             };

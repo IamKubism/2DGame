@@ -114,11 +114,6 @@ namespace HighKings
                 }
             }
 
-            //if (root["goals"] != null)
-            //{
-            //    CreateGoalSet(root["goals"].ToList());
-            //}
-
             if(root["events"] != null)
             {
                 List<JToken> toks = root["events"].ToList();
@@ -320,6 +315,7 @@ namespace HighKings
         public void CreateEventType(JProperty p)
         {
             EventManager.instance.AddEventPrototype(p);
+
         }
 
         public void CreateGoalPrototype(JProperty prop)

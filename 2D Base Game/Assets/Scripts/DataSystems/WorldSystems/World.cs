@@ -109,6 +109,24 @@ public class World
         return tile_map.GetTileArea(positions);
     }
 
+    public List<Entity> GetTileArea(int[] p1, int[] p2)
+    {
+        List<Entity> tiles = new List<Entity>();
+        int x1 = Mathf.Max(0,Mathf.Min(p1[0], p2[0]));
+        int y1 = Mathf.Max(0,Mathf.Min(p1[1], p2[1]));
+        int x2 = Mathf.Min(len_x-1, Mathf.Max(p1[0],p2[0]));
+        int y2 = Mathf.Min(len_y-1, Mathf.Max(p1[1],p2[1]));
+        int z = p1[2];
+        for(int i = x1; i <= x2; i += 1)
+        {
+            for(int j = y1; j <= y2; j += 1)
+            {
+                tiles.Add(tile_map[i, j, z]);
+            }
+        }
+        return tiles;
+    }
+
     public Entity GetTileUnderEntity(Entity e)
     {
         Position.Tile p = e.GetComponent<Position>("Position").tile;

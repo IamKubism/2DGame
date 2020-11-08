@@ -44,7 +44,7 @@ namespace HighKings
             bool eval = true;
             foreach(Entity o in occupants)
             {
-                e.AddUpdates(o);
+                e.Alter(o);
             }
             return eval;
         }

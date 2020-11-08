@@ -42,8 +42,20 @@ namespace HighKings
         public Entity main_selected;
         public EntityAction selectable_action;
 
+        /// <summary>
+        /// Events called on clicks 
+        /// </summary>
+        public List<Event> curr_click_events;
+        public HashSet<Entity> clicked_entities;
+
         Func<Entity> curr_retrieval_action;
         public static int curr_z;
+
+        private void Awake()
+        {
+            curr_click_events = new List<Event>();
+            clicked_entities = new HashSet<Entity>();
+        }
 
         // Start is called before the first frame update
         void Start()
@@ -92,6 +104,7 @@ namespace HighKings
                         UpdateCameraPosition();
                         break;
                     case 1:
+                        SetTargets();
                         break;
                     case 0:
                         break;
@@ -99,9 +112,10 @@ namespace HighKings
                 switch (GetWhichMouseButtonUp())
                 {
                     case 2:
+                        InvokeClickEvent(2);
                         break;
                     case 1:
-                        InvokeClickAction();
+                        InvokeClickEvent(1);
                         break;
                     case 0:
                         SelectionProcedure();
@@ -132,6 +146,7 @@ namespace HighKings
 
         public void InvokeClickAction()
         {
+            
             //Debug.Log("Invoking click");
             Entity target = curr_retrieval_action?.Invoke();
             if (main_selected != null && target != null)
@@ -139,6 +154,20 @@ namespace HighKings
                 selectable_action?.Invoke(main_selected, target);
                 //Debug.Log("Invoked click");
             }
+        }
+
+        public void InvokeClickEvent(int button_num)
+        {
+            if(curr_click_events.Count <= button_num || curr_click_events[button_num] == null)
+            {
+                return;
+            }
+            Event ev = new Event(curr_click_events[button_num]);
+            ev.SetParamValue("targets", clicked_entities, (l1, l2) =>
+            {
+                return l2;
+            });
+            ev.Invoke(main_selected);
         }
 
         public static void SetClickAction(EntityAction action)
@@ -195,15 +224,54 @@ namespace HighKings
             Camera.main.transform.Translate(last_frame_pos - curr_frame_pos);
         }
 
+        public void SetTargets()
+        {
+            //Clean up old drag previews
+            for(int i = drag_preview_game_objects.Count; i > 0; i -= 1)
+            {
+                GameObject go = drag_preview_game_objects[i-1];
+                drag_preview_game_objects.RemoveAt(i - 1);
+                SimplePool.Despawn(go);
+            }
+
+            int[] p1 = new int[3] { Mathf.FloorToInt(last_click_pos.x), Mathf.FloorToInt(last_click_pos.y), curr_z };
+            int[] p2 = new int[3] { Mathf.FloorToInt(curr_frame_pos.x), Mathf.FloorToInt(curr_frame_pos.y), curr_z };
+
+            //Get objects that don't have a selectable component basically (and make the tile drag preview objects)
+            List<Entity> tiles = World.instance.GetTileArea(p1, p2);
+            foreach (Entity tile in tiles)
+            {
+                clicked_entities.Add(tile);
+                foreach(Entity e in tile.GetComponent<Cell>().occupants)
+                {
+                    clicked_entities.Add(e);
+                }
+                GameObject go = SimplePool.Spawn(tile_cursor_prefab, new Vector3(tile.GetComponent<Position>().x, tile.GetComponent<Position>().y, 0), Quaternion.identity);
+                drag_preview_game_objects.Add(go);
+            }
+
+            //Get possible selectables outside of the drag area by tiles/ aren't in the occupants for whatever reason
+            Vector3 center = (1 / 2) * last_click_pos + (1 / 2) * curr_frame_pos;
+            Vector3 half_extents = (1 / 2) * (last_click_pos - curr_frame_pos) + new Vector3(0,0,20);
+            Collider[] selects = Physics.OverlapBox(center, half_extents);
+            List<GameObject> objs = new List<GameObject>();
+            foreach (Collider col in selects)
+            {
+                objs.Add(col.gameObject);
+            }
+            foreach(Entity e in GameObjectManager.instance.GetEntitiesFromObjects(objs))
+            {
+                selected_entities.Add(e);
+            }
+        }
+
         /// <summary>
         /// Currently I am only gonna do stuff for a one tile click and then upgrade to dragged things
         /// </summary>
         public void SelectionProcedure()
         {
             SetActiveSelectablesFromMouse();
-
             main_selected = GetNextSelectable();
-
             selection_info.MakeDisplays(main_selected);
         }
 
@@ -260,7 +328,7 @@ namespace HighKings
                 sels.Add(r.transform.gameObject);
             }
 
-            List<Entity> selects = GameObjectManager.instance.GrabEntitiesFromObjects(sels);
+            List<Entity> selects = GameObjectManager.instance.GetEntitiesFromObjects(sels);
             Entity select = null;
 
             for (int i = selects.Count; i > 0; i -= 1)
@@ -288,7 +356,7 @@ namespace HighKings
                 sels.Add(r.transform.gameObject);
             }
 
-            List<Entity> selects = GameObjectManager.instance.GrabEntitiesFromObjects(sels);
+            List<Entity> selects = GameObjectManager.instance.GetEntitiesFromObjects(sels);
 
             for (int i = selected_entities.Count; i > 0; i -= 1)
             {
@@ -305,6 +373,15 @@ namespace HighKings
                 if (e.HasComponent("SelectionComponent"))
                     AddActiveSelectable(e);
             }
+        }
+
+        public void SetClickEvent(int button_num, Event ev)
+        {
+            while(curr_click_events.Count < button_num)
+            {
+                curr_click_events.Add(null);
+            }
+            curr_click_events[button_num] = new Event(ev);
         }
 
         public void SetActiveRetrievalAction(string tag_name)

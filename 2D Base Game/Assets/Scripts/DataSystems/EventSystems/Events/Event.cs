@@ -13,6 +13,7 @@ using System;
 using Priority_Queue;
 using System.Linq;
 
+
 namespace HighKings
 {
     public class Event
@@ -58,7 +59,7 @@ namespace HighKings
             priorities = new List<(Action<Event>, int)>();
 
             id = p.Name;
-            type = p.Value["type"] != null ? p.Value.Value<string>("type") : "NULL";
+            type = p.Value["type"] != null ? p.Value.Value<string>("type") : p.Name;
             priority = p.Value["priority"] != null ? p.Value.Value<int>("priority") : (1 << 30);
             if(p.Value["tags"] != null)
             {
@@ -69,6 +70,7 @@ namespace HighKings
                 }
             }
             child_events = new Dictionary<string, Event>();
+            updates = new SimplePriorityQueue<Action<Event>>();
         }
 
         public static Event NewEvent(string event_type)
@@ -85,11 +87,9 @@ namespace HighKings
 
         public Event(Event el)
         {
-            parameters = new Dictionary<string, object>(el.parameters);
             id = el.id;
             type = el.type;
-            priority = el.priority;
-            tags = new HashSet<string>(el.tags);
+            AppendEvent(el);
         }
 
         public Event(Event el, string forward_type)
@@ -101,43 +101,53 @@ namespace HighKings
             tags = new HashSet<string>(forward.tags);
         }
 
-        public bool Invoke(Entity e, List<(Entity,string)> targets = null)
+        public List<Event> Invoke(Entity e, List<(Entity,string)> targets = null)
         {
+            List<Event> to_return = new List<Event> { this };
             SetParamValue("invoking_entity", e, (e1, e2) => { return e2; });
-            AddUpdates(e);
-            if(updates.Count == 0)
+            Alter(e);
+            Queue<Action<Event>> temp_updates = new Queue<Action<Event>>(updates);
+            priorities = new List<(Action<Event>, int)>();
+            updates = new SimplePriorityQueue<Action<Event>>();
+            while(temp_updates.Count > 0)
             {
-                return false;
-            } 
-            while(updates.Count > 0)
-            {
-                updates.Dequeue()?.Invoke(this);
+                temp_updates.Dequeue()?.Invoke(this);
             }
             if (targets != null)
             {
                 foreach((Entity,string) target in targets)
                 {
-                    if (!child_events.TryGetValue(target.Item2, out Event v))
+                    if (child_events.TryGetValue(target.Item2, out Event v))
                     {
-                        new Event(v).Invoke(target.Item1);
+                        Event l = new Event(v);
+                        l.Invoke(target.Item1);
+                        to_return.Add(l);
                         continue;
                     }
-                    Debug.LogWarning($"Could not find event: {target.Item2}");
+                    Debug.LogWarning($"Could not find child event: {target.Item2}");
                 }
             }
-            return true;
+            return to_return;
         }
 
-        public void AddUpdates(Entity e, string child_id = "", string child_type = "")
+        public T Invoke<T>(Entity e, string to_return, List<(Entity, string)> targets = null)
+        {
+            Invoke(e, targets);
+            if(!parameters.TryGetValue(to_return, out object a))
+            {
+                Debug.LogError($"Could not find parameter {to_return} for event {id}");
+                Debug.Log(ToString());
+            }
+            return (T)a;
+        }
+
+        public void Alter(Entity e, string child_id = "", string child_type = "")
         {
             if(child_id == "")
             {
                 foreach (IBaseComponent b in e.components.Values)
                 {
-                    if (b.Trigger(this) == false)
-                    {
-                        return;
-                    }
+                    b.Trigger(this);
                 }
             } else
             {
@@ -145,10 +155,14 @@ namespace HighKings
                 {
                     child_events.Add(child_id, NewEvent(child_type != "" ? child_type : id));
                 }
-                child_events[child_id].AddUpdates(e);
+                child_events[child_id].Alter(e);
             }
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="child_id"></param>
         public void Cancel(string child_id = "")
         {
             if(child_id == "")
@@ -185,6 +199,7 @@ namespace HighKings
             if(!parameters.TryGetValue(key, out object to_return))
             {
                 Debug.LogWarning($"Could not find Key {key} for parameters with event {id}");
+                return default;
             }
             return (T)to_return;
         }

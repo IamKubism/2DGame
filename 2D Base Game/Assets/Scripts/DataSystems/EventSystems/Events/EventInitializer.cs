@@ -32,12 +32,9 @@ namespace HighKings
         {
             foreach(Event e in events)
             {
-                foreach(string tag in e.tags)
+                if(e.type == "SetMoveDestination")
                 {
-                    if (default_events.TryGetValue(tag, out Event defe))
-                    {
-                        e.AppendEvent(defe);
-                    }
+                    e.AddUpdate(Movers.instance.MakePath, 100);
                 }
             }
         }

@@ -91,7 +91,7 @@ namespace HighKings
             return to_return;
         }
 
-        public List<Entity> GrabEntitiesFromObjects(List<GameObject> objects)
+        public List<Entity> GetEntitiesFromObjects(List<GameObject> objects)
         {
             List<Entity> to_return = new List<Entity>();
             foreach (GameObject g in objects)

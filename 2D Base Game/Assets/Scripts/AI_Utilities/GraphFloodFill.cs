@@ -15,7 +15,7 @@ namespace HighKings
             int Cost(Entity curr)
             {
                 Event e2 = new Event(cost_event);
-                e2.AddUpdates(curr);
+                e2.Alter(curr);
                 e2.Invoke(curr);
 
                 return e2.GetParamValue<int>("flood_cost");
@@ -50,7 +50,7 @@ namespace HighKings
             int Cost(Entity curr)
             {
                 Event e2 = new Event(cost_event);
-                e2.AddUpdates(curr);
+                e2.Alter(curr);
                 e2.Invoke(curr);
                 return e2.GetParamValue<int>("flood_cost");
             }
@@ -82,7 +82,7 @@ namespace HighKings
             int Cost(Entity curr)
             {
                 Event e2 = new Event(cost_event);
-                e2.AddUpdates(curr);
+                e2.Alter(curr);
                 e2.Invoke(curr);
                 return e2.GetParamValue<int>("flood_cost");
             }

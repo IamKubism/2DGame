@@ -88,6 +88,7 @@ namespace HighKings
         public static EventManager instance;
         public Dictionary<string, Turns> turn_pairs;
         Dictionary<string, Event> event_prototypes;
+        Dictionary<string, Dictionary<string, Event>> events_by_tag;
         HashSet<Entity> continuous_updaters;
         Event pass_time;
 
@@ -103,6 +104,7 @@ namespace HighKings
             turn_pairs = new Dictionary<string, Turns>();
             event_prototypes = new Dictionary<string, Event>();
             continuous_updaters = new HashSet<Entity>();
+            events_by_tag = new Dictionary<string, Dictionary<string, Event>>();
         }
 
         public void Start()
@@ -248,6 +250,30 @@ namespace HighKings
         public void AddEventPrototype(JProperty p)
         {
             event_prototypes.Add(p.Name, new Event(p));
+            if (p.Value["external_tags"] != null)
+            {
+                List<JToken> ext_tags = p.Value["external_tags"].ToList();
+                foreach(JToken tok in ext_tags)
+                {
+                    if(events_by_tag.TryGetValue(tok.Value<string>(), out Dictionary<string, Event> dict))
+                    {
+                        dict.Add(p.Name, event_prototypes[p.Name]);
+                    } else
+                    {
+                        events_by_tag.Add(tok.Value<string>(), new Dictionary<string, Event> { { p.Name, event_prototypes[p.Name] } });
+                    }
+                }
+            }
+        }
+
+        public Event GetPrototype(string name)
+        {
+            if (event_prototypes.TryGetValue(name, out Event val))
+            {
+                return val;
+            }
+            Debug.LogWarning($"Could not find event: {name}");
+            return default;
         }
 
         public Event PushEventToQueue(Entity entity, Event e, int turn = 0)
@@ -283,7 +309,7 @@ namespace HighKings
         public Event DoEvent(Entity e, Event prot)
         {
             Event el = new Event(prot);
-            el.AddUpdates(e);
+            el.Alter(e);
             el.Invoke(e);
             return el;
         }
@@ -296,7 +322,7 @@ namespace HighKings
                 return null;
             }
             Event el = new Event(ev);
-            el.AddUpdates(e);
+            el.Alter(e);
             el.Invoke(e);
             return el;
         }

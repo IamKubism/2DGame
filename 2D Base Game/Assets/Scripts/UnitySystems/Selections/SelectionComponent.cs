@@ -29,14 +29,9 @@ namespace HighKings
             this.subscriber = subscriber;
         }
 
-        public bool SetSubscriberListener(Action<IBaseComponent> action, bool before_after)
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Trigger(Event e)
         {
-            throw new System.NotImplementedException();
+            return true;
         }
     }
 }

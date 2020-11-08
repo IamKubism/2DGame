@@ -49,23 +49,8 @@ namespace HighKings
             if (e.tags.Contains("DoDamage"))
             {
                 e.AddUpdate(AddDamageType, 10, "BaseDamage", "TakeDamage");
-                e.AddUpdate(AddToTotalDamage, 99, "BaseDamage", "TakeDamage");
+                e.AddUpdate(AddToTotalDamage, 100, "BaseDamage", "TakeDamage");
             }
-            //switch (e.type)
-            //{
-            //    case "DoDamage":
-            //        e.AddUpdate(
-            //            (v) => {
-            //                v.SetParamValue("blunt_damage", new DiceGroup(d));
-            //                if(!v.HasParamValue("total_damage"))
-            //                    v.SetParamValue("total_damage", new DiceGroup());
-            //                    v.SetParamValue("total_damage", new DiceGroup());
-            //                v.SetParamValue("damage_type", v.GetParamValue<string>("damage_type") + ",blunt");
-            //            }, 1);
-            //        e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("blunt_damage", e.GetParamValue<DiceGroup>("blunt_damage")); },1);
-            //        e.GetParamValue<Event>("take_damage_event").AddUpdate((ev) => { ev.SetParamValue("total_damage", ev.GetParamValue<float>("blunt_damage"), (d1, d2) => { return d1 + d2; }); },50);
-            //        break;
-            //}
             return eval;
         }
 

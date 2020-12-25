@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HighKings
+namespace Psingine
 {
     public class Dice
     {
@@ -102,6 +102,14 @@ namespace HighKings
             return ds;
         }
 
+        public static Dice operator *(Dice dice, int mod)
+        {
+            Dice d2 = new Dice(dice);
+            d2.d *= mod;
+            d2.c *= mod;
+            return dice;
+        }
+
         public static implicit operator DiceGroup(Dice d)
         {
             return new DiceGroup(d);
@@ -134,7 +142,7 @@ namespace HighKings
             int total = d.c;
             for(int i = 0; i < d.n; i += 1)
             {
-                total += Random.Range(1, d.d+1);
+                total += Random.Range(0, d.d);
             }
             return Mathf.Max(0,total);
         }
@@ -148,6 +156,8 @@ namespace HighKings
             }
             return total;
         }
+
+
     }
 
     public class DiceGroup
@@ -165,6 +175,12 @@ namespace HighKings
         {
             group = new List<Dice> { d };
             displacement = 0;
+        }
+
+        public DiceGroup(int i)
+        {
+            displacement = i;
+            group = new List<Dice>();
         }
 
         public DiceGroup(string s)
@@ -228,6 +244,16 @@ namespace HighKings
         {
             DiceGroup c = new DiceGroup(d1);
             c.displacement += disp;
+            return c;
+        }
+
+        public static DiceGroup operator *(DiceGroup d1, int mod)
+        {
+            DiceGroup c = new DiceGroup(d1);
+            for(int i = 0; i < c.group.Count; i += 1)
+            {
+                c.group[i] *= mod;
+            }
             return c;
         }
         

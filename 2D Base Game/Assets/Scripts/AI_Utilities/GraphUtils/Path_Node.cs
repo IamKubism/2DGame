@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HighKings
+namespace Psingine
 {
     public class Path_Node<T>
     {

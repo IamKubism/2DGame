@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System;
-using HighKings;
+using Psingine;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
+using Psingine.UI;
 
-
-namespace HighKings
+namespace Psingine
 {
     public class MouseController : MonoBehaviour
     {
@@ -91,9 +91,11 @@ namespace HighKings
                 }
                 switch (GetWhichMouseButtonDown())
                 {
+
                     case 2:
                         break;
                     case 1:
+                        CleanUpTargets();
                         break;
                     case 0:
                         break;
@@ -141,7 +143,7 @@ namespace HighKings
 
         public Position GetPositionUnderMouse()
         {
-            return GetTileUnderMouse().GetComponent<Position>("Position");
+            return GetTileUnderMouse().GetComponent<Position>();
         }
 
         public void InvokeClickAction()
@@ -154,16 +156,18 @@ namespace HighKings
                 selectable_action?.Invoke(main_selected, target);
                 //Debug.Log("Invoked click");
             }
+            
         }
 
         public void InvokeClickEvent(int button_num)
         {
             if(curr_click_events.Count <= button_num || curr_click_events[button_num] == null)
             {
+                Debug.Log("No click event");
                 return;
             }
             Event ev = new Event(curr_click_events[button_num]);
-            ev.SetParamValue("targets", clicked_entities, (l1, l2) =>
+            ev.SetParamValue("targets", new HashSet<Entity>(clicked_entities), (l1, l2) =>
             {
                 return l2;
             });
@@ -219,13 +223,20 @@ namespace HighKings
             Camera.main.transform.Translate(pos);
         }
 
+        //TODO: When we do chunk loading we need to make sure these numbers don't get huge
         public void UpdateCameraPosition()
         {
             Camera.main.transform.Translate(last_frame_pos - curr_frame_pos);
         }
 
+        public void CleanUpTargets()
+        {
+            clicked_entities = new HashSet<Entity>();
+        }
+
         public void SetTargets()
         {
+
             //Clean up old drag previews
             for(int i = drag_preview_game_objects.Count; i > 0; i -= 1)
             {
@@ -377,9 +388,10 @@ namespace HighKings
 
         public void SetClickEvent(int button_num, Event ev)
         {
-            while(curr_click_events.Count < button_num)
+            while(curr_click_events.Count < button_num+1)
             {
-                curr_click_events.Add(null);
+                curr_click_events.Add(EventManager.instance.GetEvent("NullEvent"));
+                Debug.Log(curr_click_events.Count);
             }
             curr_click_events[button_num] = new Event(ev);
         }

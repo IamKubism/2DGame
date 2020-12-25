@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// This is a system designed to keep track of entities which are characters, I think I might need this but maybe I do not

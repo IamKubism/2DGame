@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// Class that manages all assignable actions

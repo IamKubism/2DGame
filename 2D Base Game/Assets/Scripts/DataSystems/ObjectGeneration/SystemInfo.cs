@@ -4,7 +4,7 @@ using System;
 using System.Runtime.Serialization;
 using UnityEngine;
 
-namespace HighKings
+namespace Psingine
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class SystemInfo

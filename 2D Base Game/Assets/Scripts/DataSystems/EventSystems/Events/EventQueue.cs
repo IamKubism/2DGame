@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Linq;
 using Priority_Queue;
 
-namespace HighKings
+namespace Psingine
 {
     public class EventQueue
     {

@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System;
 
-namespace HighKings
+namespace Psingine
 {
     public class InspectorDisplay : MonoBehaviour
     {

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
+using Priority_Queue;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// Class Designed exclusively to just keep track of entities
@@ -25,6 +26,7 @@ namespace HighKings
 
         Dictionary<string, Entity> string_id_to_entity;
         List<Entity> entity_array;
+        SimplePriorityQueue<int> free_indeces;
 
         public EntityManager()
         {
@@ -39,6 +41,8 @@ namespace HighKings
             entities = new Dictionary<string, List<Entity>>();
             string_id_to_entity = new Dictionary<string, Entity>();
             entity_array = new List<Entity>();
+            free_indeces = new SimplePriorityQueue<int>();
+            free_indeces.Enqueue(entity_num, entity_num);
         }
 
         /// <summary>
@@ -52,12 +56,23 @@ namespace HighKings
             List<Entity> es = new List<Entity>();
             List<Entity> temp = entities.ContainsKey(type) ? entities[type] : AddSaverList(type);
 
+            if(free_indeces.Count == 0)
+            {
+                Debug.LogWarning("No free indeces for some reason");
+                free_indeces.Enqueue(entity_num, entity_num);
+            }
+
             foreach(string id in ids)
             {
-                Entity e = new Entity(id, entity_num);
+                int this_index = free_indeces.Dequeue();
+                Entity e = new Entity(id, this_index);
                 e.entity_type = type;
                 es.Add(e);
-                entity_num += 1;
+                if(this_index == entity_num)
+                {
+                    entity_num += 1;
+                    free_indeces.Enqueue(entity_num, entity_num);
+                }
             }
 
             temp.AddRange(es);
@@ -74,11 +89,58 @@ namespace HighKings
 
             foreach(Entity e in es)
             {
-                entity_array.Add(e);
+                if(entity_array.Count <= e.entity_id)
+                {
+                    entity_array.Add(e);
+                } else
+                {
+                    entity_array[e.entity_id] = e;
+                }
             }
 
             //Debug.Log($"Created {ids.Length} entities");
             return to_return;
+        }
+
+        public Entity CreateEntity(string type, string id)
+        {
+            if(free_indeces.Count == 0)
+            {
+                Debug.LogWarning("No Free Indeces");
+                free_indeces.Enqueue(entity_num, entity_num);
+            }
+            int free_index = free_indeces.Dequeue();
+            Entity entity = new Entity(id, free_index);
+            if(free_index == entity_num)
+            {
+                entity_num += 1;
+                entity.entity_type = type;
+            }
+            
+            if(entities.TryGetValue(type, out List<Entity> typed_entities))
+            {
+                typed_entities.Add(entity);
+            } else
+            {
+                entities.Add(type, new List<Entity> { entity });
+            }
+
+            string_id_to_entity.Add(id, entity);
+
+            if(free_index >= entity_array.Count)
+            {
+                entity_array.Add(entity);
+            } else
+            {
+                entity_array[free_index] = entity;
+            }
+
+            return entity;
+        }
+
+        public Entity CreateTempEntity(string name = "")
+        {
+            return new Entity(name, -1);
         }
 
         public Dictionary<string,Entity> GetEntities(string type, string[] ids)
@@ -175,11 +237,15 @@ namespace HighKings
             return s;
         }
 
-        public void DestroyEntity(Entity e)
+        public void DestroyEntity(Entity e, bool temp = false)
         {
-            entities[e.entity_type].Remove(e);
-            entity_array.Remove(e);
-            string_id_to_entity.Remove(e.entity_string_id);
+            if (!temp)
+            {
+                entities[e.entity_type].Remove(e);
+                entity_array.Remove(e);
+                string_id_to_entity.Remove(e.entity_string_id);
+                free_indeces.Enqueue(e.entity_id, e.entity_id);
+            }
         }
     }
 

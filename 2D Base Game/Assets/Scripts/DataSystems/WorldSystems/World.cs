@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
-using HighKings;
+using Psingine;
 
 /// <summary>
 /// The main class that contains all tiles and facilitates changes between types, for the time being. In the future I should rename/make this
@@ -29,12 +29,18 @@ public class World
     /// </summary>
     static public World instance { get; protected set; }
 
+    /// <summary>
+    /// The way that I think we are going to store information that entities use to evaluate what AI they should use
+    /// </summary>
+    public Dictionary<Observable, List<Entity>> observable_values;
+
     public World(int len_x, int len_y, int len_z)
     {
         instance = this;
         this.len_x = len_x;
         this.len_y = len_y;
         this.len_z = len_z;
+        observable_values = new Dictionary<Observable, List<Entity>>();
     }
 
     void SetUpTiles(int width, int length, int height)

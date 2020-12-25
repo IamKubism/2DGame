@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using System;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// Similar to djikstra's algorithm, computes a most prefered path for a directed acyclic path (used for goal setting)

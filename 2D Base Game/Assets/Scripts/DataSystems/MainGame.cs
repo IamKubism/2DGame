@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using Priority_Queue;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// The MainGame is responsible for all information that is passed between systems in the game
@@ -32,14 +32,11 @@ namespace HighKings
         SystemLoader system_loader;
         FullGoalMap goals;
         EventManager event_manager;
+        AttackSystem attack_system;
 
         public Dictionary<string, ITriggeredUpdater> triggered_updaters;
-
-
         public Dictionary<string, object> systems;
         public Dictionary<string, object> component_subscribers;
-
-
         public Dictionary<string, InspectorData> display_data;
         public List<InspectorData> display_queue;
 
@@ -76,13 +73,13 @@ namespace HighKings
             //Load All systems
             systems = new Dictionary<string, object>();
             display_data = new Dictionary<string, InspectorData>();
-            MovementCalculator.SetTestCalculator();
         }
 
         public void SystemLoading()
         {
             event_manager.Start();
             system_loader = SystemLoader.instance ?? new SystemLoader(systems);
+            attack_system = new AttackSystem();
         }
 
         //All startup tasks should be done in some form here

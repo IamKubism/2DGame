@@ -4,10 +4,13 @@ using UnityEngine;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace HighKings
+namespace Psingine
 {
+    public enum EventTags { DoPhysical }
+
     public class EventManager : ITriggeredUpdater, IUpdater
     {
+
         public class Turns
         {
             public Entity target;
@@ -88,9 +91,11 @@ namespace HighKings
         public static EventManager instance;
         public Dictionary<string, Turns> turn_pairs;
         Dictionary<string, Event> event_prototypes;
-        Dictionary<string, Dictionary<string, Event>> events_by_tag;
+        public Dictionary<string, Dictionary<string, Event>> events_by_tag;
         HashSet<Entity> continuous_updaters;
+        List<IEventObserver> event_observers;
         Event pass_time;
+        public Dictionary<string, HashSet<IEventObserver>> observers_by_tag;
 
         public EventManager()
         {
@@ -105,6 +110,9 @@ namespace HighKings
             event_prototypes = new Dictionary<string, Event>();
             continuous_updaters = new HashSet<Entity>();
             events_by_tag = new Dictionary<string, Dictionary<string, Event>>();
+            event_prototypes.Add("NullEvent", new Event());
+            event_observers = new List<IEventObserver>();
+            observers_by_tag = new Dictionary<string, HashSet<IEventObserver>>();
         }
 
         public void Start()
@@ -121,34 +129,72 @@ namespace HighKings
             }
         }
 
+        public void InvokeEvent(Event e)
+        {
+            foreach(string s in e.tags)
+            {
+                foreach(IEventObserver observer in observers_by_tag[s])
+                {
+                    observer.Observe(e);
+                }
+            }
+            e.Invoke();
+            //I should actually probably be super careful about this, but its possible that an event might trigger another one so I would like to maybe do this
+            //foreach(Event eve in e.Invoke())
+            //{
+            //    InvokeEvent(eve);
+            //}
+        }
+
+        public void CallEvent(string event_id, Entity invoker)
+        {
+            Event inst = new Event(GetPrototype(event_id));
+            inst.Invoke(invoker);
+        }
+
+        public void CallGlobalEvent(string event_id, Event prior)
+        {
+            Event inst = new Event(prior, event_id);
+            foreach (IEventObserver observer in event_observers)
+            {
+                observer.Observe(inst);
+            }
+            inst.Invoke(prior.GetParamValue<Entity>(EventParams.invoking_entity));
+        }
+
         public void Update(float dt)
         {
-            HashSet<Entity> to_remove = new HashSet<Entity>();
-            foreach(Entity e in continuous_updaters)
-            {
-                Event pass = new Event(pass_time);
-                pass.SetParamValue("dt", dt, (f1,f2) => { return f2; });
-                pass.SetParamValue("continue_update", false, (f1, f2) => { return f1; });
+            //IDK if this stuff is necessary
+            //HashSet<Entity> to_remove = new HashSet<Entity>();
+            //foreach(Entity e in continuous_updaters)
+            //{
+            //    Event pass = new Event(pass_time);
+            //    pass.SetParamValue("dt", dt, (f1,f2) => { return f2; });
+            //    pass.SetParamValue("continue_update", false, (f1, f2) => { return f1; });
 
-                //Need to find a good way to tell it that the thing isn't updating anymore so that we don't basically have a memory leak
-                pass.Invoke(e);
-                if(!pass.GetParamValue<bool>("continue_update"))
-                    to_remove.Add(e);
-            }
-            foreach(Entity e in to_remove)
-            {
-                RemoveFromContinuousUpdate(e);
-            }
+            //    //Need to find a good way to tell it that the thing isn't updating anymore so that we don't basically have a memory leak
+            //    pass.Invoke(e);
+            //    if(!pass.GetParamValue<bool>("continue_update"))
+            //        to_remove.Add(e);
+            //}
+            //foreach(Entity e in to_remove)
+            //{
+            //    RemoveFromContinuousUpdate(e);
+            //}
         }
 
-        public void AddToContinuousUpdate(Entity e)
+        public void AddObserver(string[] tags, IEventObserver observer)
         {
-            continuous_updaters.Add(e);
-        }
-
-        public void RemoveFromContinuousUpdate(Entity e)
-        {
-            continuous_updaters.Remove(e);
+            foreach(string tag in tags)
+            {
+                if(observers_by_tag.TryGetValue(tag, out HashSet<IEventObserver> obs))
+                {
+                    obs.Add(observer);
+                } else
+                {
+                    observers_by_tag.Add(tag, new HashSet<IEventObserver> { observer });
+                }
+            }
         }
 
         public void RemoveEntity(string id)
@@ -238,11 +284,15 @@ namespace HighKings
             }
         }
 
-        public Event GetEvent(string id)
+        public Event GetEvent(string id, bool allow_new_prototype = false)
         {
             if (!event_prototypes.TryGetValue(id, out Event e))
             {
                 Debug.LogWarning($"Could not find event {id}");
+                if (allow_new_prototype)
+                {
+                    //TODO: Make a new event
+                }
             }
             return e;
         }
@@ -326,7 +376,6 @@ namespace HighKings
             el.Invoke(e);
             return el;
         }
-
 
     }
 }

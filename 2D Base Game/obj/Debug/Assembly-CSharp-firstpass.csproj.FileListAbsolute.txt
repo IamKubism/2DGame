@@ -1219,3 +1219,8 @@ C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.dll
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Purchasing.pdb
 C:\Users\Conner\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEditor.Purchasing.pdb
+C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\Analytics.dll
+C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Advertisements.Editor.dll
+C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\YamlDotNet.dll
+C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\Analytics.pdb
+C:\Users\Conner best evaeva\Documents\GitHub\2DGame\2D Base Game\Temp\Bin\Debug\UnityEngine.Advertisements.Editor.pdb

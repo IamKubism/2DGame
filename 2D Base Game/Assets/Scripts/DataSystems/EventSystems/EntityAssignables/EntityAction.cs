@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// A collection of listeners that will each be invoked when this is invoked. These are functions returning nothing and taking source and target entities as arguments

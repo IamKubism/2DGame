@@ -5,9 +5,9 @@ using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using System;
-using HighKings;
+using Psingine;
 
-namespace HighKings
+namespace Psingine
 {
     /// <summary>
     /// Manages a dictionary of all sprites used

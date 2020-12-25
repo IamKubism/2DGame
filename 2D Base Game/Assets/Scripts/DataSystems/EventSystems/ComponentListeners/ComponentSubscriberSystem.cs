@@ -2,7 +2,7 @@
 using UnityEngine;
 using System;
 
-namespace HighKings
+namespace Psingine
 {
     public class ComponentSubscriberSystem: ISystemAdder
     {
@@ -125,6 +125,15 @@ namespace HighKings
                 }
             }
             on_entities_added?.Invoke(entities);
+        }
+        
+        public void AddEntity(Entity e)
+        {
+            if (events.ContainsKey(e) == false)
+            {
+                events.Add(e, new SubscriberEvent(e, component_name));
+            }
+            on_entities_added?.Invoke(new List<Entity> { e });
         }
 
         public void RemoveEntities(List<Entity> entities)

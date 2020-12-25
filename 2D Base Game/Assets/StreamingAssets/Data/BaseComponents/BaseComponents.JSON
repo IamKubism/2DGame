@@ -86,7 +86,7 @@
 				"default_position": 2,
 				"display_name": "Strength",
 				"type": "Bar",
-				"text": "Health: [curr_value] / [base_value]"
+				"text": "Strength: [curr_value] / [base_value]"
 			},
 			"namespace": "Default",
 			"type": "BaseStatistic"

@@ -2,29 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HighKings
+namespace Psingine
 {
     public class GameEventHandler : IUpdater
     {
         public class EventQueue
         {
             public Entity target;
-            public List<HighKings.EventQueue> discrete_events;
-            public List<HighKings.EventQueue> continuous_events;
+            public List<Psingine.EventQueue> discrete_events;
+            public List<Psingine.EventQueue> continuous_events;
             public FloatMinMax continuous_time;
 
             public EventQueue()
             {
-                discrete_events = new List<HighKings.EventQueue>();
-                continuous_events = new List<HighKings.EventQueue>();
+                discrete_events = new List<Psingine.EventQueue>();
+                continuous_events = new List<Psingine.EventQueue>();
                 continuous_time = new FloatMinMax();
             }
 
             public EventQueue(Entity target)
             {
-                discrete_events = new List<HighKings.EventQueue>();
+                discrete_events = new List<Psingine.EventQueue>();
                 continuous_time = new FloatMinMax();
-                continuous_events = new List<HighKings.EventQueue>();
+                continuous_events = new List<Psingine.EventQueue>();
                 this.target = target;
             }
 
@@ -40,7 +40,7 @@ namespace HighKings
                 }
             }
 
-            public void AddEvent(HighKings.EventQueue discrete_event, HighKings.EventQueue continuous_event, int turn)
+            public void AddEvent(Psingine.EventQueue discrete_event, Psingine.EventQueue continuous_event, int turn)
             {
 
             }

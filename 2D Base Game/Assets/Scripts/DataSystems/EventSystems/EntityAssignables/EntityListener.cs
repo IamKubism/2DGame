@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Linq;
 
-namespace HighKings
+namespace Psingine
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class EntityListener

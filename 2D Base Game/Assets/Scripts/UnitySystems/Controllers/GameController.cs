@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Psingine;
+using HighKings;
 
 /// <summary>
 /// The master controller for the game functionality

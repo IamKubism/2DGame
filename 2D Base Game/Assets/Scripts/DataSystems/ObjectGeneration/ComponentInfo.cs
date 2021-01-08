@@ -8,7 +8,7 @@ using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
-namespace Psingine
+namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class ComponentInfo

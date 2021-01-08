@@ -44,12 +44,7 @@
 						"priority": 0
 					}
 				},
-				"Walker": {},
-				"BluntDamage": {
-					"data": {
-						"d": "1+2d4"
-					}
-				}
+				"Walker": {}
 			}
 		},
 		"test_char_1": {

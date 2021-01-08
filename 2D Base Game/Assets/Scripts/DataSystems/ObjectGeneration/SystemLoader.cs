@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEngine;
 using System;
 
-namespace Psingine
+namespace HighKings
 {
     public class SystemLoader
     {

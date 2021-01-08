@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Reflection;
 
-namespace Psingine {
+namespace HighKings {
 
     public class Entity
     {
@@ -20,33 +20,15 @@ namespace Psingine {
             components = new Dictionary<string, IBaseComponent>();
         }
 
-        public Entity CopyEntity(string string_id)
+        public IBaseComponent AddComponent(string id, IBaseComponent comp)
         {
-            return PrototypeLoader.instance.CopyEntity(this, string_id);
-        }
-
-        public IBaseComponent TryAddComponent(string id, IBaseComponent comp)
-        {
-            if (components.TryGetValue(id, out IBaseComponent component))
+            if (components.ContainsKey(id))
             {
-                return component;
+                Debug.Log($"Tried to set a component of type {id} twice on {entity_string_id}");
             }
             else
             {
                 components.Add(id, comp);
-                return comp;
-            }
-        }
-
-        public IBaseComponent FullSetComponent(string id, IBaseComponent comp)
-        {
-            if(components.TryGetValue(id, out IBaseComponent val))
-            {
-                val.CopyData(comp);
-            } else
-            {
-                components.Add(id, comp);
-                MainGame.instance.GetSubscriberSystem(id).AddEntity(this);
             }
             return comp;
         }
@@ -75,34 +57,6 @@ namespace Psingine {
                 Debug.LogWarning($"Could not find component {comp_name} for entity {entity_string_id}");
             }
             return (T)bc;
-        }
-
-        public bool TryGetComponent<T>(string comp_name, out T comp) where T : IBaseComponent
-        {
-            if (components.TryGetValue(comp_name, out IBaseComponent to_return))
-            {
-                comp = (T)to_return;
-                return true;
-            }
-            else
-            {
-                comp = default;
-                return false;
-            }
-        }
-
-        public bool TryGetComponent<T>(out T comp) where T : IBaseComponent
-        {
-            if (components.TryGetValue(nameof(T), out IBaseComponent to_return))
-            {
-                comp = (T)to_return;
-                return true;
-            }
-            else
-            {
-                comp = default;
-                return false;
-            }
         }
 
         public IBaseComponent GetComponent(string comp_name)
@@ -180,12 +134,9 @@ namespace Psingine {
             return EventManager.instance;
         }
 
-        public static void Destroy(Entity e, bool temp = false)
+        public static void Destroy(Entity e)
         {
-            if (!temp)
-            {
-                e.RemoveFromAllSubscribers();
-            }
+            e.RemoveFromAllSubscribers();
             Manager().DestroyEntity(e);
         }
 

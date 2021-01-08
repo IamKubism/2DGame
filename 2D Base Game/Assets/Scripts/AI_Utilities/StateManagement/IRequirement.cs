@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Psingine
+namespace HighKings
 {
     public interface IRequirement<T>
     {

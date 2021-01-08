@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 
-namespace Psingine
+namespace HighKings
 {
     /// <summary>
     /// Might be conflating goals with tasks here
@@ -95,11 +95,6 @@ namespace Psingine
                 eval &= achieve_bools[i].Item2;
             }
             e.SetParamValue("curr_goal_achieved", eval, (b1, b2) => { return b2; });
-        }
-
-        public void CopyData(IBaseComponent comp)
-        {
-            throw new NotImplementedException();
         }
     }
 

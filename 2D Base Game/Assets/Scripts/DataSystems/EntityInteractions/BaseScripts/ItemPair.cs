@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Psingine
+namespace HighKings
 {
     public class ItemVector<T1, T2>
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace Psingine
+namespace HighKings
 {
     /// <summary>
     /// Class that keeps track of all possible goal chains that entities can execute

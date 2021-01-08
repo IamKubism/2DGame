@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Psingine
+namespace HighKings
 {
 
     public class MathFunctions
@@ -52,7 +52,7 @@ namespace Psingine
             return x;
         }
 
-        public static float ManhattonDist(float[] p1, float[] p2)
+        public static float ManDist(float[] p1, float[] p2)
         {
             float dist = 0;
 
@@ -76,31 +76,15 @@ namespace Psingine
             int dist = 0;
             for (int i = 0; i < p1.Length; i += 1)
             {
-                int displacement = (p1[i] - p2[i]);
-                dist += displacement*displacement;
+                dist += MathFunctions.Pow(p1[i] - p2[i], 2);
             }
 
             return dist;
         }
 
-        public static float Dot(float[] p1, float[] p2)
-        {
-            float total = 0;
-            for(int i = 0; i < Mathf.Min(p1.Length, p2.Length); i += 1)
-            {
-                total += p1[i] * p2[i];
-            }
-            return total;
-        }
-
         public static int SqrDist(Position.Tile p1, Position.Tile p2)
         {
             return Pow(p1.x - p2.x,2)+Pow(p1.y-p2.y,2) + Pow(p1.z-p2.z,2);
-        }
-
-        public static Vector3 PositionDirection(Position p1, Position p2)
-        {
-            return (p2.t_r-p1.t_r).normalized;
         }
 
         public static float NegativeRespectingSum(float f1, float f2)

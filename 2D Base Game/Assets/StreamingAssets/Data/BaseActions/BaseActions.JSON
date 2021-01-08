@@ -50,72 +50,97 @@
 		"ComputeMovementProgress": {
 			"priority": 0
 		},
-		"Combat": {
-			"priority": 10,
+		"DoDamage": {
+			"priority": 40,
 			"external_tags": [
 				"click_event"
 			]
-		},
-		"DoDamage": {
-			"priority": 40,
-			"external_tags": []
 		},
 		"PassTime": {
 			"priority": 0
 		},
 		"SetDisplacedPosition": {
-			"priority": 10,
-			"tags": [
-				"Positional"
-			]
+			"priority": 10
 		},
 		"SetMoveDestination": {
 			"priority": 30,
-			"tags": [
-				"Positional"
-			],
 			"external_tags": [
 				"click_event"
 			]
 		},
 		"SetMovementData": {
-			"priority": 0,
-			"tags": [
-				"Positional"
-			]
+			"priority": 0
 		},
 		"SetTile": {
-			"priority": 20,
-			"tags": [
-				"Positional"
-			]
+			"priority": 20
 		},
 		"SetTileData": {
-			"priority": 0,
-			"tags": [
-				"Positional"
-			]
+			"priority": 0
 		},
 		"TakeDamage": {
 			"priority": 0
+		}
+	},
+	"goals": {
+		"AttackEntity": {
+			"child_nodes": [
+				"MoveGoals"
+			],
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"NoGoal"
+			],
+			"type": "GenericGoal"
 		},
-		"Attack": {
-			"priority": 10,
-			"external_tags": [
-				"click_event"
-			]
+		"MeleeAttack": {
+			"child_nodes": [],
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [
+				"DebugAttack"
+			],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"AttackEntity"
+			],
+			"type": "GenericGoal"
 		},
-		"KillGoal": {
-			"priority": 10,
-			"external_tags": [
-				"goal"
-			]
+		"MoveGoals": {
+			"child_nodes": [],
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"NoGoal"
+			],
+			"type": "GenericGoal"
 		},
-		"EvalGoal": {},
-		"GetGoals": {},
-		"SetCurrGoalData": {},
-		"SetNewGoal": {},
-		"GetCurrGoalData": {},
-		"StopMovement": {}
-	}
+		"MoveToTarget": {
+			"child_nodes": [],
+			"max_dist": 2,
+			"min_dist": 0,
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [],
+			"on_cancelled": [],
+			"parent_nodes": [
+				"MoveGoals"
+			],
+			"type": "MoveGoal"
+		},
+		"NoGoal": {
+			"child_nodes": [],
+			"namespace": "Default",
+			"on_achieved": [],
+			"on_assigned": [],
+			"on_cancelled": [],
+			"parent_nodes": [],
+			"type": "GenericGoal"
+		}
+	},
+	"state_checks": {}
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace Psingine
+namespace HighKings
 {
     public class SubscriberEvent
     {

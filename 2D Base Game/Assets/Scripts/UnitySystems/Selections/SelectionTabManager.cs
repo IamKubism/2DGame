@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Psingine;
+using HighKings;
 
 public class SelectionTabManager : MonoBehaviour
 {

@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using Newtonsoft.Json;
 
-namespace Psingine
+namespace HighKings
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class SelectionComponent : IBaseComponent
@@ -32,11 +32,6 @@ namespace Psingine
         public bool Trigger(Event e)
         {
             return true;
-        }
-
-        public void CopyData(IBaseComponent comp)
-        {
-            throw new NotImplementedException();
         }
     }
 }

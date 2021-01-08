@@ -8,18 +8,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Linq;
 using Priority_Queue;
 using System.Reflection;
-using Psingine;
+using HighKings;
 using System.Linq.Expressions;
-using YamlDotNet;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-using System.IO;
 
-namespace Psingine
+namespace HighKings
 {
     /// <summary>
     /// Loads every entity prototype in the game.
@@ -60,9 +55,8 @@ namespace Psingine
             event_manager = EventManager.instance ?? new EventManager();
         }
 
-        public void ReadFile(string file_text, bool yaml = false)
+        public void ReadFile(string file_text)
         {
-            string json_text = file_text;
             System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
 
             if (base_component_defaults == null)
@@ -81,18 +75,8 @@ namespace Psingine
                 comp_types = new Dictionary<string, Type>();
             }
 
-            //TODO: yaml or xml to json
-            if (yaml)
-            {
-                object yaml_obj = new Deserializer().Deserialize(new StreamReader(file_text));
-                JsonSerializer ser = new JsonSerializer();
-                StringWriter writer = new StringWriter();
-                ser.Serialize(writer, yaml_obj);
-                json_text = writer.ToString();
-            }
-
             //Parse and iterate through the file
-            JObject root = JObject.Parse(json_text);
+            JObject root = JObject.Parse(file_text);
 
             if (root["components"] != null)
             {
@@ -412,7 +396,7 @@ namespace Psingine
                             Debug.LogError($"Could not find constructor: {key}");
                             continue;
                         }
-                        ekv.Key.TryAddComponent(info.component_name, (IBaseComponent)obact.Invoke(args));
+                        ekv.Key.AddComponent(info.component_name, (IBaseComponent)obact.Invoke(args));
                     }
                     if (system_adders.ContainsKey(info.component_name + "_subscriber"))
                         adders.Add(system_adders[info.component_name + "_subscriber"]);
@@ -431,28 +415,6 @@ namespace Psingine
             }
             watch.Stop();
             Debug.Log($"Created {entities.Count} entities of type {prototype_id} in {watch.Elapsed}");
-        }
-
-        public Entity CopyEntity(Entity entity, string copy_id)
-        {
-            Entity copy = EntityManager.instance.CreateEntity(entity.entity_type, copy_id);
-
-            foreach(KeyValuePair<string,IBaseComponent> component in entity.components)
-            {
-                string key = $"{component.Key},{component.Value.GetType().ToString()}";
-                if(!object_activators.TryGetValue(key, out ObjectActivator activator))
-                {
-                    Debug.LogError($"Could not find constructor for: {key}");
-                    continue;
-                }
-                copy.TryAddComponent(component.Key, (IBaseComponent)activator.Invoke(component.Value));
-            }
-
-            foreach(KeyValuePair<string,IBaseComponent> components in copy.components)
-            {
-                system_adders[components.Key + "_subscriber"].AddEntity(copy);
-            }
-            return copy;
         }
 
         public ISystemAdder GetSystemById(string system_id)

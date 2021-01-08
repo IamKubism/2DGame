@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using System;
 using System.Reflection;
 
-namespace Psingine
+namespace HighKings
 {
     public class SelectionStatInfoManager : MonoBehaviour
     {

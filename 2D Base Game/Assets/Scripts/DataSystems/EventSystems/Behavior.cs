@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System;
 
-namespace Psingine
+namespace HighKings
 {
     public interface IComponentBehavior
     {
@@ -58,12 +58,12 @@ namespace Psingine
 
         public void Trigger(Event e, IBaseComponent comp)
         {
-            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority);
+            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority, child_event_name, child_type);
         }
 
         public void AddDiceToParam(Event e, IBaseComponent comp)
         {
-            e.SetParamValue(param_name, (DiceGroup)comp.GetType().GetField(dice_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; });
+            e.SetParamValue(param_name, (DiceGroup)comp.GetType().GetField(dice_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; }, child_event_name);
         }
     }
     public class IntAddBehavior : IComponentBehavior
@@ -112,12 +112,12 @@ namespace Psingine
 
         public void Trigger(Event e, IBaseComponent comp)
         {
-            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority);
+            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority, child_event_name, child_type);
         }
 
         public void AddDiceToParam(Event e, IBaseComponent comp)
         {
-            e.SetParamValue(param_name, (int)comp.GetType().GetField(int_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; });
+            e.SetParamValue(param_name, (int)comp.GetType().GetField(int_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; }, child_event_name);
         }
     }
     public class FloatAddBehavior : IComponentBehavior
@@ -166,12 +166,12 @@ namespace Psingine
 
         public void Trigger(Event e, IBaseComponent comp)
         {
-            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority);
+            e.AddUpdate((ent) => AddDiceToParam(ent, comp), priority, child_event_name, child_type);
         }
 
         public void AddDiceToParam(Event e, IBaseComponent comp)
         {
-            e.SetParamValue(param_name, (float)comp.GetType().GetField(float_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; });
+            e.SetParamValue(param_name, (float)comp.GetType().GetField(float_field, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d1 + d2; }, child_event_name);
         }
     }
     public class SetEventParamBehavior : IComponentBehavior
@@ -219,12 +219,12 @@ namespace Psingine
 
         public void Trigger(Event e, IBaseComponent comp)
         {
-            e.AddUpdate((ent) => SetParam(ent, comp), priority);
+            e.AddUpdate((ent) => SetParam(ent, comp), priority, child_event_name, child_type);
         }
 
         public void SetParam(Event e, IBaseComponent comp)
         {
-            e.SetParamValue(param_name, comp.GetType().GetField(field_name, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d2; });
+            e.SetParamValue(param_name, comp.GetType().GetField(field_name, PrototypeLoader.field_flags).GetValue(comp), (d1, d2) => { return d2; }, child_event_name);
         }
     }
     public class SetComponentFieldBehavior : IComponentBehavior
@@ -272,7 +272,7 @@ namespace Psingine
 
         public void Trigger(Event e, IBaseComponent comp)
         {
-            e.AddUpdate((ent) => SetParam(ent, comp), priority);
+            e.AddUpdate((ent) => SetParam(ent, comp), priority, child_event_name, child_type);
         }
 
         public void SetParam(Event e, IBaseComponent comp)

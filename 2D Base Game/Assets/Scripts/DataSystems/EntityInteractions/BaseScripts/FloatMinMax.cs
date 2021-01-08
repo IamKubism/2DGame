@@ -88,6 +88,5 @@ public class FloatMinMax
         this.max = max;
         this.min = min;
         curr = 0f;
-        //Debug.Log("curr = " + curr);
     }
 }

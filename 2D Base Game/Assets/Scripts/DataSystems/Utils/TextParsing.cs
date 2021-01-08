@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 using System.Reflection;
 
-namespace Psingine
+namespace HighKings
 {
     public class TextParsing
     {

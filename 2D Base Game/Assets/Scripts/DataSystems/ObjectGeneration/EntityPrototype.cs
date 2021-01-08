@@ -5,7 +5,7 @@ using System;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Psingine;
+using HighKings;
 
 [JsonObject(MemberSerialization.OptIn)]
 public class EntityPrototype

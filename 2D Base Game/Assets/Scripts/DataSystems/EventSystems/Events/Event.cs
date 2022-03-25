@@ -440,7 +440,7 @@ namespace Psingine
             }
             s += $"]\nParams: [";
             j = 0;
-            KeyValuePair<string, object> last;
+            KeyValuePair<string, object> last = new KeyValuePair<string, object>();
             foreach(KeyValuePair<string, object> ko in parameters)
             {
                 j += 1;

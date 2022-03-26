@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Descriptions>
-  <Description TargetType ="Character" Id ="Basic2" Text ="This is [Name]!">
-    <Descriptor Name ="Name" Target ="[Name]"></Descriptor>
-    <DescText Id = "0" Text ="This is [Name]!"></DescText>
-  </Description>
-</Descriptions>

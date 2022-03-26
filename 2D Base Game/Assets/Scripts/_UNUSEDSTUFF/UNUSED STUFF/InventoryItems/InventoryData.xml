@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<InventoryItems>
-	<InventoryItem NameId="Wood" MaxStack = "128" Equipable ="0" Installable ="0">
-	</InventoryItem>
-	<InventoryItem NameId ="GoldCoin" MaxStack = "1048576" Equipable ="0" Installable="0">
-	</InventoryItem>
-	<InventoryItem NameId ="Sword" MaxStack="1" Equipable="1" Installable="0">	
-	</InventoryItem>
-</InventoryItems>

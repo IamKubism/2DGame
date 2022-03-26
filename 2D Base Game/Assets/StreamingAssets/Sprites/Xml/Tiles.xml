@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<root>
-	<Sprites TypeName="Tile" FileName="DungeonTerrain.png">
-		<Sprite  ObjectName ="Stone_Rough" X1="748" Y1="625" Width="32" Height="32" PixelsPerUnit="32"></Sprite>
-	</Sprites>
-  <Sprites TypeName="Tile" FileName="dcsssprites.png">
-    <Sprite ObjectName="Empty" X1="480" Y1 ="2144" Width="32" Height="32" PixelsPerUnit="32"></Sprite>
-  </Sprites>
-</root>

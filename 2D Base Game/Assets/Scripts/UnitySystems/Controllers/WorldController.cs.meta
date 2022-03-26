@@ -3,9 +3,7 @@ guid: 0b9ec9db2d5b92c4aac3ea627c49de7f
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - rstonesprite: {fileID: 21300000, guid: 08ac57075193f5745a171390e2b979e0, type: 3}
-  - emptySprite: {fileID: 21300008, guid: 9fce84e8fd6fe684d855b7cad94b39fa, type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
